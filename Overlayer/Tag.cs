@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Diagnostics;
+using TinyJson;
+using System.IO;
 using System.Threading;
 using UnityEngine;
+using System.Linq;
 
 namespace Overlayer
 {
     public class Tag
     {
+        public class Setting
+        {
+            public string name;
+            public string op;
+            public string[] values;
+        }
         static Tag()
         {
             Tags = new List<Tag>()
@@ -55,30 +62,34 @@ namespace Overlayer
                 new Tag("{CurVL}", "VeryLate in Current Difficulty").SetValueGetter(() => Utils.GetCurDiffCount(HitMargin.VeryLate)),
                 new Tag("{CurTL}", "TooLate in Current Difficulty").SetValueGetter(() => Utils.GetCurDiffCount(HitMargin.TooLate)),
 
-                new Tag("{CurHit}", "HitMargin in Current Difficulty").SetValueGetter(() => RDString.Get("HitMargin." + Utils.GetCurHitMargin(GCS.difficulty))).SetUpdateOnlyPlaying(),
-                new Tag("{CurDifficulty}", "Current Difficulty").SetValueGetter(() => RDString.Get("enum.Difficulty." + GCS.difficulty)).SetUpdateOnlyPlaying(),
-                new Tag("{Accuracy}", "Accuracy").SetValueGetter(() => $"{Math.Round(scrController.instance.mistakesManager.percentAcc * 100, Settings.Instance.AccuracyDecimals)}").SetUpdateOnlyPlaying(),
-                new Tag("{Progress}", "Progress").SetValueGetter(() => $"{Math.Round((!scrController.instance.lm ? 0 : scrController.instance.percentComplete) * 100f, Settings.Instance.ProgressDecimals)}").SetUpdateOnlyPlaying(),
-                new Tag("{CheckPoint}", "Check Point Used Count").SetValueGetter(() => scrController.instance.customLevel?.checkpointsUsed).SetUpdateOnlyPlaying(),
-                new Tag("{Timing}", "Hit Timing").SetValueGetter(() => Variables.Timing).SetUpdateOnlyPlaying(),
-                new Tag("{XAccuracy}", "XAccuracy" ).SetValueGetter(() => $"{Math.Round(scrController.instance.mistakesManager.percentXAcc * 100, Settings.Instance.XAccuracyDecimals)}".Replace("NaN", "100")).SetUpdateOnlyPlaying(),
-                new Tag("{FailCount}", "Fail Count" ).SetValueGetter(() => Variables.FailCount).SetUpdateOnlyPlaying(),
-                new Tag("{MissCount}", "Miss Count" ).SetValueGetter(() => scrMistakesManager.hitMarginsCount[8]).SetUpdateOnlyPlaying(),
-                new Tag("{Overloads}", "Overload Count").SetValueGetter(() => scrMistakesManager.hitMarginsCount[9]).SetUpdateOnlyPlaying(),
-                new Tag("{CurBpm}", "Perceived Bpm").SetValueGetter(() => Variables.CurBpm).SetUpdateOnlyPlaying(),
-                new Tag("{TileBpm}", "Tile Bpm").SetValueGetter(() => Variables.TileBpm).SetUpdateOnlyPlaying(),
-                new Tag("{RecKps}", "Perceived KPS").SetValueGetter(() => Variables.RecKPS).SetUpdateOnlyPlaying(),
-                new Tag("{BestProgress}", "Best Progress").SetValueGetter(() => Math.Round(Variables.BestProg, Settings.Instance.BestProgDecimals)).SetUpdateOnlyPlaying(),
-                new Tag("{LeastCheckPoint}", "Least Check Point Used Count").SetValueGetter(() => Variables.LeastChkPt).SetUpdateOnlyPlaying(),
-                new Tag("{StartProgress}", "Start Progress").SetValueGetter(() => Math.Round(Variables.StartProg, Settings.Instance.StartProgDecimals)).SetUpdateOnlyPlaying(),
-
+                new Tag("{CurHit}", "HitMargin in Current Difficulty").SetValueGetter(() => RDString.Get("HitMargin." + Utils.GetCurHitMargin(GCS.difficulty))),
+                new Tag("{CurDifficulty}", "Current Difficulty").SetValueGetter(() => RDString.Get("enum.Difficulty." + GCS.difficulty)),
+                new Tag("{Accuracy}", "Accuracy").SetValueGetter(() => $"{Math.Round(scrController.instance.mistakesManager.percentAcc * 100, Settings.Instance.AccuracyDecimals)}"),
+                new Tag("{Progress}", "Progress").SetValueGetter(() => $"{Math.Round((!scrController.instance.lm ? 0 : scrController.instance.percentComplete) * 100f, Settings.Instance.ProgressDecimals)}"),
+                new Tag("{CheckPoint}", "Check Point Used Count").SetValueGetter(() => scrController.instance.customLevel?.checkpointsUsed),
+                new Tag("{Timing}", "Hit Timing").SetValueGetter(() => Variables.Timing),
+                new Tag("{XAccuracy}", "XAccuracy" ).SetValueGetter(() => $"{Math.Round(scrController.instance.mistakesManager.percentXAcc * 100, Settings.Instance.XAccuracyDecimals)}".Replace("NaN", "100")),
+                new Tag("{FailCount}", "Fail Count" ).SetValueGetter(() => Variables.FailCount),
+                new Tag("{MissCount}", "Miss Count" ).SetValueGetter(() => scrMistakesManager.hitMarginsCount[8]),
+                new Tag("{Overloads}", "Overload Count").SetValueGetter(() => scrMistakesManager.hitMarginsCount[9]),
+                new Tag("{CurBpm}", "Perceived Bpm").SetValueGetter(() => Variables.CurBpm),
+                new Tag("{TileBpm}", "Tile Bpm").SetValueGetter(() => Variables.TileBpm),
+                new Tag("{RecKps}", "Perceived KPS").SetValueGetter(() => Variables.RecKPS),
+                new Tag("{BestProgress}", "Best Progress").SetValueGetter(() => Math.Round(Variables.BestProg, Settings.Instance.BestProgDecimals)),
+                new Tag("{LeastCheckPoint}", "Least Check Point Used Count").SetValueGetter(() => Variables.LeastChkPt),
+                new Tag("{StartProgress}", "Start Progress").SetValueGetter(() => Math.Round(Variables.StartProg, Settings.Instance.StartProgDecimals)),
+                new Tag("{CurMinute}", "Now Minute Of Music").SetValueGetter(() => Variables.CurMinute),
+                new Tag("{CurSecond}", "Now Second Of Music").SetValueGetter(() => Variables.CurSecond.ToString("00")),
+                new Tag("{TotalMinute}", "Total Minute Of Music").SetValueGetter(() => Variables.TotalMinute),
+                new Tag("{TotalSecond}", "Total Second Of Music").SetValueGetter(() => Variables.TotalSecond.ToString("00")),
+                new Tag("{LeftTile}", "Left Tile Count").SetValueGetter(() => Variables.LeftTile),
+                new Tag("{TotalTile}", "Total Tile Count").SetValueGetter(() => Variables.TotalTile),
+                new Tag("{CurTile}", "Current Tile Count").SetValueGetter(() => Variables.CurrentTile),
             };
             NameTags = new Dictionary<string, Tag>();
+            CustomSettings = new List<Setting>();
             for (int i = 0; i < Tags.Count; i++)
-            {
-                Tag tag = Tags[i];
-                NameTags.Add(tag.Name, tag);
-            }
+                NameTags.Add(Tags[i].Name, Tags[i]);
         }
         Tag(string name, string description)
         {
@@ -89,22 +100,38 @@ namespace Overlayer
         {
             Tag tag = new Tag(name, description);
             Tags.Add(tag);
-            NameTags.Add(tag.Name, tag);
+            NameTags.Add(name, tag);
             return tag;
+        }
+        public static bool TagDesc = false;
+        public static void DescGUI()
+        {
+            GUILayout.BeginHorizontal();
+            if (TagDesc = GUILayout.Toggle(TagDesc, "Tags"))
+            {
+                Utils.IndentGUI(() =>
+                {
+                    for (int i = 0; i < Tags.Count; i++)
+                    {
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label(Tags[i].ToString());
+                        GUILayout.FlexibleSpace();
+                        GUILayout.EndHorizontal();
+                        GUILayout.Space(1);
+                    }
+                }, 3f);
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
         }
         public readonly string Name;
         public readonly string Description;
-        public bool UpdateOnlyPlaying { get; private set; }
         public bool IsThreading { get; private set; }
         private Thread MainThread;
         private List<Thread> SubThreads;
         public object ThreadValue = string.Empty;
+        public bool IsCustom { get; private set; }
         private Func<object> ValueGetter = () => "ValueGetter Is Not Implemented!";
-        public Tag SetUpdateOnlyPlaying()
-        {
-            UpdateOnlyPlaying = true;
-            return this;
-        }
         public Tag SetValueGetter(Func<object> func)
         {
             if (IsThreading) throw new InvalidOperationException("Threading Tag Cannot Set ValueGetter!");
@@ -135,37 +162,103 @@ namespace Overlayer
             SubThreads.Add(subThread);
             return this;
         }
-        public Tag GetThis(out Tag @this)
-        {
-            @this = this;
-            return this;
-        }
-        public string Value
-        {
-            get
-            {
-                if (UpdateOnlyPlaying)
-                {
-                    if (Text.IsPlaying)
-                        return ValueGetter().ToString();
-                    else return string.Empty;
-                }
-                else return ValueGetter().ToString();
-            }
-        }
+        public string Value => ValueGetter().ToString();
         public void Stop()
         {
             if (!IsThreading) return;
             MainThread.Abort();
             SubThreads?.ForEach(t => t.Abort());
         }
+        public Tag SetCustomTag()
+        {
+            IsCustom = true;
+            return this;
+        }
         public override string ToString() => $"{Name}:{Description}";
         public static string Replace(string text)
         {
-            Tags.ForEach(t => text = text.Replace(t.Name, t.Value));
+            Tags.ForEach(t =>
+            {
+                var value = t.Value;
+                text = text.Replace(t.Name, value);
+            });
             return text;
         }
-        public readonly static Dictionary<string, Tag> NameTags;
-        public readonly static List<Tag> Tags;
+        public static string NameCache = string.Empty;
+        public static string[] TagsCache = new string[2];
+        public static string OpCache = "+";
+        public Setting CustomSetting;
+        
+        public static void CustomTagGUI()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Name:");
+            NameCache = GUILayout.TextField(NameCache);
+            GUILayout.Label(", Value:");
+            TagsCache[0] = GUILayout.TextField(TagsCache[0]);
+            GUILayout.Space(1);
+            OpCache = GUILayout.TextField(OpCache);
+            GUILayout.Space(1);
+            TagsCache[1] = GUILayout.TextField(TagsCache[1]);
+            if (GUILayout.Button("Create Custom Tag"))
+                CreateCustomTag();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            for (int i = 0; i < Tags.Count; i++)
+                Tags[i].GUI();
+        }
+        public void GUI()
+        {
+            if (!IsCustom) return;
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"Name:{Name}, Value:{CustomSetting.values[0]}{CustomSetting.op}{CustomSetting.values[1]}");
+            if (GUILayout.Button("Remove"))
+                RemoveCustomTag(Name);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+        public static void CreateCustomTag(Setting setting = null)
+        {
+            setting = setting ?? new Setting
+            {
+                values = Utils.CopyArray(TagsCache),
+                op = OpCache,
+                name = NameCache
+            };
+            Tag tag = new Tag(setting.name, null)
+            {
+                IsCustom = true
+            };
+            tag.CustomSetting = setting;
+            tag.SetValueGetter(() => Utils.ComputeTagValue(setting.values[0], setting.values[1], setting.op));
+            CustomSettings.Add(setting);
+            Tags.Add(tag);
+            NameTags.Add(setting.name, tag);
+        }
+        public static void RemoveCustomTag(string name)
+        {
+            var tag = NameTags[name];
+            NameTags.Remove(name);
+            CustomSettings.Remove(tag.CustomSetting);
+            Tags.Remove(tag);
+        }
+        public static readonly string JsonPath = Path.Combine("Mods", "Overlayer", "CustomTags.json");
+        public static void Load()
+        {
+            if (File.Exists(JsonPath))
+            {
+                var settings = File.ReadAllText(JsonPath).FromJson<List<Setting>>();
+                foreach (Setting setting in settings)
+                    CreateCustomTag(setting);
+            }
+        }
+        public static void Save()
+        {
+            if (CustomSettings.Any())
+            File.WriteAllText(JsonPath, CustomSettings.ToJson());
+        }
+        public static readonly List<Tag> Tags;
+        public static List<Setting> CustomSettings;
+        public static readonly Dictionary<string, Tag> NameTags;
     }
 }

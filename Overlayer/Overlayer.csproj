@@ -282,7 +282,6 @@
     <Compile Include="ShadowText.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Text.cs" />
-    <Compile Include="TextGroup.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Variables.cs" />
   </ItemGroup>

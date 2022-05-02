@@ -12,6 +12,7 @@ namespace Overlayer
 {
     public class ShadowText : MonoBehaviour
     {
+        public static readonly Regex tagBreaker = new Regex("<(.|\n)*?>", RegexOptions.Compiled);
         public static int Count = 0;
         public static ShadowText NewText()
         {
@@ -32,7 +33,7 @@ namespace Overlayer
             {
                 Main.text = value;
                 if (Settings.Instance.Shadow)
-                    Shadow.text = Regex.Replace(value, "<(.|\n)*?>", string.Empty);
+                    Shadow.text = tagBreaker.Replace(value, string.Empty);
             }
         }
         public TextAnchor Alignment
@@ -43,6 +44,16 @@ namespace Overlayer
                 Main.alignment = value;
                 if (Settings.Instance.Shadow)
                     Shadow.alignment = value;
+            }
+        }
+        public Font Font
+        {
+            get => Main.font;
+            set
+            {
+                Main.font = value;
+                if (Settings.Instance.Shadow)
+                    Shadow.font = value;
             }
         }
         public int FontSize

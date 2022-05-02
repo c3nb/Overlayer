@@ -69,10 +69,10 @@ namespace Overlayer
                             }
                         }
                     });
+                    Tag.Load();
                     Text.Load();
                     if (!Text.Texts.Any())
                         new Text().Apply();
-                    TextGroup.Load();
                     Harmony = new Harmony(modEntry.Info.Id);
                     Harmony.PatchAll(Assembly.GetExecutingAssembly());
                 }
@@ -92,7 +92,6 @@ namespace Overlayer
                 return false;
             }
         }
-        public static bool TagDesc = false;
         public static void OnGUI(ModEntry modEntry)
         {
             Settings.Instance.Draw(modEntry);
@@ -104,33 +103,16 @@ namespace Overlayer
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            Tag.CustomTagGUI();
             for (int i = 0; i < Text.Texts.Count; i++)
                 Text.Texts[i].GUI();
-            GUILayout.BeginHorizontal();
-            if (TagDesc = GUILayout.Toggle(TagDesc, "Tags"))
-            {
-                Utils.IndentGUI(() =>
-                {
-                    for (int i = 0; i < Tag.Tags.Count; i++)
-                    {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label(Tag.Tags[i].ToString());
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-                        GUILayout.Space(1);
-                    }
-                }, 3f);
-            }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-
         }
         public static void OnSaveGUI(ModEntry modEntry)
         {
             Settings.Save(modEntry);
             Variables.Reset();
             Text.Save();
-            TextGroup.Save();
+            Tag.Save();
         }
     }
 }

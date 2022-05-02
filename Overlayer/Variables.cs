@@ -32,6 +32,15 @@ namespace Overlayer
         public static double BestProg;
         public static int LeastChkPt;
 
+        public static int CurMinute;
+        public static int CurSecond;
+        public static int TotalMinute;
+        public static int TotalSecond;
+
+        public static int CurrentTile;
+        public static int LeftTile;
+        public static int TotalTile;
+
         public static void Reset()
         {
             foreach (HitMargin h in HitMargins)

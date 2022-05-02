@@ -24,6 +24,8 @@ namespace Overlayer
 느슨 : <b>{LHit}</b> | <color=#ED3E3E>{LTE}</color> <color=#EB9A46>{LVE}</color> <color=#E3E370>{LEP}</color> <color=#86E370>{LP}</color> <color=#E3E370>{LLP}</color> <color=#EB9A46>{LVL}</color> <color=#ED3E3E>{LTL}</color>";
                 FontSize = 44;
                 IsExpanded = true;
+                Alignment = TextAnchor.MiddleLeft;
+                Font = "Default";
             }
             public float[] Position;
             public float[] Color;
@@ -31,8 +33,10 @@ namespace Overlayer
             public string NotPlayingText;
             public string PlayingText;
             public bool IsExpanded;
+            public string Font;
+            public TextAnchor Alignment;
         }
-        public static bool IsPlaying => scrController.instance?.gameworld ?? false || ADOBase.sceneName.Contains("-X");
+        public static bool IsPlaying => (!scrController.instance?.paused ?? false) && (scrConductor.instance?.isGameWorld ?? false);
         public static List<Text> Texts = new List<Text>();
         public static readonly string JsonPath = Path.Combine("Mods", "Overlayer", "Texts.json");
         public static void Load()
@@ -87,6 +91,28 @@ namespace Overlayer
                     if (UnityModManager.UI.DrawFloatField(ref TSetting.Position[1], "Text Y-Position")) Apply();
                     TSetting.Position[1] = GUILayout.HorizontalSlider(TSetting.Position[1], 0, 1);
                     GUILayout.EndHorizontal();
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Text Alignment:");
+                    Utils.DrawEnum("Text Alignment", ref TSetting.Alignment);
+                    if (GUILayout.Button("Reset"))
+                    {
+                        TSetting.Alignment = TextAnchor.LowerLeft;
+                        Apply();
+                    }
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+
+                    GUILayout.BeginHorizontal();
+                    if (Utils.DrawTextField(ref TSetting.Font, "Font")) Apply();
+                    if (GUILayout.Button("Reset"))
+                    {
+                        TSetting.Font = "Default";
+                        SText.Font = RDString.GetFontDataForLanguage(RDString.language).font;
+                    }
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+
                     GUILayout.BeginHorizontal();
                     if (UnityModManager.UI.DrawIntField(ref TSetting.FontSize, "Text Size")) Apply();
                     GUILayout.EndHorizontal();
@@ -104,7 +130,13 @@ namespace Overlayer
                     if (Utils.DrawTextArea(ref TSetting.NotPlayingText, "Text Displayed When Not Playing")) Apply();
                     GUILayout.EndHorizontal();
                     GUILayout.EndVertical();
+
                     GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("Reset"))
+                    {
+                        SText.Font = RDString.GetFontDataForLanguage(RDString.language).font;
+                        TSetting = new Setting();
+                    }
                     if (Number != 1 && GUILayout.Button("Destroy"))
                         Destroy();
                     GUILayout.FlexibleSpace();
@@ -133,10 +165,17 @@ namespace Overlayer
             SText.Center = pos;
             SText.Position = pos;
             SText.FontSize = TSetting.FontSize;
+            SText.Alignment = TSetting.Alignment;
+            if (TSetting.Font != "Default")
+            {
+                Font font;
+                if ((font = Utils.TryGetFont(TSetting.Font)) != null)
+                    SText.Font = font;
+            }
             return this;
         }
         public readonly ShadowText SText;
-        public readonly Setting TSetting;
+        public Setting TSetting;
         public int Number;
     }
 }

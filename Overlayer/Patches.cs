@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using HarmonyLib;
+using UnityEngine;
 
 namespace Overlayer
 {
@@ -202,13 +203,41 @@ namespace Overlayer
                 return 180 / angle * (speed * bpm);
             }
         }
-        [HarmonyPatch(typeof(scrPlanet), "ScrubToFloorNumber")]
+        [HarmonyPatch(typeof(scnEditor), "Play")]
         public static class StartProgUpdater
         {
-            public static void Postfix(scrPlanet __instance)
+            public static void Postfix(scnEditor __instance)
             {
-                if (__instance.controller?.gameworld ?? false)
+                if (__instance.controller.gameworld)
                     Variables.StartProg = __instance.controller.percentComplete * 100;
+            }
+        }
+        [HarmonyPatch(typeof(scrController), "Restart")]
+        public static class StartProgUpdater2
+        {
+            public static void Postfix(scrController __instance)
+            {
+                if (__instance.gameworld)
+                    Variables.StartProg = __instance.percentComplete * 100;
+            }
+        }
+        [HarmonyPatch(typeof(scrController), "PlayerControl_Update")]
+        public static class TimeStampAndTileUpdater
+        {
+            public static void Prefix(scrController __instance)
+            {
+                if (__instance.paused || !__instance.conductor.isGameWorld) return;
+                AudioSource song = __instance.conductor.song;
+                if (!song.clip) return;
+                TimeSpan nowt = TimeSpan.FromSeconds(song.time);
+                TimeSpan tott = TimeSpan.FromSeconds(song.clip.length);
+                Variables.CurMinute = nowt.Minutes;
+                Variables.CurSecond = nowt.Seconds;
+                Variables.TotalMinute = tott.Minutes;
+                Variables.TotalSecond = tott.Seconds;
+                Variables.CurrentTile = __instance.currentSeqID;
+                Variables.TotalTile = __instance.lm.listFloors.Count - 1;
+                Variables.LeftTile = Variables.TotalTile - Variables.CurrentTile;
             }
         }
     }
