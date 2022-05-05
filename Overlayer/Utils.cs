@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityModManagerNet;
-using System.Globalization;
+using System.Runtime.CompilerServices;
 using static UnityModManagerNet.UnityModManager.UI;
 
 namespace Overlayer
@@ -14,11 +14,13 @@ namespace Overlayer
     {
         public static readonly string[] FontNames;
         public static readonly Dictionary<string, Font> Fonts;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Utils()
         {  
             FontNames = Font.GetOSInstalledFontNames();
             Fonts = new Dictionary<string, Font>();
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Font TryGetFont(string name)
         {
             if (Fonts.TryGetValue(name, out var font))
@@ -27,6 +29,7 @@ namespace Overlayer
                 return Fonts[name] = Font.CreateDynamicFontFromOSFont(name, 1);
             else return null;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HitMargin GetHitMargin(float angle)
         {
             double bpmTimesSpeed = scrConductor.instance.bpm * scrController.instance.speed;
@@ -48,6 +51,7 @@ namespace Overlayer
             else if (angle <= counted) return HitMargin.VeryLate;
             else return HitMargin.TooLate;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HitMargin GetHitMarginForDifficulty(float angle, Difficulty difficulty)
         {
             Difficulty temp = GCS.difficulty;
@@ -66,6 +70,7 @@ namespace Overlayer
                 default: return 0;
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HitMargin GetCurHitMargin(Difficulty diff)
         {
             switch (diff)
@@ -76,6 +81,7 @@ namespace Overlayer
                 default: return 0;
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void IndentGUI(Action GUI, float verticalSpace = 0f, float indentSize = 20f)
         {
             GUILayout.BeginHorizontal();
@@ -86,6 +92,7 @@ namespace Overlayer
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool DrawColor(ref float[] color, GUIStyle style = null, params GUILayoutOption[] option) => DrawFloatMultiField(ref color, new string[]
             {
         "<color=#FF0000>R</color>",
@@ -93,6 +100,7 @@ namespace Overlayer
         "<color=#0000FF>B</color>",
         "A"
             }, style, option);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool DrawTextArea(ref string value, string label, GUIStyle style = null, params GUILayoutOption[] option)
         {
             GUILayout.BeginHorizontal(new GUILayoutOption[0]);
@@ -110,6 +118,7 @@ namespace Overlayer
             value = text;
             return false;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool DrawTextField(ref string value, string label, GUIStyle style = null, params GUILayoutOption[] option)
         {
             GUILayout.BeginHorizontal(new GUILayoutOption[0]);
@@ -127,7 +136,9 @@ namespace Overlayer
             value = text;
             return false;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetThis<T>(this T @this, out T t) => t = @this;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool DrawEnum<T>(string title, ref T @enum) where T : Enum
         {
             T[] values = (T[])Enum.GetValues(typeof(T));
@@ -137,6 +148,7 @@ namespace Overlayer
             @enum = values[selected];
             return result;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] CopyArray<T>(T[] array)
         {
             var len = array.Length;
@@ -144,15 +156,10 @@ namespace Overlayer
             Array.Copy(array, 0, arr, 0, len);
             return arr;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ComputeTagValue(string val, string val2, string op)
         {
-            double a, b;
-            if (Tag.NameTags.TryGetValue(val, out var tag))
-                a = double.Parse(tag.Value);
-            else a = double.Parse(val);
-            if (Tag.NameTags.TryGetValue(val2, out tag))
-                b = double.Parse(tag.Value);
-            else b = double.Parse(val);
+            double a = GetTagOrVal(val), b = GetTagOrVal(val2);
             switch (op)
             {
                 case "+": return a + b;
@@ -162,6 +169,13 @@ namespace Overlayer
                 case "%": return a % b;
                 default: return a;
             }
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double GetTagOrVal(string val)
+        {
+            if (Tag.NameTags.TryGetValue(val, out var tag))
+                return double.Parse(tag.Value);
+            return double.Parse(val);
         }
     }
 }

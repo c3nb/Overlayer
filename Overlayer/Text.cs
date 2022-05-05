@@ -14,7 +14,8 @@ namespace Overlayer
     {
         public class Setting
         {
-            public Setting()
+            public Setting() => InitValues();
+            public void InitValues()
             {
                 Position = new float[2] { 0.011628f, 1 };
                 Color = new float[4] { 1, 1, 1, 1 };
@@ -24,7 +25,7 @@ namespace Overlayer
 느슨 : <b>{LHit}</b> | <color=#ED3E3E>{LTE}</color> <color=#EB9A46>{LVE}</color> <color=#E3E370>{LEP}</color> <color=#86E370>{LP}</color> <color=#E3E370>{LLP}</color> <color=#EB9A46>{LVL}</color> <color=#ED3E3E>{LTL}</color>";
                 FontSize = 44;
                 IsExpanded = true;
-                Alignment = TextAnchor.MiddleLeft;
+                Alignment = TextAnchor.LowerLeft;
                 Font = "Default";
             }
             public float[] Position;
@@ -35,6 +36,23 @@ namespace Overlayer
             public bool IsExpanded;
             public string Font;
             public TextAnchor Alignment;
+            public void ValidCheck()
+            {
+                if (Position == null)
+                    Position = new float[2] { 0.011628f, 1 };
+                if (Color == null)
+                    Color = new float[4] { 1, 1, 1, 1 };
+                if (NotPlayingText == null)
+                    NotPlayingText = "Not Playing";
+                if (PlayingText == null)
+                    PlayingText = @"엄격 : <b>{SHit}</b> | <color=#ED3E3E>{STE}</color> <color=#EB9A46>{SVE}</color> <color=#E3E370>{SEP}</color> <color=#86E370>{SP}</color> <color=#E3E370>{SLP}</color> <color=#EB9A46>{SVL}</color> <color=#ED3E3E>{STL}</color>
+보통 : <b>{NHit}</b> | <color=#ED3E3E>{NTE}</color> <color=#EB9A46>{NVE}</color> <color=#E3E370>{NEP}</color> <color=#86E370>{NP}</color> <color=#E3E370>{NLP}</color> <color=#EB9A46>{NVL}</color> <color=#ED3E3E>{NTL}</color>
+느슨 : <b>{LHit}</b> | <color=#ED3E3E>{LTE}</color> <color=#EB9A46>{LVE}</color> <color=#E3E370>{LEP}</color> <color=#86E370>{LP}</color> <color=#E3E370>{LLP}</color> <color=#EB9A46>{LVL}</color> <color=#ED3E3E>{LTL}</color>";
+                if (FontSize == 0)
+                    FontSize = 44;
+                if (Font == null)
+                    Font = "Default";
+            }
         }
         public static bool IsPlaying => (!scrController.instance?.paused ?? false) && (scrConductor.instance?.isGameWorld ?? false);
         public static List<Text> Texts = new List<Text>();
@@ -67,6 +85,7 @@ namespace Overlayer
             SText = ShadowText.NewText();
             UnityEngine.Object.DontDestroyOnLoad(SText.gameObject);
             TSetting = setting ?? new Setting();
+            TSetting.ValidCheck();
             SText.Updater = () =>
             {
                 if (IsPlaying)
@@ -94,7 +113,7 @@ namespace Overlayer
 
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Text Alignment:");
-                    Utils.DrawEnum("Text Alignment", ref TSetting.Alignment);
+                    if (Utils.DrawEnum($"Text {Number} Alignment", ref TSetting.Alignment)) Apply();
                     if (GUILayout.Button("Reset"))
                     {
                         TSetting.Alignment = TextAnchor.LowerLeft;

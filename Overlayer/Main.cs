@@ -106,6 +106,7 @@ namespace Overlayer
             Tag.CustomTagGUI();
             for (int i = 0; i < Text.Texts.Count; i++)
                 Text.Texts[i].GUI();
+            Tag.DescGUI();
         }
         public static void OnSaveGUI(ModEntry modEntry)
         {

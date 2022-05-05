@@ -2,6 +2,11 @@
 using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
+using System.IO;
+using ADOFAI;
+using System.Linq;
+using TinyJson;
+using System.Collections.Generic;
 
 namespace Overlayer
 {
@@ -122,17 +127,28 @@ namespace Overlayer
         public static class FailCounter
         {
             public static string MapId = string.Empty;
+            public static readonly string JsonPath = Path.Combine("Mods", "Overlayer", "Fails.json");
+            public static Dictionary<string, int> Attempts = new Dictionary<string, int>();
+            public static string FailId = string.Empty;
             public static void Postfix(scrController __instance)
             {
                 Variables.FailCount++;
                 if (!__instance.noFail)
+                {
                     Variables.BestProg = Math.Max(Variables.BestProg, __instance.controller.percentComplete * 100);
+                    Variables.Attempts = ++Attempts[FailId];
+                    Persistence.IncrementCustomWorldAttempts(FailId);
+                }
             }
         }
         [HarmonyPatch(typeof(scrController), "OnLandOnPortal")]
         public static class LeastChkPtLogger
         {
-            public static void Postfix(scrController __instance) => Variables.LeastChkPt = Math.Min(Variables.LeastChkPt, __instance.customLevel.checkpointsUsed);
+            public static void Postfix(scrController __instance)
+            {
+                if (__instance.customLevel)
+                Variables.LeastChkPt = Math.Min(Variables.LeastChkPt, __instance.customLevel.checkpointsUsed);
+            }
         }
         [HarmonyPatch(typeof(scrController), "Awake_Rewind")]
         public static class Resetter
@@ -203,26 +219,8 @@ namespace Overlayer
                 return 180 / angle * (speed * bpm);
             }
         }
-        [HarmonyPatch(typeof(scnEditor), "Play")]
-        public static class StartProgUpdater
-        {
-            public static void Postfix(scnEditor __instance)
-            {
-                if (__instance.controller.gameworld)
-                    Variables.StartProg = __instance.controller.percentComplete * 100;
-            }
-        }
-        [HarmonyPatch(typeof(scrController), "Restart")]
-        public static class StartProgUpdater2
-        {
-            public static void Postfix(scrController __instance)
-            {
-                if (__instance.gameworld)
-                    Variables.StartProg = __instance.percentComplete * 100;
-            }
-        }
         [HarmonyPatch(typeof(scrController), "PlayerControl_Update")]
-        public static class TimeStampAndTileUpdater
+        public static class Updater
         {
             public static void Prefix(scrController __instance)
             {
@@ -238,6 +236,28 @@ namespace Overlayer
                 Variables.CurrentTile = __instance.currentSeqID;
                 Variables.TotalTile = __instance.lm.listFloors.Count - 1;
                 Variables.LeftTile = Variables.TotalTile - Variables.CurrentTile;
+            }
+        }
+        [HarmonyPatch(typeof(scrController), "Start_Rewind")]
+        public static class StartProgUpdater
+        {
+            public static void Postfix(scrController __instance) => Variables.StartProg = __instance.percentComplete * 100;
+        }
+        [HarmonyPatch(typeof(scnEditor), "Play")]
+        public static class StartProgUpdater2
+        {
+            public static void Postfix(scnEditor __instance) => Variables.StartProg = __instance.controller.percentComplete * 100;
+        }
+        [HarmonyPatch(typeof(LevelData), "LoadLevel")]
+        public static class DataInit
+        {
+            public static void Postfix(LevelData __instance)
+            {
+                string hash = MD5Hash.GetHash(__instance.author + __instance.artist + __instance.song);
+                int attempts = Persistence.GetCustomWorldAttempts(hash);
+                FailCounter.Attempts[hash] = attempts;
+                Variables.Attempts = attempts;
+                FailCounter.FailId = hash;
             }
         }
     }

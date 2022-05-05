@@ -85,6 +85,14 @@ namespace Overlayer
                 new Tag("{LeftTile}", "Left Tile Count").SetValueGetter(() => Variables.LeftTile),
                 new Tag("{TotalTile}", "Total Tile Count").SetValueGetter(() => Variables.TotalTile),
                 new Tag("{CurTile}", "Current Tile Count").SetValueGetter(() => Variables.CurrentTile),
+                new Tag("{Attempts}", "Current Level Try Count").SetValueGetter(() => Variables.Attempts),
+                new Tag("{Year}", "Year Of System Time").SetValueGetter(() => DateTime.Now.Year),
+                new Tag("{Month}", "Month Of System Time").SetValueGetter(() => DateTime.Now.Month),
+                new Tag("{Day}", "Day Of System Time").SetValueGetter(() => DateTime.Now.Day),
+                new Tag("{Hour}", "Hour Of System Time").SetValueGetter(() => DateTime.Now.Hour),
+                new Tag("{Minute}", "Minute Of System Time").SetValueGetter(() => DateTime.Now.Minute),
+                new Tag("{Second}", "Second Of System Time").SetValueGetter(() => DateTime.Now.Second),
+                new Tag("{MilliSecond}", "MilliSecond Of System Time").SetValueGetter(() => DateTime.Now.Millisecond),
             };
             NameTags = new Dictionary<string, Tag>();
             CustomSettings = new List<Setting>();
@@ -177,11 +185,12 @@ namespace Overlayer
         public override string ToString() => $"{Name}:{Description}";
         public static string Replace(string text)
         {
-            Tags.ForEach(t =>
+            for (int i = 0; i < Tags.Count; i++)
             {
-                var value = t.Value;
-                text = text.Replace(t.Name, value);
-            });
+                Tag tag = Tags[i];
+                if (text.Contains(tag.Name))
+                    text = text.Replace(tag.Name, tag.Value);
+            }
             return text;
         }
         public static string NameCache = string.Empty;
@@ -256,6 +265,8 @@ namespace Overlayer
         {
             if (CustomSettings.Any())
             File.WriteAllText(JsonPath, CustomSettings.ToJson());
+            else if (File.Exists(JsonPath))
+            File.Delete(JsonPath);
         }
         public static readonly List<Tag> Tags;
         public static List<Setting> CustomSettings;

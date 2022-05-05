@@ -41,6 +41,8 @@ namespace Overlayer
         public static int LeftTile;
         public static int TotalTile;
 
+        public static int Attempts;
+
         public static void Reset()
         {
             foreach (HitMargin h in HitMargins)
