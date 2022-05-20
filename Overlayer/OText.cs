@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using TinyJson;
 using UnityModManagerNet;
 using System.IO;
+using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
 
 namespace Overlayer
 {
-    public class Text
+    public class OText
     {
         public class Setting
         {
@@ -20,13 +22,12 @@ namespace Overlayer
                 Position = new float[2] { 0.011628f, 1 };
                 Color = new float[4] { 1, 1, 1, 1 };
                 NotPlayingText = "Not Playing";
-                PlayingText = @"엄격 : <b>{SHit}</b> | <color=#ED3E3E>{STE}</color> <color=#EB9A46>{SVE}</color> <color=#E3E370>{SEP}</color> <color=#86E370>{SP}</color> <color=#E3E370>{SLP}</color> <color=#EB9A46>{SVL}</color> <color=#ED3E3E>{STL}</color>
-보통 : <b>{NHit}</b> | <color=#ED3E3E>{NTE}</color> <color=#EB9A46>{NVE}</color> <color=#E3E370>{NEP}</color> <color=#86E370>{NP}</color> <color=#E3E370>{NLP}</color> <color=#EB9A46>{NVL}</color> <color=#ED3E3E>{NTL}</color>
-느슨 : <b>{LHit}</b> | <color=#ED3E3E>{LTE}</color> <color=#EB9A46>{LVE}</color> <color=#E3E370>{LEP}</color> <color=#86E370>{LP}</color> <color=#E3E370>{LLP}</color> <color=#EB9A46>{LVL}</color> <color=#ED3E3E>{LTL}</color>";
+                PlayingText = "<color=#ED3E3E>{CurTE}</color> <color=#EB9A46>{CurVE}</color> <color=#E3E370>{CurEP}</color> <color=#86E370>{CurP}</color> <color=#E3E370>{CurLP}</color> <color=#EB9A46>{CurVL}</color> <color=#ED3E3E>{CurTL}</color>";
                 FontSize = 44;
                 IsExpanded = true;
                 Alignment = TextAnchor.LowerLeft;
                 Font = "Default";
+                Active = true;
             }
             public float[] Position;
             public float[] Color;
@@ -35,6 +36,7 @@ namespace Overlayer
             public string PlayingText;
             public bool IsExpanded;
             public string Font;
+            public bool Active;
             public TextAnchor Alignment;
             public void ValidCheck()
             {
@@ -45,17 +47,16 @@ namespace Overlayer
                 if (NotPlayingText == null)
                     NotPlayingText = "Not Playing";
                 if (PlayingText == null)
-                    PlayingText = @"엄격 : <b>{SHit}</b> | <color=#ED3E3E>{STE}</color> <color=#EB9A46>{SVE}</color> <color=#E3E370>{SEP}</color> <color=#86E370>{SP}</color> <color=#E3E370>{SLP}</color> <color=#EB9A46>{SVL}</color> <color=#ED3E3E>{STL}</color>
-보통 : <b>{NHit}</b> | <color=#ED3E3E>{NTE}</color> <color=#EB9A46>{NVE}</color> <color=#E3E370>{NEP}</color> <color=#86E370>{NP}</color> <color=#E3E370>{NLP}</color> <color=#EB9A46>{NVL}</color> <color=#ED3E3E>{NTL}</color>
-느슨 : <b>{LHit}</b> | <color=#ED3E3E>{LTE}</color> <color=#EB9A46>{LVE}</color> <color=#E3E370>{LEP}</color> <color=#86E370>{LP}</color> <color=#E3E370>{LLP}</color> <color=#EB9A46>{LVL}</color> <color=#ED3E3E>{LTL}</color>";
+                    PlayingText = "<color=#ED3E3E>{CurTE}</color> <color=#EB9A46>{CurVE}</color> <color=#E3E370>{CurEP}</color> <color=#86E370>{CurP}</color> <color=#E3E370>{CurLP}</color> <color=#EB9A46>{CurVL}</color> <color=#ED3E3E>{CurTL}</color>";
                 if (FontSize == 0)
                     FontSize = 44;
                 if (Font == null)
                     Font = "Default";
             }
         }
+        public static readonly Regex tagBreaker = new Regex("<(.|\n)*?>", RegexOptions.Compiled);
         public static bool IsPlaying => (!scrController.instance?.paused ?? false) && (scrConductor.instance?.isGameWorld ?? false);
-        public static List<Text> Texts = new List<Text>();
+        public static List<OText> Texts = new List<OText>();
         public static readonly string JsonPath = Path.Combine("Mods", "Overlayer", "Texts.json");
         public static void Load()
         {
@@ -63,14 +64,14 @@ namespace Overlayer
             {
                 List<Setting> settings = File.ReadAllText(JsonPath).FromJson<List<Setting>>();
                 for (int i = 0; i < settings.Count; i++)
-                    new Text(settings[i]).Apply();
+                    new OText(settings[i]).Apply();
                 Order();
             }
         }
         public static void Save()
         {
             List<Setting> settings = new List<Setting>();
-            foreach (Text text in Texts)
+            foreach (OText text in Texts)
                 settings.Add(text.TSetting);
             File.WriteAllText(JsonPath, settings.ToJson());
         }
@@ -79,20 +80,33 @@ namespace Overlayer
             for (int i = 0; i < Texts.Count; i++)
                 Texts[i].Destroy();
         }
-        public static void Order() => Texts = new List<Text>(Texts.OrderBy(t => t.SText.Number));
-        public Text(Setting setting = null)
+        public static void Order() => Texts = new List<OText>(Texts.OrderBy(t => t.SText.Number));
+        public OText(Setting setting = null)
         {
             SText = ShadowText.NewText();
             UnityEngine.Object.DontDestroyOnLoad(SText.gameObject);
             TSetting = setting ?? new Setting();
             TSetting.ValidCheck();
+            BrokenPlayingText = tagBreaker.Replace(TSetting.PlayingText, string.Empty);
+            BrokenNotPlayingText = tagBreaker.Replace(TSetting.NotPlayingText, string.Empty);
+            Number = SText.Number;
+            PlayingCompiler = new TagCompiler(TSetting.PlayingText);
+            NotPlayingCompiler = new TagCompiler(TSetting.NotPlayingText);
+            BrokenPlayingCompiler = new TagCompiler(BrokenPlayingText);
+            BrokenNotPlayingCompiler = new TagCompiler(BrokenNotPlayingText);
             SText.Updater = () =>
             {
                 if (IsPlaying)
-                    SText.Text = Tag.Replace(TSetting.PlayingText);
-                else SText.Text = TSetting.NotPlayingText;
+                {
+                    SText.Main.text = PlayingCompiler.Value;
+                    SText.Shadow.text = BrokenPlayingCompiler.Value;
+                }
+                else
+                {
+                    SText.Main.text = NotPlayingCompiler.Value;
+                    SText.Shadow.text = BrokenNotPlayingCompiler.Value;
+                }
             };
-            Number = SText.Number;
             Texts.Add(this);
         }
         public void GUI()
@@ -101,6 +115,7 @@ namespace Overlayer
             {
                 Utils.IndentGUI(() =>
                 {
+                    SText.gameObject.SetActive(TSetting.Active = GUILayout.Toggle(TSetting.Active, "Active"));
                     GUILayout.BeginVertical();
                     GUILayout.BeginHorizontal();
                     if (UnityModManager.UI.DrawFloatField(ref TSetting.Position[0], "Text X-Position")) Apply();
@@ -155,6 +170,7 @@ namespace Overlayer
                     {
                         SText.Font = RDString.GetFontDataForLanguage(RDString.language).font;
                         TSetting = new Setting();
+                        Apply();
                     }
                     if (Number != 1 && GUILayout.Button("Destroy"))
                         Destroy();
@@ -165,7 +181,7 @@ namespace Overlayer
         }
         public void Destroy()
         {
-            ShadowText.Destroy(SText);
+            UnityEngine.Object.Destroy(SText.gameObject);
             int index = Texts.IndexOf(this);
             Texts.RemoveAt(index);
             for (int i = index; i < Texts.Count; i++)
@@ -177,7 +193,7 @@ namespace Overlayer
             ShadowText.Count--;
             GC.SuppressFinalize(this);
         }
-        public Text Apply()
+        public OText Apply()
         {
             SText.Color = new Color(TSetting.Color[0], TSetting.Color[1], TSetting.Color[2], TSetting.Color[3]);
             Vector2 pos = new Vector2(TSetting.Position[0], TSetting.Position[1]);
@@ -185,14 +201,21 @@ namespace Overlayer
             SText.Position = pos;
             SText.FontSize = TSetting.FontSize;
             SText.Alignment = TSetting.Alignment;
-            if (TSetting.Font != "Default")
-            {
-                Font font;
-                if ((font = Utils.TryGetFont(TSetting.Font)) != null)
-                    SText.Font = font;
-            }
+            BrokenPlayingText = tagBreaker.Replace(TSetting.PlayingText, string.Empty);
+            BrokenNotPlayingText = tagBreaker.Replace(TSetting.NotPlayingText, string.Empty);
+            Utils.TrySetFont(TSetting.Font, f => SText.Font = f);
+            PlayingCompiler.Compile(TSetting.PlayingText);
+            NotPlayingCompiler.Compile(TSetting.NotPlayingText);
+            BrokenPlayingCompiler.Compile(BrokenPlayingText);
+            BrokenNotPlayingCompiler.Compile(BrokenNotPlayingText);
             return this;
         }
+        public TagCompiler PlayingCompiler;
+        public TagCompiler BrokenPlayingCompiler;
+        public TagCompiler NotPlayingCompiler;
+        public TagCompiler BrokenNotPlayingCompiler;
+        public string BrokenPlayingText;
+        public string BrokenNotPlayingText;
         public readonly ShadowText SText;
         public Setting TSetting;
         public int Number;

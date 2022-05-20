@@ -42,6 +42,7 @@ namespace Overlayer
         public static int TotalTile;
 
         public static int Attempts;
+        public static float Fps;
 
         public static void Reset()
         {

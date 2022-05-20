@@ -18,16 +18,28 @@ namespace Overlayer
         static Utils()
         {  
             FontNames = Font.GetOSInstalledFontNames();
-            Fonts = new Dictionary<string, Font>();
+            Fonts = new Dictionary<string, Font>
+            {
+                { "Default", RDString.GetFontDataForLanguage(RDString.language).font }
+            };
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Font TryGetFont(string name)
+        public static void TrySetFont(string name, Action<Font> setter)
         {
-            if (Fonts.TryGetValue(name, out var font))
-                return font;
+            if (TryGetFont(name, out var font))
+                setter(font);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetFont(string name, out Font font)
+        {
+            if (Fonts.TryGetValue(name, out font))
+                return true;
             else if (FontNames.Contains(name))
-                return Fonts[name] = Font.CreateDynamicFontFromOSFont(name, 1);
-            else return null;
+            {
+                font = Fonts[name] = Font.CreateDynamicFontFromOSFont(name, 1);
+                return true;
+            }
+            else return false;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HitMargin GetHitMargin(float angle)
@@ -176,6 +188,83 @@ namespace Overlayer
             if (Tag.NameTags.TryGetValue(val, out var tag))
                 return double.Parse(tag.Value);
             return double.Parse(val);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string Replace(string source)
+        {
+            int maxTagLength = Tag.NameTags.Select(t => t.Key).Select(k => k.Length).Max();
+            int len = source.Length;
+            StringBuilder sb = new StringBuilder(len);
+            StringBuilder tagSb = new StringBuilder(maxTagLength);
+            bool tagMode = false;
+            for (int i = 0; i < len; i++)
+            {
+                char c = source[i];
+                if (tagMode)
+                {
+                    if (c == '{')
+                    {
+                        sb.Append(tagSb);
+                        tagSb.Clear();
+                        tagSb.Append(c);
+                    }
+                    else if (c == '}')
+                    {
+                        tagSb.Append(c);
+                        Tag tag = Tag.NameTags[tagSb.ToString()];
+                        if (tag != null) sb.Append(tag.Value);
+                        else sb.Append(tagSb);
+                        tagSb.Clear();
+                        tagMode = false;
+                    }
+                    else tagSb.Append(c);
+                }
+                else
+                {
+                    if (c == '{')
+                    {
+                        tagMode = true;
+                        tagSb.Append(c);
+                    }
+                    else sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
+        public static Color GetColor(this HitMargin hit)
+        {
+            Color result;
+            switch (hit)
+            {
+                case HitMargin.TooEarly:
+                    result = Settings.Instance.te;
+                    break;
+                case HitMargin.VeryEarly:
+                    result = Settings.Instance.ve;
+                    break;
+                case HitMargin.EarlyPerfect:
+                    result = Settings.Instance.ep;
+                    break;
+                case HitMargin.Perfect:
+                    result = Settings.Instance.p;
+                    break;
+                case HitMargin.LatePerfect:
+                    result = Settings.Instance.lp;
+                    break;
+                case HitMargin.VeryLate:
+                    result = Settings.Instance.vl;
+                    break;
+                case HitMargin.TooLate:
+                    result = Settings.Instance.tl;
+                    break;
+                case HitMargin.Multipress:
+                    result = Settings.Instance.mp;
+                    break;
+                default:
+                    result = Color.white;
+                    break;
+            }
+            return result;
         }
     }
 }

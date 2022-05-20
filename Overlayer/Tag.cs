@@ -4,7 +4,9 @@ using TinyJson;
 using System.IO;
 using System.Threading;
 using UnityEngine;
+using System.Text;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Overlayer
 {
@@ -77,7 +79,7 @@ namespace Overlayer
                 new Tag("{RecKps}", "Perceived KPS").SetValueGetter(() => Variables.RecKPS),
                 new Tag("{BestProgress}", "Best Progress").SetValueGetter(() => Math.Round(Variables.BestProg, Settings.Instance.BestProgDecimals)),
                 new Tag("{LeastCheckPoint}", "Least Check Point Used Count").SetValueGetter(() => Variables.LeastChkPt),
-                new Tag("{StartProgress}", "Start Progress").SetValueGetter(() => Math.Round(Variables.StartProg, Settings.Instance.StartProgDecimals)),
+                new Tag("{StartProgress}", "Start Progress (Do Not Use..)").SetValueGetter(() => Math.Round(Variables.StartProg, Settings.Instance.StartProgDecimals)),
                 new Tag("{CurMinute}", "Now Minute Of Music").SetValueGetter(() => Variables.CurMinute),
                 new Tag("{CurSecond}", "Now Second Of Music").SetValueGetter(() => Variables.CurSecond.ToString("00")),
                 new Tag("{TotalMinute}", "Total Minute Of Music").SetValueGetter(() => Variables.TotalMinute),
@@ -86,18 +88,30 @@ namespace Overlayer
                 new Tag("{TotalTile}", "Total Tile Count").SetValueGetter(() => Variables.TotalTile),
                 new Tag("{CurTile}", "Current Tile Count").SetValueGetter(() => Variables.CurrentTile),
                 new Tag("{Attempts}", "Current Level Try Count").SetValueGetter(() => Variables.Attempts),
-                new Tag("{Year}", "Year Of System Time").SetValueGetter(() => DateTime.Now.Year),
-                new Tag("{Month}", "Month Of System Time").SetValueGetter(() => DateTime.Now.Month),
-                new Tag("{Day}", "Day Of System Time").SetValueGetter(() => DateTime.Now.Day),
-                new Tag("{Hour}", "Hour Of System Time").SetValueGetter(() => DateTime.Now.Hour),
-                new Tag("{Minute}", "Minute Of System Time").SetValueGetter(() => DateTime.Now.Minute),
-                new Tag("{Second}", "Second Of System Time").SetValueGetter(() => DateTime.Now.Second),
-                new Tag("{MilliSecond}", "MilliSecond Of System Time").SetValueGetter(() => DateTime.Now.Millisecond),
+                new Tag("{Year}", "Year Of System Time").SetValueGetter(() => DT.Now.Year),
+                new Tag("{Month}", "Month Of System Time").SetValueGetter(() => DT.Now.Month),
+                new Tag("{Day}", "Day Of System Time").SetValueGetter(() => DT.Now.Day),
+                new Tag("{Hour}", "Hour Of System Time").SetValueGetter(() => DT.Now.Hour),
+                new Tag("{Minute}", "Minute Of System Time").SetValueGetter(() => DT.Now.Minute),
+                new Tag("{Second}", "Second Of System Time").SetValueGetter(() => DT.Now.Second),
+                new Tag("{MilliSecond}", "MilliSecond Of System Time").SetValueGetter(() => DT.Now.Millisecond),
+                new Tag("{Fps}", "FrameRate").SetValueGetter(() => Math.Round(Variables.Fps, Settings.Instance.FPSDecimals)),
             };
             NameTags = new Dictionary<string, Tag>();
             CustomSettings = new List<Setting>();
             for (int i = 0; i < Tags.Count; i++)
                 NameTags.Add(Tags[i].Name, Tags[i]);
+            NPTags = new List<Tag>
+            {
+                NameTags["{Year}"],
+                NameTags["{Month}"],
+                NameTags["{Day}"],
+                NameTags["{Hour}"],
+                NameTags["{Minute}"],
+                NameTags["{Second}"],
+                NameTags["{MilliSecond}"],
+                NameTags["{Fps}"],
+            };
         }
         Tag(string name, string description)
         {
@@ -139,7 +153,7 @@ namespace Overlayer
         private List<Thread> SubThreads;
         public object ThreadValue = string.Empty;
         public bool IsCustom { get; private set; }
-        private Func<object> ValueGetter = () => "ValueGetter Is Not Implemented!";
+        public Func<object> ValueGetter = () => "ValueGetter Is Not Implemented!";
         public Tag SetValueGetter(Func<object> func)
         {
             if (IsThreading) throw new InvalidOperationException("Threading Tag Cannot Set ValueGetter!");
@@ -188,6 +202,16 @@ namespace Overlayer
             for (int i = 0; i < Tags.Count; i++)
             {
                 Tag tag = Tags[i];
+                if (text.Contains(tag.Name))
+                    text = text.Replace(tag.Name, tag.Value);
+            }
+            return text;
+        }
+        public static string NPReplace(string text)
+        {
+            for (int i = 0; i < NPTags.Count; i++)
+            {
+                Tag tag = NPTags[i];
                 if (text.Contains(tag.Name))
                     text = text.Replace(tag.Name, tag.Value);
             }
@@ -269,7 +293,76 @@ namespace Overlayer
             File.Delete(JsonPath);
         }
         public static readonly List<Tag> Tags;
+        public static readonly List<Tag> NPTags;
         public static List<Setting> CustomSettings;
         public static readonly Dictionary<string, Tag> NameTags;
+    }
+    public class TagCompiler
+    {
+        public string source;
+        StringBuilder sb;
+        List<Func<object>> getters;
+        public TagCompiler(string source)
+            => Compile(source);
+        public void Compile(string source)
+        {
+            this.source = source;
+            sb = new StringBuilder(source.Length);
+            StringBuilder tagSb = new StringBuilder();
+            getters = new List<Func<object>>();
+            bool tagMode = false;
+            for (int i = 0; i < source.Length; i++)
+            {
+                char c = source[i];
+                if (tagMode)
+                {
+                    if (c == '{')
+                    {
+                        sb.Append(tagSb);
+                        tagSb.Clear();
+                        tagSb.Append(c);
+                    }
+                    else if (c == '}')
+                    {
+                        tagSb.Append(c);
+                        if (Tag.NameTags.TryGetValue(tagSb.ToString(), out Tag tag))
+                        {
+                            string jesus = sb.ToString();
+                            getters.Add(() => jesus);
+                            sb.Clear();
+                            getters.Add(tag.ValueGetter);
+                        }
+                        else sb.Append(tagSb);
+                        tagSb.Clear();
+                        tagMode = false;
+                    }
+                    else tagSb.Append(c);
+                }
+                else
+                {
+                    if (c == '{')
+                    {
+                        tagMode = true;
+                        tagSb.Append(c);
+                    }
+                    else sb.Append(c);
+                }
+            }
+            if (sb.Length > 0)
+            {
+                string jesus = sb.ToString();
+                getters.Add(() => jesus);
+            }
+        }
+        public string Value
+        {
+            get
+            {
+                sb.Clear();
+                for (int i = 0; i < getters.Count; i++)
+                    sb.Append(getters[i]());
+                return sb.ToString();
+            }
+        }
     }
 }

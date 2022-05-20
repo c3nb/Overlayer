@@ -12,7 +12,6 @@ namespace Overlayer
 {
     public class ShadowText : MonoBehaviour
     {
-        public static readonly Regex tagBreaker = new Regex("<(.|\n)*?>", RegexOptions.Compiled);
         public static int Count = 0;
         public static ShadowText NewText()
         {
@@ -21,21 +20,10 @@ namespace Overlayer
             st.Number = count;
             return st;
         }
-        public static void Destroy(ShadowText shadowText) => Destroy(shadowText.gameObject);
         public Action Updater;
         public UText Main;
         public UText Shadow;
         public int Number;
-        public string Text
-        {
-            get => Main.text;
-            set
-            {
-                Main.text = value;
-                if (Settings.Instance.Shadow)
-                    Shadow.text = tagBreaker.Replace(value, string.Empty);
-            }
-        }
         public TextAnchor Alignment
         {
             get => Main.alignment;
@@ -113,17 +101,7 @@ namespace Overlayer
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080);
             ContentSizeFitter fitter;
-            if (Settings.Instance.Shadow)
-            {
-                GameObject shadowObject = new GameObject();
-                fitter = shadowObject.AddComponent<ContentSizeFitter>();
-                fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-                fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-                shadowObject.transform.SetParent(transform);
-                Shadow = shadowObject.AddComponent<UText>();
-                Shadow.font = RDString.GetFontDataForLanguage(RDString.language).font;
-                Shadow.color = Color.black.WithAlpha(0.4f);
-            }
+            SetActiveShadow(this, Settings.Instance.Shadow);
             GameObject mainObject = new GameObject();
             mainObject.transform.SetParent(transform);
             fitter = mainObject.AddComponent<ContentSizeFitter>();
@@ -133,5 +111,24 @@ namespace Overlayer
             Main.font = RDString.GetFontDataForLanguage(RDString.language).font;
         }
         private void Update() => Updater();
+        public static void SetActiveShadow(ShadowText text, bool active)
+        {
+            if (active)
+            {
+                GameObject shadowObject = new GameObject();
+                ContentSizeFitter fitter = shadowObject.AddComponent<ContentSizeFitter>();
+                fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+                shadowObject.transform.SetParent(text.transform);
+                text.Shadow = shadowObject.AddComponent<UText>();
+                text.Shadow.font = RDString.GetFontDataForLanguage(RDString.language).font;
+                text.Shadow.color = Color.black.WithAlpha(0.4f);
+            }
+            else if (text.Shadow != null)
+            {
+                UnityEngine.Object.Destroy(text.Shadow.gameObject);
+                text.Shadow = null;
+            }
+        }
     }
 }
