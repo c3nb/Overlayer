@@ -1,31 +1,88 @@
 ﻿using System;
+using System.Reflection;
+using System.Collections.Generic;
 using HarmonyLib;
 
 namespace Overlayer.Patches
 {
-    [HarmonyPatch(typeof(scrPlanet), "MoveToNextFloor")]
     public static class BpmUpdater
     {
-        public static float pitch, bpm;
-        public static void Postfix(scrPlanet __instance, scrFloor floor)
+        public static FieldInfo curSpd = typeof(GCS).GetField("currentSpeedRun", AccessTools.all) ?? typeof(GCS).GetField("currentSpeedTrial", AccessTools.all);
+        public static float bpm = 0, pitch = 0, playbackSpeed = 1;
+        public static bool beforedt = false;
+        public static double beforebpm = 0;
+        [HarmonyPatch(typeof(CustomLevel), "Play")]
+        public static class CustomLevelStart
         {
-            if (!OText.IsPlaying) return;
-            double speed, curBPM;
-            speed = __instance.controller.speed;
-            curBPM = GetRealBpm(floor, bpm);
-            Settings setting = Settings.Instance;
-            Variables.TileBpm = Math.Round(bpm * speed, setting.TileBpmDecimals);
-            Variables.CurBpm = Math.Round(curBPM, setting.PerceivedBpmDecimals);
-            Variables.RecKPS = Math.Round(curBPM / 60, setting.PerceivedKpsDecimals);
+            public static void Postfix(CustomLevel __instance)
+            {
+                if (!__instance.controller.gameworld) return;
+                if (__instance.controller.customLevel == null) return;
+                Init(__instance.controller);
+            }
         }
-        public static bool DoubleEqual(double f1, double f2) => Math.Abs(f1 - f2) < 0.0001;
+        [HarmonyPatch(typeof(scrPressToStart), "ShowText")]
+        public static class BossLevelStart
+        {
+            public static void Postfix(scrPressToStart __instance)
+            {
+                if (!__instance.controller.gameworld) return;
+                if (__instance.controller.customLevel != null) return;
+                Init(__instance.controller);
+                Variables.StartProg = __instance.controller.percentComplete * 100;
+            }
+        }
+        [HarmonyPatch(typeof(scrPlanet), "MoveToNextFloor")]
+        public static class MoveToNextFloor
+        {
+            public static void Postfix(scrPlanet __instance, scrFloor floor)
+            {
+                if (!__instance.controller.gameworld) return;
+                if (floor.nextfloor == null) return;
+                double curBPM = GetRealBpm(floor, bpm) * playbackSpeed * pitch;
+                bool isDongta = false;
+                Variables.TileBpm = bpm * __instance.controller.speed;
+                if (isDongta || beforedt) curBPM = beforebpm;
+                Variables.CurBpm = curBPM;
+                Variables.RecKPS = Math.Round(curBPM / 60, Settings.Instance.PerceivedKpsDecimals);
+                beforedt = isDongta;
+                beforebpm = curBPM;
+            }
+        }
         public static double GetRealBpm(scrFloor floor, float bpm)
         {
-            double val = scrMisc.GetAngleMoved(floor.entryangle, floor.exitangle, !floor.isCCW) / 3.1415927410125732 * 180;
-            double angle = Math.Round(val);
-            double speed = floor.controller.speed;
-            if (angle == 0) angle = 360;
-            return 180 / angle * (speed * bpm);
+            if (floor == null)
+                return bpm;
+            if (floor.nextfloor == null)
+                return floor.controller.speed * bpm;
+            return 60.0 / (floor.nextfloor.entryTime - floor.entryTime);
+        }
+        public static void Init(scrController __instance)
+        {
+            float kps = 0;
+            if (__instance.customLevel != null)
+            {
+                pitch = (float)__instance.customLevel.levelData.pitch / 100;
+                if (GCS.standaloneLevelMode) pitch *= (float)curSpd.GetValue(null);
+                playbackSpeed = scnEditor.instance.playbackSpeed;
+                bpm = __instance.customLevel.levelData.bpm * playbackSpeed * pitch;
+            }
+            else
+            {
+                pitch = __instance.conductor.song.pitch;
+                playbackSpeed = 1;
+                bpm = __instance.conductor.bpm * pitch;
+            }
+            float cur = bpm;
+            if (__instance.currentSeqID != 0)
+            {
+                double speed = __instance.controller.speed;
+                cur = (float)(bpm * speed);
+            }
+            Variables.TileBpm = cur;
+            Variables.CurBpm = cur;
+            Variables.RecKPS = Math.Round(kps, Settings.Instance.PerceivedKpsDecimals);
         }
     }
 }
+

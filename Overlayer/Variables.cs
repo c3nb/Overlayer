@@ -10,7 +10,6 @@ namespace Overlayer
     {
         public static readonly HitMargin[] HitMargins = (HitMargin[])Enum.GetValues(typeof(HitMargin));
         public static double Timing;
-        public static float Angle;
         public static readonly Dictionary<HitMargin, int> LenientCounts = new Dictionary<HitMargin, int>();
         public static readonly Dictionary<HitMargin, int> NormalCounts = new Dictionary<HitMargin, int>();
         public static readonly Dictionary<HitMargin, int> StrictCounts = new Dictionary<HitMargin, int>();

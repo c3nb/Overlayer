@@ -71,14 +71,9 @@ namespace OverlayerEx
     {
         public static void Main(string[] args)
         {
-            Method method = Method.GetMethod(typeof(Program), "WriteLine");
-            method.AddPrefix((Action<string>)(fuck =>
-            {
-                Console.WriteLine($"FUck{fuck}");
-            }));
-            method.Attach();
-            WriteLine("FKF");
+            
         }
+       
         public static string ToString(byte[] bytes)
         {
             int length = bytes.Length;

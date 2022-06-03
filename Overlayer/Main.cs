@@ -1,4 +1,5 @@
 ﻿//#define TRACEALL
+//#define KV
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,6 @@ using HarmonyLib;
 using System.Reflection;
 using UnityModManagerNet;
 using UnityEngine;
-using Overlayer.KeyViewer;
 using static UnityModManagerNet.UnityModManager;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
@@ -41,20 +41,16 @@ namespace Overlayer
                     fpsTimer = 0;
                 }
                 fpsTimer += deltaTime;
+#if KV
                 KeyViewerTweaks.Instance.OnUpdate();
+#endif
             };
             modEntry.OnToggle = OnToggle;
             modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
+#if KV
             modEntry.OnHideGUI = mod => KeyViewerTweaks.Instance.OnHideGUI();
-            try
-            {
-                var ue = Assembly.Load(System.IO.File.ReadAllBytes(System.IO.Path.Combine("Mods", "Overlayer", "UnityExplorer.STANDALONE.Mono.dll")));
-                Method method = ue.GetType("UnityExplorer.ExplorerStandalone").GetMethod("CreateInstance", BindingFlags.Public | BindingFlags.Static, null, Type.EmptyTypes, null);
-                method.AddPrefix(new Action(() => AppDomain.CurrentDomain.Load(System.IO.File.ReadAllBytes(System.IO.Path.Combine("Mods", "Overlayer", "UniverseLib.Mono.dll")))), true);
-                method.Invoke(null);
-            }
-            catch { }
+#endif
 #if TRACEALL
             modEntry.OnUpdate = (mod, dt) =>
             {
@@ -113,7 +109,7 @@ namespace Overlayer
                                 timePoints.AddFirst(temp);
                                 if (timePoints.Count >= 1000 / Settings.Instance.KPSUpdateRate)
                                     timePoints.RemoveLast();
-                                kpsTag.ThreadValue = num;
+                                kpsTag.ThreadValueNum = num;
                                 watch.Restart();
                             }
                         }
@@ -122,7 +118,9 @@ namespace Overlayer
                     OText.Load();
                     if (!OText.Texts.Any())
                         new OText().Apply();
+#if KV
                     KeyViewerTweaks.Instance.OnEnable();
+#endif
                     Harmony = new Harmony(modEntry.Info.Id);
 #if TRACEALL
                     MethodInfo log = typeof(Main).GetMethod("Log", (BindingFlags)15420, null, new[] { typeof(MethodBase) }, null);
@@ -151,7 +149,9 @@ namespace Overlayer
                     OnSaveGUI(modEntry);
                     OText.DestroyAll();
                     Tag.Tags.ForEach(t => t.Stop());
+#if KV
                     KeyViewerTweaks.Instance.OnDisable();
+#endif
                     Harmony.UnpatchAll(Harmony.Id);
                     Harmony = null;
                 }
@@ -178,8 +178,10 @@ namespace Overlayer
             for (int i = 0; i < OText.Texts.Count; i++)
                 OText.Texts[i].GUI();
             Tag.DescGUI();
+#if KV
             if (Settings.Instance.IsKeyViewerEnabled = GUILayout.Toggle(Settings.Instance.IsKeyViewerEnabled, "KeyViewer"))
                 KeyViewerTweaks.Instance.OnSettingsGUI();
+#endif
         }
         public static void OnSaveGUI(ModEntry modEntry)
         {

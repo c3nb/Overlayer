@@ -10,9 +10,9 @@ namespace Overlayer.Patches
         {
             string hash = MD5Hash.GetHash(__instance.author + __instance.artist + __instance.song);
             int attempts = Persistence.GetCustomWorldAttempts(hash);
-            FailCounter.Attempts[hash] = attempts;
+            AttemptsCounter.Attempts[hash] = attempts;
             Variables.Attempts = attempts;
-            FailCounter.FailId = hash;
+            AttemptsCounter.FailId = hash;
         }
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityModManagerNet;
-using Overlayer.KeyViewer;
 using System.Xml.Serialization;
 using UnityEngine;
 #pragma warning disable
@@ -53,9 +52,9 @@ namespace Overlayer
         public int FPSUpdateRate = 500;
         [Draw("Unlock ErrorMeter At Auto")]
         public bool UnlockErrorMeterAtAuto = true;
-        [Draw("Tile Length")]
-        public float TileLength = -1;
 
+
+#if KV
         [Draw("KeyViewer Color On Perfect")]
         public Color p = new Color(0.376f, 1f, 0.307f, 1f);
         [Draw("KeyViewer Color On EarlyPerfect")]
@@ -86,5 +85,6 @@ namespace Overlayer
             Profiles = new List<KeyViewerProfile>();
             ProfileIndex = 0;
         }
+#endif
     }
 }

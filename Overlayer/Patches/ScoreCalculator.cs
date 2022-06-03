@@ -5,7 +5,7 @@ namespace Overlayer.Patches
     [HarmonyPatch(typeof(scrMistakesManager), "AddHit")]
     public static class ScoreCalculator
     {
-        public static void Postfix(HitMargin hit)
+        public static void Postfix(scrMistakesManager __instance, HitMargin hit)
         {
             if (hit == HitMargin.Perfect) Variables.Combo++;
             else Variables.Combo = 0;
@@ -24,7 +24,7 @@ namespace Overlayer.Patches
                     break;
             }
             if (GCS.difficulty != Difficulty.Lenient)
-                switch (Utils.GetHitMarginForDifficulty(Variables.Angle, Difficulty.Lenient))
+                switch (Utils.GetHitMarginForDifficulty(__instance.controller, Difficulty.Lenient))
                 {
                     case HitMargin.VeryEarly:
                     case HitMargin.VeryLate:
@@ -39,7 +39,7 @@ namespace Overlayer.Patches
                         break;
                 }
             if (GCS.difficulty != Difficulty.Normal)
-                switch (Utils.GetHitMarginForDifficulty(Variables.Angle, Difficulty.Normal))
+                switch (Utils.GetHitMarginForDifficulty(__instance.controller, Difficulty.Normal))
                 {
                     case HitMargin.VeryEarly:
                     case HitMargin.VeryLate:
@@ -54,7 +54,7 @@ namespace Overlayer.Patches
                         break;
                 }
             if (GCS.difficulty != Difficulty.Strict)
-                switch (Utils.GetHitMarginForDifficulty(Variables.Angle, Difficulty.Strict))
+                switch (Utils.GetHitMarginForDifficulty(__instance.controller, Difficulty.Strict))
                 {
                     case HitMargin.VeryEarly:
                     case HitMargin.VeryLate:

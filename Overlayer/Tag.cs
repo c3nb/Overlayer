@@ -68,7 +68,7 @@ namespace Overlayer
                 new Tag("{CurDifficulty}", "Current Difficulty").SetValueGetter(() => RDString.Get("enum.Difficulty." + GCS.difficulty)),
                 new Tag("{Accuracy}", "Accuracy").SetValueGetter(() => $"{Math.Round(scrController.instance.mistakesManager.percentAcc * 100, Settings.Instance.AccuracyDecimals)}"),
                 new Tag("{Progress}", "Progress").SetValueGetter(() => $"{Math.Round((!scrController.instance.lm ? 0 : scrController.instance.percentComplete) * 100f, Settings.Instance.ProgressDecimals)}"),
-                new Tag("{CheckPoint}", "Check Point Used Count").SetValueGetter(() => scrController.instance.customLevel?.checkpointsUsed),
+                new Tag("{CheckPoint}", "Check Point Used Count").SetValueGetter(() => scrController.instance.customLevel.checkpointsUsed),
                 new Tag("{Timing}", "Hit Timing").SetValueGetter(() => Variables.Timing),
                 new Tag("{XAccuracy}", "XAccuracy" ).SetValueGetter(() => $"{Math.Round(scrController.instance.mistakesManager.percentXAcc * 100, Settings.Instance.XAccuracyDecimals)}".Replace("NaN", "100")),
                 new Tag("{FailCount}", "Fail Count" ).SetValueGetter(() => Variables.FailCount),
@@ -81,9 +81,9 @@ namespace Overlayer
                 new Tag("{LeastCheckPoint}", "Least Check Point Used Count").SetValueGetter(() => Variables.LeastChkPt),
                 new Tag("{StartProgress}", "Start Progress (Do Not Use..)").SetValueGetter(() => Math.Round(Variables.StartProg, Settings.Instance.StartProgDecimals)),
                 new Tag("{CurMinute}", "Now Minute Of Music").SetValueGetter(() => Variables.CurMinute),
-                new Tag("{CurSecond}", "Now Second Of Music").SetValueGetter(() => Variables.CurSecond.ToString("00")),
+                new Tag("{CurSecond}", "Now Second Of Music").SetValueGetter(() => Variables.CurSecond),
                 new Tag("{TotalMinute}", "Total Minute Of Music").SetValueGetter(() => Variables.TotalMinute),
-                new Tag("{TotalSecond}", "Total Second Of Music").SetValueGetter(() => Variables.TotalSecond.ToString("00")),
+                new Tag("{TotalSecond}", "Total Second Of Music").SetValueGetter(() => Variables.TotalSecond),
                 new Tag("{LeftTile}", "Left Tile Count").SetValueGetter(() => Variables.LeftTile),
                 new Tag("{TotalTile}", "Total Tile Count").SetValueGetter(() => Variables.TotalTile),
                 new Tag("{CurTile}", "Current Tile Count").SetValueGetter(() => Variables.CurrentTile),
@@ -151,16 +151,28 @@ namespace Overlayer
         public bool IsThreading { get; private set; }
         private Thread MainThread;
         private List<Thread> SubThreads;
-        public object ThreadValue = string.Empty;
+        public string ThreadValueStr = string.Empty;
+        public double ThreadValueNum = 0;
         public bool IsCustom { get; private set; }
-        public Func<object> ValueGetter = () => "ValueGetter Is Not Implemented!";
-        public Tag SetValueGetter(Func<object> func)
+        public Func<double> NumberGetter = () => 0;
+        public Func<string> StrGetter = () => "ValueGetter Is Not Implemented!";
+        public bool IsString = false;
+        public Tag SetValueGetter(Func<double> func)
         {
             if (IsThreading) throw new InvalidOperationException("Threading Tag Cannot Set ValueGetter!");
-            ValueGetter = func;
+            NumberGetter = func;
+            IsString = false;
             return this;
         }
-        public Tag MakeThreadingTag(Action func)
+        public Tag SetValueGetter(Func<int> func) => SetValueGetter(() => (double)func());
+        public Tag SetValueGetter(Func<string> func)
+        {
+            if (IsThreading) throw new InvalidOperationException("Threading Tag Cannot Set ValueGetter!");
+            StrGetter = func;
+            IsString = true;
+            return this;
+        }
+        public Tag MakeThreadingTag(Action func, bool number = true)
         {
             if (IsThreading)
             {
@@ -170,7 +182,9 @@ namespace Overlayer
                 return this;
             }
             MainThread = new Thread(() => func());
-            ValueGetter = () => ThreadValue;
+            if (number)
+                SetValueGetter(() => ThreadValueNum);
+            else SetValueGetter(() => ThreadValueStr);
             MainThread.Start();
             IsThreading = true;
             return this;
@@ -184,7 +198,15 @@ namespace Overlayer
             SubThreads.Add(subThread);
             return this;
         }
-        public string Value => ValueGetter().ToString();
+        public string Value
+        {
+            get
+            {
+                if (IsString)
+                    return StrGetter();
+                else return NumberGetter().ToString(); 
+            }
+        }
         public void Stop()
         {
             if (!IsThreading) return;
@@ -330,7 +352,9 @@ namespace Overlayer
                             string jesus = sb.ToString();
                             getters.Add(() => jesus);
                             sb.Clear();
-                            getters.Add(tag.ValueGetter);
+                            if (!tag.IsString)
+                                getters.Add(() => tag.NumberGetter());
+                            else getters.Add(() => tag.StrGetter());
                         }
                         else sb.Append(tagSb);
                         tagSb.Clear();
