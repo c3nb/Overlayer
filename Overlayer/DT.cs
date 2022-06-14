@@ -19,7 +19,7 @@ namespace Overlayer
         public static readonly FieldInfo ticksFld = typeof(DT).GetField("ticks", (BindingFlags)15420);
         public static readonly FieldInfo aldFld = typeof(DT).GetField("ald", (BindingFlags)15420);
         public static readonly GDTNUOFU getOffset;
-        public static readonly delegate*<DateTime> GetNowPtr;
+        public static readonly Func<DateTime> GetNow;
         static DT()
         {
             IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
@@ -44,25 +44,8 @@ namespace Overlayer
             il.Emit(OpCodes.Ldsfld, aldFld);
             il.Emit(OpCodes.Newobj, dtConstructor);
             il.Emit(OpCodes.Ret);
-                //.DeclareLocal(typeof(DateTime), out LocalBuilder dtLoc)
-                //.DeclareLocal(typeof(long), out var tLoc)
-                //.Call(utc).Stloc(dtLoc)
-                //.Ldloca(dtLoc).Call(dtTicks)
-                //.Ldsfld(ticksFld).Add().Stloc(tLoc)
-                //.Ldloc(tLoc).Ldc_I4_2().Ldsfld(aldFld)
-                //.Newobj(dtConstructor).Ret();
-            GetNowPtr = (delegate*<DateTime>)GetHandleFromDynMethod(nowGetter).GetFunctionPointer();
+            GetNow = (Func<DateTime>)nowGetter.CreateDelegate(typeof(Func<DateTime>));
         }
-        public static DateTime Now => GetNowPtr();
-        public static DateTime DTNow => DateTime.Now;
-        public static RuntimeMethodHandle GetHandleFromDynMethod(DynamicMethod dynMethod)
-        {
-            if (IsMonoRuntime)
-            {
-                MonoCreateDM.Invoke(dynMethod, null);
-                return (RuntimeMethodHandle)MonoHandleDM.GetValue(dynMethod);
-            }
-            return (RuntimeMethodHandle)NetCreateDM.Invoke(dynMethod, null);
-        }
+        public static DateTime Now => GetNow();
     }
 }

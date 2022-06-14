@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
-using UText = UnityEngine.UI.Text;
+using TMPro;
 #pragma warning disable
 
 namespace Overlayer
@@ -20,42 +20,39 @@ namespace Overlayer
             st.Number = count;
             return st;
         }
+        public static readonly Dictionary<string, TMP_FontAsset> Fonts = new Dictionary<string, TMP_FontAsset>();
         public Action Updater;
-        public UText Main;
-        public UText Shadow;
+        public TextMeshProUGUI Main;
+        public Text Shadow;
         public int Number;
         public TextAnchor Alignment
         {
-            get => Main.alignment;
+            get => Main.alignment.ToAnchor();
             set
             {
-                Main.alignment = value;
-                if (Settings.Instance.Shadow)
-                    Shadow.alignment = value;
+                Main.alignment = value.ToAlignment();
+                Shadow.alignment = value;
             }
         }
         public Font Font
         {
-            get => Main.font;
+            get => Main.font.sourceFontFile;
             set
             {
-                Main.font = value;
-                if (Settings.Instance.Shadow)
-                    Shadow.font = value;
+                if (Fonts.TryGetValue(value.name, out var fontAsset))
+                    Main.font = fontAsset;
+                else Main.font = Fonts[value.name] = TMP_FontAsset.CreateFontAsset(value);
+                Shadow.font = value;
             }
         }
         public int FontSize
         {
-            get => Main.fontSize;
+            get => (int)Main.fontSize;
             set
             {
                 Main.fontSize = value;
-                if (Settings.Instance.Shadow)
-                {
-                    Shadow.fontSize = value;
-                    Shadow.rectTransform.anchoredPosition =
-                        Position + new Vector2(value / 20f, -value / 20f);
-                }
+                Shadow.fontSize = value;
+                Shadow.rectTransform.anchoredPosition = Position + new Vector2(value / 20f, -value / 20f);
             }
         }
         public Color Color
@@ -71,12 +68,10 @@ namespace Overlayer
                 Main.rectTransform.anchorMin = value;
                 Main.rectTransform.anchorMax = value;
                 Main.rectTransform.pivot = value;
-                if (Settings.Instance.Shadow)
-                {
-                    Shadow.rectTransform.anchorMin = value;
-                    Shadow.rectTransform.anchorMax = value;
-                    Shadow.rectTransform.pivot = value;
-                }
+
+                Shadow.rectTransform.anchorMin = value;
+                Shadow.rectTransform.anchorMax = value;
+                Shadow.rectTransform.pivot = value;
             }
         }
         public Vector2 Position
@@ -85,12 +80,7 @@ namespace Overlayer
             set
             {
                 Main.rectTransform.anchoredPosition = value;
-                if (Settings.Instance.Shadow)
-                {
-                    Shadow.rectTransform.anchoredPosition =
-                                       value + new Vector2(FontSize / 20f, -FontSize / 20f);
-                }
-
+                Shadow.rectTransform.anchoredPosition = value + new Vector2(FontSize / 20f, -FontSize / 20f);
             }
         }
         private void Awake()
@@ -101,34 +91,30 @@ namespace Overlayer
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080);
             ContentSizeFitter fitter;
-            SetActiveShadow(this, Settings.Instance.Shadow);
+            SetActiveShadow(this);
             GameObject mainObject = new GameObject();
             mainObject.transform.SetParent(transform);
             fitter = mainObject.AddComponent<ContentSizeFitter>();
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            Main = mainObject.AddComponent<UText>();
-            Main.font = RDString.GetFontDataForLanguage(RDString.language).font;
+            Main = mainObject.AddComponent<TextMeshProUGUI>();
+            var font = RDString.GetFontDataForLanguage(SystemLanguage.English).font;
+            if (!Fonts.TryGetValue(font.name, out var fontAsset))
+                Fonts[font.name] = fontAsset = Fonts[font.name] = TMP_FontAsset.CreateFontAsset(font);
+            Main.font = fontAsset;
+            Main.enableVertexGradient = true;
         }
         private void Update() => Updater();
-        public static void SetActiveShadow(ShadowText text, bool active)
+        public static void SetActiveShadow(ShadowText text)
         {
-            if (active)
-            {
-                GameObject shadowObject = new GameObject();
-                ContentSizeFitter fitter = shadowObject.AddComponent<ContentSizeFitter>();
-                fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-                fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-                shadowObject.transform.SetParent(text.transform);
-                text.Shadow = shadowObject.AddComponent<UText>();
-                text.Shadow.font = RDString.GetFontDataForLanguage(RDString.language).font;
-                text.Shadow.color = Color.black.WithAlpha(0.4f);
-            }
-            else if (text.Shadow != null)
-            {
-                UnityEngine.Object.Destroy(text.Shadow.gameObject);
-                text.Shadow = null;
-            }
+            GameObject shadowObject = new GameObject();
+            ContentSizeFitter fitter = shadowObject.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            shadowObject.transform.SetParent(text.transform);
+            text.Shadow = shadowObject.AddComponent<Text>();
+            text.Shadow.font = RDString.GetFontDataForLanguage(SystemLanguage.English).font;
+            text.Shadow.color = Color.black.WithAlpha(0.4f);
         }
     }
 }

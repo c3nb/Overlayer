@@ -4,7 +4,6 @@ using TinyJson;
 using System.IO;
 using System.Threading;
 using UnityEngine;
-using System.Text;
 using System.Linq;
 using System.Diagnostics;
 
@@ -18,7 +17,7 @@ namespace Overlayer
             public string op;
             public string[] values;
         }
-        static Tag()
+        public static void Init()
         {
             Tags = new List<Tag>()
             {
@@ -66,8 +65,8 @@ namespace Overlayer
 
                 new Tag("{CurHit}", "HitMargin in Current Difficulty").SetValueGetter(() => RDString.Get("HitMargin." + Utils.GetCurHitMargin(GCS.difficulty))),
                 new Tag("{CurDifficulty}", "Current Difficulty").SetValueGetter(() => RDString.Get("enum.Difficulty." + GCS.difficulty)),
-                new Tag("{Accuracy}", "Accuracy").SetValueGetter(() => $"{Math.Round(scrController.instance.mistakesManager.percentAcc * 100, Settings.Instance.AccuracyDecimals)}"),
-                new Tag("{Progress}", "Progress").SetValueGetter(() => $"{Math.Round((!scrController.instance.lm ? 0 : scrController.instance.percentComplete) * 100f, Settings.Instance.ProgressDecimals)}"),
+                new Tag("{Accuracy}", "Accuracy").SetValueGetter(() => Math.Round(scrController.instance.mistakesManager.percentAcc * 100, Settings.Instance.AccuracyDecimals)),
+                new Tag("{Progress}", "Progress").SetValueGetter(() => Math.Round((!scrController.instance.lm ? 0 : scrController.instance.percentComplete) * 100f, Settings.Instance.ProgressDecimals)),
                 new Tag("{CheckPoint}", "Check Point Used Count").SetValueGetter(() => scrController.instance.customLevel.checkpointsUsed),
                 new Tag("{Timing}", "Hit Timing").SetValueGetter(() => Variables.Timing),
                 new Tag("{XAccuracy}", "XAccuracy" ).SetValueGetter(() => $"{Math.Round(scrController.instance.mistakesManager.percentXAcc * 100, Settings.Instance.XAccuracyDecimals)}".Replace("NaN", "100")),
@@ -79,11 +78,11 @@ namespace Overlayer
                 new Tag("{RecKps}", "Perceived KPS").SetValueGetter(() => Variables.RecKPS),
                 new Tag("{BestProgress}", "Best Progress").SetValueGetter(() => Math.Round(Variables.BestProg, Settings.Instance.BestProgDecimals)),
                 new Tag("{LeastCheckPoint}", "Least Check Point Used Count").SetValueGetter(() => Variables.LeastChkPt),
-                new Tag("{StartProgress}", "Start Progress (Do Not Use..)").SetValueGetter(() => Math.Round(Variables.StartProg, Settings.Instance.StartProgDecimals)),
+                new Tag("{StartProgress}", "Start Progress").SetValueGetter(() => Math.Round(Variables.StartProg, Settings.Instance.StartProgDecimals)),
                 new Tag("{CurMinute}", "Now Minute Of Music").SetValueGetter(() => Variables.CurMinute),
-                new Tag("{CurSecond}", "Now Second Of Music").SetValueGetter(() => Variables.CurSecond),
+                new Tag("{CurSecond}", "Now Second Of Music").SetValueGetter(() => Variables.CurSecond, "00"),
                 new Tag("{TotalMinute}", "Total Minute Of Music").SetValueGetter(() => Variables.TotalMinute),
-                new Tag("{TotalSecond}", "Total Second Of Music").SetValueGetter(() => Variables.TotalSecond),
+                new Tag("{TotalSecond}", "Total Second Of Music").SetValueGetter(() => Variables.TotalSecond, "00"),
                 new Tag("{LeftTile}", "Left Tile Count").SetValueGetter(() => Variables.LeftTile),
                 new Tag("{TotalTile}", "Total Tile Count").SetValueGetter(() => Variables.TotalTile),
                 new Tag("{CurTile}", "Current Tile Count").SetValueGetter(() => Variables.CurrentTile),
@@ -96,6 +95,39 @@ namespace Overlayer
                 new Tag("{Second}", "Second Of System Time").SetValueGetter(() => DT.Now.Second),
                 new Tag("{MilliSecond}", "MilliSecond Of System Time").SetValueGetter(() => DT.Now.Millisecond),
                 new Tag("{Fps}", "FrameRate").SetValueGetter(() => Math.Round(Variables.Fps, Settings.Instance.FPSDecimals)),
+                new Tag("{FrameTime}", "FrameTime").SetValueGetter(() => Math.Round(Variables.FrameTime, Settings.Instance.FrametimeDecimals)),
+                new Tag("{CurKps}", "Current KPS").GetThis(out Tag kpsTag).MakeThreadingTag(() =>
+                    {
+                        LinkedList<int> timePoints = new LinkedList<int>();
+                        int max = 0, prev = 0, total = 0;
+                        long n = 0;
+                        double avg = 0;
+                        Stopwatch watch = Stopwatch.StartNew();
+                        while (true)
+                        {
+                            if (watch.ElapsedMilliseconds >= Settings.Instance.KPSUpdateRate)
+                            {
+                                int temp = Variables.KpsTemp;
+                                Variables.KpsTemp = 0;
+                                int num = temp;
+                                foreach (int i in timePoints)
+                                    num += i;
+                                max = Math.Max(num, max);
+                                if (num != 0)
+                                {
+                                    avg = (avg * n + num) / (n + 1.0);
+                                    n += 1L;
+                                    total += temp;
+                                }
+                                prev = num;
+                                timePoints.AddFirst(temp);
+                                if (timePoints.Count >= 1000 / Settings.Instance.KPSUpdateRate)
+                                    timePoints.RemoveLast();
+                                kpsTag.ThreadValueNum = num;
+                                watch.Restart();
+                            }
+                        }
+                    })
             };
             NameTags = new Dictionary<string, Tag>();
             CustomSettings = new List<Setting>();
@@ -111,6 +143,8 @@ namespace Overlayer
                 NameTags["{Second}"],
                 NameTags["{MilliSecond}"],
                 NameTags["{Fps}"],
+                NameTags["{FrameTime}"],
+                NameTags["{CurKps}"],
             };
         }
         Tag(string name, string description)
@@ -118,6 +152,7 @@ namespace Overlayer
             Name = name;
             Description = description;
         }
+        public string ToStringFormat;
         public static Tag AddTag(string name, string description)
         {
             Tag tag = new Tag(name, description);
@@ -141,7 +176,7 @@ namespace Overlayer
                         GUILayout.EndHorizontal();
                         GUILayout.Space(1);
                     }
-                }, 3f);
+                }, 15f, 15f);
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
@@ -157,11 +192,12 @@ namespace Overlayer
         public Func<double> NumberGetter = () => 0;
         public Func<string> StrGetter = () => "ValueGetter Is Not Implemented!";
         public bool IsString = false;
-        public Tag SetValueGetter(Func<double> func)
+        public Tag SetValueGetter(Func<double> func, string toStringFormat = null)
         {
             if (IsThreading) throw new InvalidOperationException("Threading Tag Cannot Set ValueGetter!");
             NumberGetter = func;
             IsString = false;
+            ToStringFormat = toStringFormat;
             return this;
         }
         public Tag SetValueGetter(Func<int> func) => SetValueGetter(() => (double)func());
@@ -204,8 +240,16 @@ namespace Overlayer
             {
                 if (IsString)
                     return StrGetter();
-                else return NumberGetter().ToString(); 
+                if (ToStringFormat != null)
+                    return NumberGetter().ToString(ToStringFormat);
+                return NumberGetter().ToString();
             }
+        }
+        public void Start()
+        {
+            if (!IsThreading) return;
+            MainThread.Start();
+            SubThreads?.ForEach(t => t.Start());
         }
         public void Stop()
         {
@@ -296,6 +340,7 @@ namespace Overlayer
             NameTags.Remove(name);
             CustomSettings.Remove(tag.CustomSetting);
             Tags.Remove(tag);
+            OText.Texts.ForEach(t => t.Apply());
         }
         public static readonly string JsonPath = Path.Combine("Mods", "Overlayer", "CustomTags.json");
         public static void Load()
@@ -314,79 +359,9 @@ namespace Overlayer
             else if (File.Exists(JsonPath))
             File.Delete(JsonPath);
         }
-        public static readonly List<Tag> Tags;
-        public static readonly List<Tag> NPTags;
+        public static List<Tag> Tags;
+        public static List<Tag> NPTags;
         public static List<Setting> CustomSettings;
-        public static readonly Dictionary<string, Tag> NameTags;
-    }
-    public class TagCompiler
-    {
-        public string source;
-        StringBuilder sb;
-        List<Func<object>> getters;
-        public TagCompiler(string source)
-            => Compile(source);
-        public void Compile(string source)
-        {
-            this.source = source;
-            sb = new StringBuilder(source.Length);
-            StringBuilder tagSb = new StringBuilder();
-            getters = new List<Func<object>>();
-            bool tagMode = false;
-            for (int i = 0; i < source.Length; i++)
-            {
-                char c = source[i];
-                if (tagMode)
-                {
-                    if (c == '{')
-                    {
-                        sb.Append(tagSb);
-                        tagSb.Clear();
-                        tagSb.Append(c);
-                    }
-                    else if (c == '}')
-                    {
-                        tagSb.Append(c);
-                        if (Tag.NameTags.TryGetValue(tagSb.ToString(), out Tag tag))
-                        {
-                            string jesus = sb.ToString();
-                            getters.Add(() => jesus);
-                            sb.Clear();
-                            if (!tag.IsString)
-                                getters.Add(() => tag.NumberGetter());
-                            else getters.Add(() => tag.StrGetter());
-                        }
-                        else sb.Append(tagSb);
-                        tagSb.Clear();
-                        tagMode = false;
-                    }
-                    else tagSb.Append(c);
-                }
-                else
-                {
-                    if (c == '{')
-                    {
-                        tagMode = true;
-                        tagSb.Append(c);
-                    }
-                    else sb.Append(c);
-                }
-            }
-            if (sb.Length > 0)
-            {
-                string jesus = sb.ToString();
-                getters.Add(() => jesus);
-            }
-        }
-        public string Value
-        {
-            get
-            {
-                sb.Clear();
-                for (int i = 0; i < getters.Count; i++)
-                    sb.Append(getters[i]());
-                return sb.ToString();
-            }
-        }
+        public static Dictionary<string, Tag> NameTags;
     }
 }

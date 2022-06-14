@@ -29,7 +29,7 @@ namespace Overlayer.Patches
 						else
 						{
 							___text.text = RDString.Get("status.go", null);
-							___timeGoTween = (float)(__instance.conductor.crotchet / (double)__instance.conductor.extraTicksCountdown[__instance.controller.curCountdown].speed) / __instance.conductor.song.pitch;
+							___timeGoTween = (float)(__instance.conductor.crotchet / __instance.conductor.extraTicksCountdown[__instance.controller.curCountdown].speed) / __instance.conductor.song.pitch;
 							SetStartProg(__instance.controller);
 						}
 					}

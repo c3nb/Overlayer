@@ -6,6 +6,7 @@ using UnityEngine;
 using TinyJson;
 using UnityModManagerNet;
 using System.IO;
+using TMPro;
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
@@ -28,6 +29,8 @@ namespace Overlayer
                 Alignment = TextAnchor.LowerLeft;
                 Font = "Default";
                 Active = true;
+                GradientText = false;
+                Gradient = new float[4][] { new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 } };
             }
             public float[] Position;
             public float[] Color;
@@ -38,6 +41,8 @@ namespace Overlayer
             public string Font;
             public bool Active;
             public TextAnchor Alignment;
+            public bool GradientText;
+            public float[][] Gradient;
             public void ValidCheck()
             {
                 if (Position == null)
@@ -52,6 +57,8 @@ namespace Overlayer
                     FontSize = 44;
                 if (Font == null)
                     Font = "Default";
+                if (Gradient == null)
+                    Gradient = new float[4][] { new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 } };
             }
         }
         public static readonly Regex tagBreaker = new Regex("<(.|\n)*?>", RegexOptions.Compiled);
@@ -75,11 +82,6 @@ namespace Overlayer
                 settings.Add(text.TSetting);
             File.WriteAllText(JsonPath, settings.ToJson());
         }
-        public static void DestroyAll()
-        {
-            for (int i = 0; i < Texts.Count; i++)
-                Texts[i].Destroy();
-        }
         public static void Order() => Texts = new List<OText>(Texts.OrderBy(t => t.SText.Number));
         public OText(Setting setting = null)
         {
@@ -90,21 +92,21 @@ namespace Overlayer
             BrokenPlayingText = tagBreaker.Replace(TSetting.PlayingText, string.Empty);
             BrokenNotPlayingText = tagBreaker.Replace(TSetting.NotPlayingText, string.Empty);
             Number = SText.Number;
-            PlayingCompiler = new TagCompiler(TSetting.PlayingText);
-            NotPlayingCompiler = new TagCompiler(TSetting.NotPlayingText);
-            BrokenPlayingCompiler = new TagCompiler(BrokenPlayingText);
-            BrokenNotPlayingCompiler = new TagCompiler(BrokenNotPlayingText);
+            PlayingCompiler = new TagCompiler(TSetting.PlayingText, Tag.Tags);
+            NotPlayingCompiler = new TagCompiler(TSetting.NotPlayingText, Tag.NPTags);
+            BrokenPlayingCompiler = new TagCompiler(BrokenPlayingText, Tag.Tags);
+            BrokenNotPlayingCompiler = new TagCompiler(BrokenNotPlayingText, Tag.NPTags);
             SText.Updater = () =>
             {
                 if (IsPlaying)
                 {
-                    SText.Main.text = PlayingCompiler.Value;
-                    SText.Shadow.text = BrokenPlayingCompiler.Value;
+                    SText.Main.text = PlayingCompiler.Result;
+                    SText.Shadow.text = BrokenPlayingCompiler.Result;
                 }
                 else
                 {
-                    SText.Main.text = NotPlayingCompiler.Value;
-                    SText.Shadow.text = BrokenNotPlayingCompiler.Value;
+                    SText.Main.text = NotPlayingCompiler.Result;
+                    SText.Shadow.text = BrokenNotPlayingCompiler.Result;
                 }
             };
             Texts.Add(this);
@@ -142,7 +144,7 @@ namespace Overlayer
                     if (GUILayout.Button("Reset"))
                     {
                         TSetting.Font = "Default";
-                        SText.Font = RDString.GetFontDataForLanguage(RDString.language).font;
+                        SText.Font = RDString.GetFontDataForLanguage(SystemLanguage.English).font;
                     }
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
@@ -150,12 +152,53 @@ namespace Overlayer
                     GUILayout.BeginHorizontal();
                     if (UnityModManager.UI.DrawIntField(ref TSetting.FontSize, "Text Size")) Apply();
                     GUILayout.EndHorizontal();
+
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Text Color");
                     GUILayout.Space(1);
                     if (Utils.DrawColor(ref TSetting.Color)) Apply();
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
+
+                    bool newGradientText = GUILayout.Toggle(TSetting.GradientText, "Gradient");
+                    if (newGradientText)
+                    {
+                        Utils.IndentGUI(() =>
+                        {
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("Top Left");
+                            GUILayout.Space(1);
+                            if (Utils.DrawColor(ref TSetting.Gradient[0])) Apply();
+                            GUILayout.FlexibleSpace();
+                            GUILayout.EndHorizontal();
+
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("Top Right");
+                            GUILayout.Space(1);
+                            if (Utils.DrawColor(ref TSetting.Gradient[1])) Apply();
+                            GUILayout.FlexibleSpace();
+                            GUILayout.EndHorizontal();
+
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("Bottom Left");
+                            GUILayout.Space(1);
+                            if (Utils.DrawColor(ref TSetting.Gradient[2])) Apply();
+                            GUILayout.FlexibleSpace();
+                            GUILayout.EndHorizontal();
+
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("Bottom Right");
+                            GUILayout.Space(1);
+                            if (Utils.DrawColor(ref TSetting.Gradient[3])) Apply();
+                            GUILayout.FlexibleSpace();
+                            GUILayout.EndHorizontal();
+                        });
+                    }
+                    if (newGradientText != TSetting.GradientText)
+                    {
+                        TSetting.GradientText = newGradientText;
+                        Apply();
+                    }
                     GUILayout.BeginHorizontal();
                     if (Utils.DrawTextArea(ref TSetting.PlayingText, "Text")) Apply();
                     GUILayout.EndHorizontal();
@@ -168,34 +211,44 @@ namespace Overlayer
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("Reset"))
                     {
-                        SText.Font = RDString.GetFontDataForLanguage(RDString.language).font;
+                        SText.Font = RDString.GetFontDataForLanguage(SystemLanguage.English).font;
                         TSetting = new Setting();
                         Apply();
                     }
                     if (Number != 1 && GUILayout.Button("Destroy"))
-                        Destroy();
+                    {
+                        UnityEngine.Object.Destroy(SText.gameObject);
+                        Remove(this);
+                    }
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
                 });
             }
         }
-        public void Destroy()
+        public static void Remove(OText text)
         {
-            UnityEngine.Object.Destroy(SText.gameObject);
-            int index = Texts.IndexOf(this);
+            int index = Texts.IndexOf(text);
             Texts.RemoveAt(index);
             for (int i = index; i < Texts.Count; i++)
             {
-                var text = Texts[i];
-                text.Number--;
-                text.SText.Number--;
+                var txt = Texts[i];
+                txt.Number--;
+                txt.SText.Number--;
             }
             ShadowText.Count--;
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize(text);
         }
         public OText Apply()
         {
-            SText.Color = new Color(TSetting.Color[0], TSetting.Color[1], TSetting.Color[2], TSetting.Color[3]);
+            if (TSetting.GradientText)
+            {
+                Color col1 = new Color(TSetting.Gradient[0][0], TSetting.Gradient[0][1], TSetting.Gradient[0][2], TSetting.Gradient[0][3]);
+                Color col2 = new Color(TSetting.Gradient[1][0], TSetting.Gradient[1][1], TSetting.Gradient[1][2], TSetting.Gradient[1][3]);
+                Color col3 = new Color(TSetting.Gradient[2][0], TSetting.Gradient[2][1], TSetting.Gradient[2][2], TSetting.Gradient[2][3]);
+                Color col4 = new Color(TSetting.Gradient[3][0], TSetting.Gradient[3][1], TSetting.Gradient[3][2], TSetting.Gradient[3][3]);
+                SText.Main.colorGradient = new VertexGradient(col1, col2, col3, col4);
+            }
+            else SText.Main.colorGradient = new VertexGradient(new Color(TSetting.Color[0], TSetting.Color[1], TSetting.Color[2], TSetting.Color[3]));
             Vector2 pos = new Vector2(TSetting.Position[0], TSetting.Position[1]);
             SText.Center = pos;
             SText.Position = pos;

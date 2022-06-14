@@ -41,9 +41,9 @@ namespace Overlayer.Patches
                 if (floor.nextfloor == null) return;
                 double curBPM = GetRealBpm(floor, bpm) * playbackSpeed * pitch;
                 bool isDongta = false;
-                Variables.TileBpm = bpm * __instance.controller.speed;
+                Variables.TileBpm = Math.Round(bpm * __instance.controller.speed, Settings.Instance.TileBpmDecimals);
                 if (isDongta || beforedt) curBPM = beforebpm;
-                Variables.CurBpm = curBPM;
+                Variables.CurBpm = Math.Round(curBPM, Settings.Instance.PerceivedBpmDecimals);
                 Variables.RecKPS = Math.Round(curBPM / 60, Settings.Instance.PerceivedKpsDecimals);
                 beforedt = isDongta;
                 beforebpm = curBPM;
@@ -79,8 +79,8 @@ namespace Overlayer.Patches
                 double speed = __instance.controller.speed;
                 cur = (float)(bpm * speed);
             }
-            Variables.TileBpm = cur;
-            Variables.CurBpm = cur;
+            Variables.TileBpm = Math.Round(cur, Settings.Instance.TileBpmDecimals);
+            Variables.CurBpm = Math.Round(cur, Settings.Instance.PerceivedBpmDecimals);
             Variables.RecKPS = Math.Round(kps, Settings.Instance.PerceivedKpsDecimals);
         }
     }

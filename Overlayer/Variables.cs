@@ -20,6 +20,7 @@ namespace Overlayer
         public static int NormalScore;
         public static int StrictScore;
         public static int CurrentScore;
+
         public static int FailCount;
         public static int Combo;
 
@@ -41,7 +42,9 @@ namespace Overlayer
         public static int TotalTile;
 
         public static int Attempts;
+        public static int KpsTemp;
         public static float Fps;
+        public static float FrameTime;
 
         public static void Reset()
         {

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityModManagerNet;
-using System.Xml.Serialization;
-using UnityEngine;
+using HarmonyLib;
 #pragma warning disable
 
 namespace Overlayer
@@ -14,9 +12,7 @@ namespace Overlayer
     {
         public void OnChange() { }
         public static void Load(UnityModManager.ModEntry modEntry)
-        {
-            Instance = Load<Settings>(modEntry);
-        }
+            => Instance = Load<Settings>(modEntry);
         public static void Save(UnityModManager.ModEntry modEntry)
             => Save(Instance, modEntry);
         public static Settings Instance { get; private set; }
@@ -42,49 +38,19 @@ namespace Overlayer
         public int KPSDecimals = 2;
         [Draw("Decimals On Displaying Current FPS")]
         public int FPSDecimals = 2;
-        [Draw("Shadow On Displaying Texts (Restart Required)")]
-        public bool Shadow  = true;
+        [Draw("Decimals On Displaying Current Frametime")]
+        public int FrametimeDecimals = 2;
         [Draw("Reset Stats On Start")]
         public bool Reset = true;
         [Draw("KPS UpdateRate")]
         public int KPSUpdateRate = 20;
         [Draw("FPS UpdateRate")]
         public int FPSUpdateRate = 500;
-        [Draw("Unlock ErrorMeter At Auto")]
+        [Draw("FrameTime UpdateRate")]
+        public int FrameTimeUpdateRate = 500;
+        [Draw("Unlock ErrorMeter On Auto")]
         public bool UnlockErrorMeterAtAuto = true;
-
-
-#if KV
-        [Draw("KeyViewer Color On Perfect")]
-        public Color p = new Color(0.376f, 1f, 0.307f, 1f);
-        [Draw("KeyViewer Color On EarlyPerfect")]
-        public Color ep = new Color(0.627f, 1f, 0.306f, 1f);
-        [Draw("KeyViewer Color On LatePerfect")]
-        public Color lp = new Color(0.627f, 1f, 0.306f, 1f);
-        [Draw("KeyViewer Color On VeryEarly")]
-        public Color ve = new Color(1f, 0.436f, 0.306f, 1f);
-        [Draw("KeyViewer Color On VeryLate")]
-        public Color vl = new Color(1f, 0.436f, 0.306f, 1f);
-        [Draw("KeyViewer Color On TooEarly")]
-        public Color te = new Color(1f, 0f, 0f, 1f);
-        [Draw("KeyViewer Color On TooLate")]
-        public Color tl = new Color(1f, 0f, 0f, 1f);
-        [Draw("KeyViewer Color On MultiPress")]
-        public Color mp = new Color(0f, 1f, 0.93f, 1f);
-
-
-        public List<KeyViewerProfile> Profiles { get; set; }
-        public int ProfileIndex { get; set; }
-        [XmlIgnore]
-        public KeyViewerProfile CurrentProfile { get => Profiles[ProfileIndex]; }
-        [XmlIgnore]
-        public bool IsListening { get; set; }
-        public bool IsKeyViewerEnabled = false;
-        public Settings()
-        {
-            Profiles = new List<KeyViewerProfile>();
-            ProfileIndex = 0;
-        }
-#endif
+        [Draw("Add Multipress At ErrorMeter")]
+        public bool AddMultipressAtErrorMeter = true;
     }
 }

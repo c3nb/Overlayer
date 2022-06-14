@@ -8,11 +8,13 @@ namespace Overlayer.Patches
     {
         public static void Postfix(LevelData __instance)
         {
-            string hash = MD5Hash.GetHash(__instance.author + __instance.artist + __instance.song);
+            string hash = MakeHash(__instance.author, __instance.artist, __instance.song);
             int attempts = Persistence.GetCustomWorldAttempts(hash);
             AttemptsCounter.Attempts[hash] = attempts;
             Variables.Attempts = attempts;
             AttemptsCounter.FailId = hash;
         }
+        public static string MakeHash(string author, string artist, string song)
+            => MD5Hash.GetHash(author + artist + song);
     }
 }

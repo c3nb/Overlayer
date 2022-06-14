@@ -279,15 +279,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DT.cs" />
+    <Compile Include="KeyCombo.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Patches\BpmUpdater.cs" />
     <Compile Include="Patches\DataInit.cs" />
+    <Compile Include="Patches\AddMultipressAtErrorMeter.cs" />
     <Compile Include="Patches\ErrorMeterUnlocker.cs" />
-    <Compile Include="Patches\FailCounter.cs" />
+    <Compile Include="Patches\AttemptsCounter.cs" />
     <Compile Include="Patches\GetHitMarginFixer.cs" />
     <Compile Include="Patches\LeastChkPtLogger.cs" />
     <Compile Include="Patches\Resetter.cs" />
-    <Compile Include="Patches\ScoreCalculator.cs" />
     <Compile Include="Patches\StartProgUpdater.cs" />
     <Compile Include="Patches\TimingUpdater.cs" />
     <Compile Include="Patches\Updater.cs" />
@@ -296,6 +297,7 @@
     <Compile Include="ShadowText.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="OText.cs" />
+    <Compile Include="TagCompiler.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Variables.cs" />
   </ItemGroup>

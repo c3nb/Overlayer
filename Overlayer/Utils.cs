@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityModManagerNet;
+using System.Reflection;
+using System.Collections;
 using System.Runtime.CompilerServices;
+using HarmonyLib;
 using static UnityModManagerNet.UnityModManager.UI;
+using TMPro;
 
 namespace Overlayer
 {
@@ -14,22 +17,199 @@ namespace Overlayer
     {
         public static readonly string[] FontNames;
         public static readonly Dictionary<string, Font> Fonts;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InjectUnderlay(this TextMeshPro tmp)
+        {
+            var mat = tmp.renderer.material;
+            mat.EnableKeyword("UNDERLAY_ON");
+            mat.SetFloat("_UnderlaySoftness", 0.3f);
+            mat.SetFloat("_UnderlayDilate", 0.1f);
+        }
+        public static void InjectUnderlay(this TextMeshProUGUI tmp)
+        {
+            var mat = tmp.fontMaterial;
+            mat.EnableKeyword("UNDERLAY_ON");
+            mat.SetFloat("_UnderlaySoftness", 0.3f);
+            mat.SetFloat("_UnderlayDilate", 0.1f);
+        }
+        public static void Log(this object obj)
+            => Main.Logger.Log(obj.ObjToString());
+        public static string ObjToString(this object obj, bool declaredOnly = true)
+        {
+            StringBuilder sb = new StringBuilder();
+            List<object> visited = new List<object>();
+            sb.AppendLine($"{obj.GetType().FullName}:");
+            ObjToStringInternal(sb, obj, 2, visited);
+            return sb.ToString();
+        }
+        static void ObjToStringInternal(StringBuilder sb, object obj, int offset = 0, List<object> visited = null, bool declaredOnly = true)
+        {
+            BindingFlags bf = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            if (declaredOnly) bf |= BindingFlags.DeclaredOnly;
+            if (visited.Any(o => o.Equals(obj))) return;
+            visited.Add(obj);
+            if (obj == null)
+            {
+                sb.Append(' ', offset).AppendLine("null");
+                return;
+            }
+            Type type = obj.GetType();
+            var props = type.GetProperties(bf).Where(p => p.CanRead);
+            var fields = type.GetFields(bf);
+            if (fields.Any())
+            {
+                sb.Append(' ', offset).AppendLine("Fields:");
+                foreach (var field in fields)
+                {
+                    Type fieldType = field.FieldType;
+                    var value = default(object);
+                    try { value = field.GetValue(obj); }
+                    catch { value = null; }
+                    if (fieldType.IsPointer)
+                    {
+                        sb.Append(' ', offset).AppendLine($"{fieldType} {field.Name}:{value}");
+                        continue;
+                    }
+                    if (fieldType != typeof(object) && (fieldType.IsAssignableFrom(type) || type.IsAssignableFrom(fieldType)))
+                    {
+                        sb.Append(' ', offset).AppendLine($"{fieldType} {field.Name}:Cannot GetValue Due To Infinity Recursive Call");
+                        continue;
+                    }
+                    if (value is IEnumerable enumerable)
+                    {
+                        foreach (var item in enumerable)
+                            ObjToStringInternal(sb, item, offset + 2, visited);
+                    }
+                    else if (fieldType.IsPrimitive || fieldType.IsEnum)
+                        sb.Append(' ', offset).AppendLine($"{fieldType} {field.Name}:{value}");
+                    else
+                    {
+                        sb.Append(' ', offset);
+                        if (value != null)
+                        {
+                            sb.AppendLine($"{fieldType} {field.Name}:");
+                            ObjToStringInternal(sb, value, offset + 2, visited);
+                        }
+                        else sb.AppendLine($"{fieldType} {field.Name}:null");
+                    }
+                }
+            }
+            if (props.Any())
+            {
+                sb.Append(' ', offset).AppendLine("Properties:");
+                foreach (var prop in props)
+                {
+                    Type propType = prop.PropertyType;
+                    var value = default(object);
+                    try { value = prop.GetValue(obj); }
+                    catch { value = null; }
+                    if (propType.IsPointer)
+                    {
+                        sb.Append(' ', offset).AppendLine($"{propType} {prop.Name}:{value}");
+                        continue;
+                    }
+                    if (propType != typeof(object) && (propType.IsAssignableFrom(type) || type.IsAssignableFrom(propType)))
+                    {
+                        sb.Append(' ', offset).AppendLine($"{propType} {prop.Name}:Cannot GetValue Due To Infinity Recursive Call");
+                        continue;
+                    }
+                    var indexes = prop.GetIndexParameters();
+                    if (indexes.Length != 0)
+                    {
+                        StringBuilder iSb = new StringBuilder();
+                        for (int i = 0; i < indexes.Length; i++)
+                        {
+                            var index = indexes[i];
+                            iSb.Append($"{index.ParameterType} {index.Name}");
+                            if (i != indexes.Length - 1)
+                                iSb.Append(", ");
+                        }
+                        sb.Append(' ', offset).Append($"Indexer:[{iSb}]");
+                        continue;
+                    }
+                    if (value is IEnumerable enumerable)
+                    {
+                        foreach (var item in enumerable)
+                            ObjToStringInternal(sb, item, offset + 2, visited);
+                    }
+                    else if (propType.IsPrimitive || propType.IsEnum)
+                        sb.Append(' ', offset).AppendLine($"{propType} {prop.Name}:{value}");
+                    else
+                    {
+                        sb.Append(' ', offset);
+                        if (value != null)
+                        {
+                            sb.AppendLine($"{propType} {prop.Name}:");
+                            ObjToStringInternal(sb, value, offset + 2, visited);
+                        }
+                        else sb.AppendLine($"{propType} {prop.Name}:null");
+                    }
+                }
+            }
+        }
+        public static bool IsPlaying(ADOBase adoBase) => !adoBase.controller.paused && adoBase.conductor.isGameWorld;
         static Utils()
         {  
             FontNames = Font.GetOSInstalledFontNames();
             Fonts = new Dictionary<string, Font>
             {
-                { "Default", RDString.GetFontDataForLanguage(RDString.language).font }
+                { "Default", RDString.GetFontDataForLanguage(SystemLanguage.English).font }
             };
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TextAnchor ToAnchor(this TextAlignmentOptions tao)
+        {
+            switch (tao)
+            {
+                case TextAlignmentOptions.TopLeft:
+                    return TextAnchor.UpperLeft;
+                case TextAlignmentOptions.Top:
+                    return TextAnchor.UpperCenter;
+                case TextAlignmentOptions.TopRight:
+                    return TextAnchor.UpperRight;
+                case TextAlignmentOptions.MidlineLeft:
+                    return TextAnchor.MiddleLeft;
+                case TextAlignmentOptions.Midline:
+                    return TextAnchor.MiddleCenter;
+                case TextAlignmentOptions.MidlineRight:
+                    return TextAnchor.MiddleRight;
+                case TextAlignmentOptions.BottomLeft:
+                    return TextAnchor.LowerLeft;
+                case TextAlignmentOptions.Bottom:
+                    return TextAnchor.LowerCenter;
+                case TextAlignmentOptions.BottomRight:
+                    return TextAnchor.LowerRight;
+                default: return TextAnchor.MiddleCenter;
+            }
+        }
+        public static TextAlignmentOptions ToAlignment(this TextAnchor ta)
+        {
+            switch (ta)
+            {
+                case TextAnchor.UpperLeft:
+                    return TextAlignmentOptions.TopLeft;
+                case TextAnchor.UpperCenter:
+                    return TextAlignmentOptions.Top;
+                case TextAnchor.UpperRight:
+                    return TextAlignmentOptions.TopRight;
+                case TextAnchor.MiddleLeft:
+                    return TextAlignmentOptions.MidlineLeft;
+                case TextAnchor.MiddleCenter:
+                    return TextAlignmentOptions.Midline;
+                case TextAnchor.MiddleRight:
+                    return TextAlignmentOptions.MidlineRight;
+                case TextAnchor.LowerLeft:
+                    return TextAlignmentOptions.BottomLeft;
+                case TextAnchor.LowerCenter:
+                    return TextAlignmentOptions.Bottom;
+                case TextAnchor.LowerRight:
+                    return TextAlignmentOptions.BottomRight;
+                default: return TextAlignmentOptions.Midline;
+            }
+        }
         public static void TrySetFont(string name, Action<Font> setter)
         {
             if (TryGetFont(name, out var font))
                 setter(font);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetFont(string name, out Font font)
         {
             if (Fonts.TryGetValue(name, out font))
@@ -94,14 +274,6 @@ namespace Overlayer
                 result = HitMargin.TooLate;
             return result;
         }
-        public static HitMargin GetHitMarginForDifficulty(ADOBase adoBase, Difficulty diff)
-        {
-            scrController ctrl = adoBase.controller;
-            scrPlanet planet = ctrl.chosenplanet;
-            scrConductor conductor = adoBase.conductor;
-            var marginScale = (planet.currfloor.nextfloor == null) ? 1.0 : planet.currfloor.nextfloor.marginScale;
-            return GetHitMargin(diff, (float)planet.angle, (float)planet.targetExitAngle, ctrl.isCW, (float)(conductor.bpm * ctrl.speed), conductor.song.pitch, marginScale);
-        }
         public static int GetCurDiffCount(HitMargin hit)
         {
             switch (GCS.difficulty)
@@ -112,7 +284,6 @@ namespace Overlayer
                 default: return 0;
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HitMargin GetCurHitMargin(Difficulty diff)
         {
             switch (diff)
@@ -123,7 +294,6 @@ namespace Overlayer
                 default: return 0;
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void IndentGUI(Action GUI, float verticalSpace = 0f, float indentSize = 20f)
         {
             GUILayout.BeginHorizontal();
@@ -134,7 +304,6 @@ namespace Overlayer
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool DrawColor(ref float[] color, GUIStyle style = null, params GUILayoutOption[] option) => DrawFloatMultiField(ref color, new string[]
             {
         "<color=#FF0000>R</color>",
@@ -142,7 +311,6 @@ namespace Overlayer
         "<color=#0000FF>B</color>",
         "A"
             }, style, option);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool DrawTextArea(ref string value, string label, GUIStyle style = null, params GUILayoutOption[] option)
         {
             GUILayout.BeginHorizontal(new GUILayoutOption[0]);
@@ -160,7 +328,6 @@ namespace Overlayer
             value = text;
             return false;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool DrawTextField(ref string value, string label, GUIStyle style = null, params GUILayoutOption[] option)
         {
             GUILayout.BeginHorizontal(new GUILayoutOption[0]);
@@ -178,9 +345,7 @@ namespace Overlayer
             value = text;
             return false;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetThis<T>(this T @this, out T t) => t = @this;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool DrawEnum<T>(string title, ref T @enum) where T : Enum
         {
             T[] values = (T[])Enum.GetValues(typeof(T));
@@ -190,7 +355,6 @@ namespace Overlayer
             @enum = values[selected];
             return result;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] CopyArray<T>(T[] array)
         {
             var len = array.Length;
@@ -198,7 +362,6 @@ namespace Overlayer
             Array.Copy(array, 0, arr, 0, len);
             return arr;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ComputeTagValue(string val, string val2, string op)
         {
             double a = GetTagOrVal(val), b = GetTagOrVal(val2);
@@ -212,49 +375,11 @@ namespace Overlayer
                 default: return a;
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double GetTagOrVal(string val)
         {
             if (Tag.NameTags.TryGetValue(val, out var tag))
                 return tag.NumberGetter();
             return double.Parse(val);
         }
-#if KV
-        public static Color GetColor(this HitMargin hit)
-        {
-            Color result;
-            switch (hit)
-            {
-                case HitMargin.TooEarly:
-                    result = Settings.Instance.te;
-                    break;
-                case HitMargin.VeryEarly:
-                    result = Settings.Instance.ve;
-                    break;
-                case HitMargin.EarlyPerfect:
-                    result = Settings.Instance.ep;
-                    break;
-                case HitMargin.Perfect:
-                    result = Settings.Instance.p;
-                    break;
-                case HitMargin.LatePerfect:
-                    result = Settings.Instance.lp;
-                    break;
-                case HitMargin.VeryLate:
-                    result = Settings.Instance.vl;
-                    break;
-                case HitMargin.TooLate:
-                    result = Settings.Instance.tl;
-                    break;
-                case HitMargin.Multipress:
-                    result = Settings.Instance.mp;
-                    break;
-                default:
-                    result = Color.white;
-                    break;
-            }
-            return result;
-        }
-#endif
     }
 }
