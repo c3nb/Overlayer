@@ -11,19 +11,38 @@ namespace Overlayer.Tags
 {
     public class CustomTagCompiler
     {
+        public delegate float ValueGetter(Tag[] tags);
+        public Parser parser;
+        public bool CanUsedByNotPlaying;
         public TagCollection tagsReference;
-        public CustomTagCompiler(TagCollection tagsReference) => this.tagsReference = tagsReference;
-        public Tag Compile(string name, string description, string expression)
+        public ValueGetter getter;
+        public CustomTagCompiler(TagCollection tagsReference)
+            => this.tagsReference = tagsReference;
+        public CustomTagCompiler Compile(string name, string description, string text, Dictionary<string, float> consts, Dictionary<string, MethodInfo> functions, out string[] errors)
         {
-            IEnumerable<Token> tokens = Token.Tokenize(expression);
-            DynamicMethod valueGetter = new DynamicMethod($"CustomTag_{name}_ValueGetter{TagCompiler.random.Next()}", typeof(float), new[] { typeof(Tag[]) });
-            ILGenerator il = valueGetter.GetILGenerator();
-            return null;
+            parser = new Parser(text, tagsReference, consts, functions);
+            Node node = parser.ParseExpression();
+            errors = parser.Errors;
+            if (errors.Any())
+                return this;
+            DynamicMethod dm = new DynamicMethod($"CustomTag_{name}_ValueGetter{TagCompiler.random.Next()}", typeof(float), new[] { typeof(Tag[]) });
+            ILGenerator il = dm.GetILGenerator();
+            node.Emit(il);
+            il.Emit(OpCodes.Ret);
+            getter = (ValueGetter)dm.CreateDelegate(typeof(ValueGetter));
+            Tag tag = new Tag(name, description, func);
+            Main.AllTags[name] = tag;
+            if (CanUsedByNotPlaying = parser.CanUsedByNotPlaying)
+                Main.NotPlayingTags[name] = tag;
+            return this;
         }
-        private static void EmitTokens(ILGenerator il, IEnumerable<Token> tokens, out string diagnostic)
+        float func(float dec = -1)
         {
-            diagnostic = null;
-            
+            var value = getter(parser.tags);
+            if (dec == -1)
+                return value;
+            return (float)Math.Round(getter(parser.tags), (int)dec);
         }
+        public float Value => getter(parser.tags);
     }
 }

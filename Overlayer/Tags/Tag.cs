@@ -92,7 +92,7 @@ namespace Overlayer.Tags
             IsOpt = true;
             DefOptNum = -1;
         }
-        public override string ToString() => $"{{{Name}}}:{Description}";
+        public override string ToString() => $"{{{Name}}}: {Description}";
         public void Start()
         {
             if (Threads != null)

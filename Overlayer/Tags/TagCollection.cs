@@ -72,6 +72,16 @@ namespace Overlayer.Tags
             tag.Start();
             length++;
         }
+        public void RemoveTag(string name)
+        {
+            if (!nTags.TryGetValue(name, out _)) return;
+            int index = Array.FindIndex(tags, t => t.Name == name);
+            length--;
+            for (int a = index; a < length; a++)
+                tags[a] = tags[a + 1];
+            Array.Resize(ref tags, length);
+            nTags.Remove(name);
+        }
         private Dictionary<string, Tag> nTags;
         private Tag[] tags;
         private int length;
@@ -84,6 +94,18 @@ namespace Overlayer.Tags
                     return tag;
                 return null;
             }
+            set
+            {
+                int index = Array.FindIndex(tags, t => t.Name == name);
+                if (index != -1)
+                    tags[index] = value;
+                else
+                {
+                    tags = tags.Add(value);
+                    length++;
+                }
+                nTags[name] = value;
+            }
         }
         public Tag this[int index]
         {
@@ -92,6 +114,12 @@ namespace Overlayer.Tags
                 if (index >= length || index < 0)
                     return null;
                 return tags[index];
+            }
+            set
+            {
+                if (index != -1)
+                    tags[index] = value;
+                nTags = tags.ToDictionary(t => t.Name);
             }
         }
         public void Clear()

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -15,6 +16,7 @@ namespace Overlayer.Tags.Nodes
         public string[] Errors;
         public int position;
         public int length;
+        public bool CanUsedByNotPlaying = true;
         public Token Current => Peek(0);
         public Token NextToken()
         {
@@ -22,7 +24,7 @@ namespace Overlayer.Tags.Nodes
             position++;
             return cur;
         }
-        public MethodInfo[] Functions;
+        public Dictionary<string, MethodInfo> Functions;
         public Dictionary<string, float> Variables;
         public Token Peek(int offset)
         {
@@ -31,7 +33,7 @@ namespace Overlayer.Tags.Nodes
                 return null;
             return tokens[index];
         }
-        public Parser(string text, Dictionary<string, float> variables = null, params MethodInfo[] functions)
+        public Parser(string text, TagCollection tagsReference, Dictionary<string, float> variables = null, Dictionary<string, MethodInfo> functions = null)
         {
             Errors = new string[0];
             tokens = Token.Tokenize(text)
@@ -44,23 +46,28 @@ namespace Overlayer.Tags.Nodes
                 .ToArray();
             tagDict = new Dictionary<string, (int, Tag)>();
             int index = 0;
-            tags = new Tag[tokens.Where(t =>
+            foreach (Token t in tokens)
             {
-                if (t.TokenKind != Token.Kind.Tag) return false;
+                if (t.TokenKind != Token.Kind.Tag) continue;
                 var key = t.Text;
                 if (!tagDict.TryGetValue(key, out _))
                 {
                     Tag result;
-                    if ((result = Main.AllTags[key]) == null)
+                    if ((result = tagsReference[key]) == null)
                     {
                         Errors = Errors.Add($"Cannot Find {{{key}}} Tag!");
-                        return false;
+                        continue;
                     }
-                    else tagDict.Add(key, (index++, result));
-                    return true;
+                    else
+                    {
+                        tagDict.Add(key, (index++, result));
+                        CanUsedByNotPlaying = Main.NotPlayingTags.Contains(result);
+                    }
+                    continue;
                 }
-                return false;
-            }).Count()];
+                continue;
+            }
+            tags = tagDict.Values.Select(t => t.Item2).ToArray();
             position = 0;
             length = tokens.Length;
             Functions = functions;
@@ -183,7 +190,7 @@ namespace Overlayer.Tags.Nodes
                         var args = new Node[0];
                         while (true)
                         {
-                            args.Add(ParseAS());
+                            args = args.Add(ParseAS());
                             if (Current.TokenKind == Token.Kind.Comma)
                             {
                                 NextToken();
@@ -195,19 +202,15 @@ namespace Overlayer.Tags.Nodes
                             Errors = Errors.Add("Missing Close Parenthesis!");
                         NextToken();
                         var argsLength = args.Length;
-                        MethodInfo meth = Functions.FirstOrDefault(m =>
+                        if (Functions.TryGetValue(name, out MethodInfo m))
                         {
-                            var isNameEquals = m.Name == name;
                             var parameters = m.GetParameters();
                             var paramTypes = parameters.Select(p => p.ParameterType);
-                            return isNameEquals && parameters.Length == argsLength && paramTypes.All(t => t == typeof(float)) && m.ReturnType == typeof(float);
-                        });
-                        if (meth == null)
-                        {
-                            Errors = Errors.Add($"Cannot Find Function {name}({(argsLength == 1 ? "float" : Enumerable.Repeat("float", argsLength).Aggregate((c, n) => $"{c}, {n}"))}))");
-                            return new NumberNode(0);
+                            if (parameters.Length == argsLength && paramTypes.All(t => t == typeof(float)) && m.ReturnType == typeof(float))
+                                return new FunctionNode(m, args);
                         }
-                        return new FunctionNode(meth, args);
+                        Errors = Errors.Add($"Cannot Find Function {name}({(argsLength == 1 ? "float" : Enumerable.Repeat("float", argsLength).Aggregate((c, n) => $"{c}, {n}"))})");
+                        return new NumberNode(0);
                     }
                 default:
                     Errors = Errors.Add($"Invalid Token! (Kind:{Current.TokenKind}, Value:{Current.Text})");

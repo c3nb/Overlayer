@@ -297,6 +297,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="ShadowText.cs" />
     <Compile Include="Tags\ClassTagAttribute.cs" />
+    <Compile Include="Tags\CustomTag.cs" />
     <Compile Include="Tags\CustomTagCompiler.cs" />
     <Compile Include="Tags\Global\CurHitTags.cs" />
     <Compile Include="Tags\Global\KPS.cs" />

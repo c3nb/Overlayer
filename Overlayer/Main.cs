@@ -73,6 +73,16 @@ namespace Overlayer
                         AllTags["CurKps"],
                     });
                     AllTags.ForEach(t => t.Start());
+                    CustomTag.Load();
+                    foreach (CustomTag cTag in CustomTag.Tags)
+                    {
+                        string err = cTag.Compile(AllTags, cTag.name, cTag.description, cTag.expression);
+                        cTag.name_ = cTag.name;
+                        cTag.description_ = cTag.description;
+                        cTag.expression_ = cTag.expression;
+                        if (err != null)
+                            Logger.Log($"Custom Tag {cTag.name} Is An Error Occured ({err}). Please Check Your Expression");
+                    }
                     OText.Load();
                     if (!OText.Texts.Any())
                         _ = new OText().Apply();
@@ -125,6 +135,70 @@ namespace Overlayer
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            var cTags = CustomTag.Tags;
+            if (settings.EditingCustomTags = GUILayout.Toggle(settings.EditingCustomTags, "Edit CustomTags"))
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("New Custom Tag"))
+                    cTags.Add(new CustomTag());
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+                GUIUtils.IndentGUI(() =>
+                {
+                    for (int i = 0; i < cTags.Count; i++)
+                    {
+                        var changed = false;
+                        CustomTag cTag = cTags[i];
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("Name:");
+                        cTag.name_ = GUILayout.TextField(cTag.name_);
+                        if (cTag.name_ != cTag.name)
+                            changed = true;
+                        GUILayout.FlexibleSpace();
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("Description:");
+                        cTag.description_ = GUILayout.TextField(cTag.description_);
+                        if (cTag.description_ != cTag.description)
+                            changed = true;
+                        GUILayout.FlexibleSpace();
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("Expression:");
+                        cTag.expression_ = GUILayout.TextField(cTag.expression_);
+                        if (cTag.expression_ != cTag.expression)
+                            changed = true;
+                        GUILayout.FlexibleSpace();
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.Label($"This Tag Can{(cTag.canUsedByNotPlaying ? "" : "not")} Be Used By Not Playing Text.");
+
+                        GUILayout.BeginHorizontal();
+                        if (changed == true)
+                        {
+                            if (GUILayout.Button("Compile"))
+                            {
+                                cTag.Compile(AllTags, cTag.name_, cTag.description_, cTag.expression_);
+                                changed = false;
+                            }
+                        }
+                        if (GUILayout.Button("Remove"))
+                        {
+                            AllTags.RemoveTag(cTag.name);
+                            NotPlayingTags.RemoveTag(cTag.name);
+                            cTag.Recompile();
+                            cTags.RemoveAt(i);
+                        }
+                        GUILayout.FlexibleSpace();
+                        GUILayout.EndHorizontal();
+                        if (cTag.error != null)
+                            GUILayout.Label($"Compilation Error: {cTag.error}");
+                        GUILayout.Space(3);
+                    }
+                });
+            }
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Add Text"))
             {
@@ -142,6 +216,7 @@ namespace Overlayer
             Settings.Save(modEntry);
             Variables.Reset();
             OText.Save();
+            CustomTag.Save();
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using UnityModManagerNet;
+using System.Collections.Generic;
+using Overlayer.Tags;
 #pragma warning disable
 
 namespace Overlayer
@@ -54,5 +56,6 @@ namespace Overlayer
         [Draw("Apply Pitch At Bpm Tags")]
         public bool ApplyPitchAtBpmTags = true;
         public string DeathMessage = "";
+        public bool EditingCustomTags = false;
     }
 }

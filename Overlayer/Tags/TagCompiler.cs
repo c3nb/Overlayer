@@ -35,6 +35,7 @@ namespace Overlayer.Tags
             }
             value = new DynamicMethod($"ValueGetter{random.Next()}", typeof(string), new[] { typeof(TagCompiler) }); // 메서드 이름 중복으로 혹시 모를 사고 방지
             ILGenerator il = value.GetILGenerator();
+            this.tags = new Tag[0];
             List<Tag> tags = new List<Tag>(); // 캐싱된 태그들을 Tag[]로 쉽게 옮기기 위해 만든 List<Tag>
             int lastIndex = 0;
             Dictionary<string, int> tagIndex = new Dictionary<string, int>();

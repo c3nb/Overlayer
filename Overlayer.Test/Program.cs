@@ -20,7 +20,7 @@ namespace Overlayer.Test
             var tag2 = new Tag("niceee", "fiewfsdfsdfdsjfiwjijifj", f => f * 98734);
             var tags = new Tag[] { tag, tag2 };
             Overlayer.Main.AllTags = new TagCollection(tags);
-            var parser = new Parser("(3 * 3", new Dictionary<string, float>()
+            var parser = new Parser("(3 + {nice:1}) * fuck", Overlayer.Main.AllTags, new Dictionary<string, float>()
             {
                 { "fuck", 34f }
             });
@@ -31,7 +31,7 @@ namespace Overlayer.Test
             ILGenerator il = dm.GetILGenerator();
             node6.Emit(il);
             il.Emit(OpCodes.Ret);
-            Console.WriteLine(dm.Invoke(null, new[] { tags }));
+            Console.WriteLine(dm.Invoke(null, new[] { parser.tags }));
         }
     }
 }
