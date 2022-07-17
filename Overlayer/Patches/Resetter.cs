@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using HarmonyLib;
+﻿using HarmonyLib;
 
 namespace Overlayer.Patches
 {

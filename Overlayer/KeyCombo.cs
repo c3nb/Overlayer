@@ -15,8 +15,8 @@ namespace Overlayer
                 codeDict[key.ToString()] = key;
         }
         int curIndex;
-        KeyCode[] codes;
-        int length;
+        readonly KeyCode[] codes;
+        readonly int length;
         public KeyCombo(string combo)
         {
             curIndex = 0;

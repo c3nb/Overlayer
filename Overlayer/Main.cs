@@ -1,14 +1,13 @@
-﻿//#define TRACEALL
-//#define KV
+﻿using HarmonyLib;
+using Overlayer.Patches;
+using Overlayer.Tags;
+using Overlayer.Utils;
 using System;
 using System.Linq;
-using HarmonyLib;
 using System.Reflection;
-using UnityModManagerNet;
 using UnityEngine;
+using UnityModManagerNet;
 using static UnityModManagerNet.UnityModManager;
-using Stopwatch = System.Diagnostics.Stopwatch;
-using UnityEngine.SceneManagement;
 
 namespace Overlayer
 {
@@ -20,7 +19,8 @@ namespace Overlayer
         public static float fpsTimer = 0;
         public static float fpsTimeTimer = 0;
         public static float lastDeltaTime;
-        public static int talmo = 0;
+        public static TagCollection AllTags;
+        public static TagCollection NotPlayingTags;
         public static void Load(ModEntry modEntry)
         {
             Mod = modEntry;
@@ -54,28 +54,53 @@ namespace Overlayer
             {
                 if (value)
                 {
-#if DEBUG
-                    SceneManager.sceneLoaded += (s, m) => AdofaiDebugger.sceneCache = s.name;
-#endif
+                    var asm = Assembly.GetExecutingAssembly();
                     Settings.Load(modEntry);
                     Variables.Reset();
-                    Tag.Init();
-                    Tag.Load();
+                    AllTags = new TagCollection();
+                    AllTags.LoadTags(asm);
+                    NotPlayingTags = new TagCollection(new[]
+                    {
+                        AllTags["Year"],
+                        AllTags["Month"],
+                        AllTags["Day"],
+                        AllTags["Hour"],
+                        AllTags["Minute"],
+                        AllTags["Second"],
+                        AllTags["MilliSecond"],
+                        AllTags["Fps"],
+                        AllTags["FrameTime"],
+                        AllTags["CurKps"],
+                    });
+                    AllTags.ForEach(t => t.Start());
                     OText.Load();
                     if (!OText.Texts.Any())
-                        new OText().Apply();
+                        _ = new OText().Apply();
                     Harmony = new Harmony(modEntry.Info.Id);
-                    Harmony.PatchAll(Assembly.GetExecutingAssembly());
+                    Harmony.PatchAll(asm);
+                    var settings = Settings.Instance;
+                    DeathMessagePatch.compiler = new TagCompiler(AllTags);
+                    if (!string.IsNullOrEmpty(settings.DeathMessage))
+                        DeathMessagePatch.compiler.Compile(settings.DeathMessage);
                 }
                 else
                 {
                     OnSaveGUI(modEntry);
-                    OText.Texts.ForEach(o => UnityEngine.Object.Destroy(o.SText.gameObject));
-                    OText.Texts.Clear();
-                    Tag.Tags.ForEach(t => t.Stop());
-                    Tag.Tags.Clear();
-                    Harmony.UnpatchAll(Harmony.Id);
-                    Harmony = null;
+                    try
+                    {
+                        OText.Clear();
+                        AllTags.Clear();
+                        NotPlayingTags.Clear();
+                        DeathMessagePatch.compiler = null;
+                        AllTags = null;
+                        NotPlayingTags = null;
+                        GC.Collect();
+                    }
+                    finally
+                    {
+                        Harmony.UnpatchAll(Harmony.Id);
+                        Harmony = null;
+                    }
                 }
                 return true;
             }
@@ -87,29 +112,36 @@ namespace Overlayer
         }
         public static void OnGUI(ModEntry modEntry)
         {
-#if DEBUG
-            AdofaiDebugger.DebugGUI();
-#endif
             Settings.Instance.Draw(modEntry);
+            var settings = Settings.Instance;
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Death Message");
+            var dm = GUILayout.TextField(settings.DeathMessage);
+            if (dm != settings.DeathMessage)
+            {
+                settings.DeathMessage = dm;
+                if (!string.IsNullOrEmpty(settings.DeathMessage))
+                    DeathMessagePatch.compiler.Compile(settings.DeathMessage);
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Add Text"))
             {
-                new OText().Apply();
+                _ = new OText().Apply();
                 OText.Order();
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-            Tag.CustomTagGUI();
             for (int i = 0; i < OText.Texts.Count; i++)
                 OText.Texts[i].GUI();
-            Tag.DescGUI();
+            AllTags.DescGUI();
         }
         public static void OnSaveGUI(ModEntry modEntry)
         {
             Settings.Save(modEntry);
             Variables.Reset();
             OText.Save();
-            Tag.Save();
         }
     }
 }

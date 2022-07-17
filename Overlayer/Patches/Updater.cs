@@ -1,5 +1,5 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
+using System;
 using UnityEngine;
 
 namespace Overlayer.Patches
@@ -9,17 +9,19 @@ namespace Overlayer.Patches
     {
         public static void Prefix(scrController __instance)
         {
-            if (__instance.paused || !__instance.conductor.isGameWorld) return;
-            AudioSource song = __instance.conductor.song;
+            if (__instance.paused || !scrConductor.instance.isGameWorld) return;
+            AudioSource song = scrConductor.instance.song;
             if (!song.clip) return;
             TimeSpan nowt = TimeSpan.FromSeconds(song.time);
             TimeSpan tott = TimeSpan.FromSeconds(song.clip.length);
             Variables.CurMinute = nowt.Minutes;
             Variables.CurSecond = nowt.Seconds;
+            Variables.CurMilliSecond = nowt.Milliseconds;
             Variables.TotalMinute = tott.Minutes;
             Variables.TotalSecond = tott.Seconds;
+            Variables.TotalMilliSecond = tott.Milliseconds;
             Variables.CurrentTile = __instance.currentSeqID;
-            Variables.TotalTile = __instance.lm.listFloors.Count - 1;
+            Variables.TotalTile = scrLevelMaker.instance.listFloors.Count - 1;
             Variables.LeftTile = Variables.TotalTile - Variables.CurrentTile;
         }
     }

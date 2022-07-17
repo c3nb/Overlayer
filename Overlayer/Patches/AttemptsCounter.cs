@@ -1,5 +1,5 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 
 namespace Overlayer.Patches
@@ -36,7 +36,7 @@ namespace Overlayer.Patches
         public static void FAPostfix(scrController __instance)
         {
             Variables.FailCount++;
-            Variables.BestProg = Math.Max(Variables.BestProg, __instance.controller.percentComplete * 100);
+            Variables.BestProg = Math.Max(Variables.BestProg, __instance.percentComplete * 100);
         }
     }
 }

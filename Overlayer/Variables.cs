@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Overlayer
 {
     public static class Variables
     {
+        public static bool IsStarted = true;
         public static readonly HitMargin[] HitMargins = (HitMargin[])Enum.GetValues(typeof(HitMargin));
         public static double Timing;
         public static readonly Dictionary<HitMargin, int> LenientCounts = new Dictionary<HitMargin, int>();
@@ -21,6 +19,11 @@ namespace Overlayer
         public static int StrictScore;
         public static int CurrentScore;
 
+        public static int MultipressCount;
+
+        public static List<scrFloor> AllCheckPoints;
+        public static int CurrentCheckPoint;
+
         public static int FailCount;
         public static int Combo;
 
@@ -29,13 +32,16 @@ namespace Overlayer
         public static double RecKPS;
 
         public static double StartProg;
+        public static int StartTile;
         public static double BestProg;
         public static int LeastChkPt;
 
         public static int CurMinute;
         public static int CurSecond;
+        public static int CurMilliSecond;
         public static int TotalMinute;
         public static int TotalSecond;
+        public static int TotalMilliSecond;
 
         public static int CurrentTile;
         public static int LeftTile;
@@ -59,10 +65,13 @@ namespace Overlayer
             StrictScore = 0;
             CurrentScore = 0;
             FailCount = 0;
+            MultipressCount = 0;
             TileBpm = 0;
             CurBpm = 0;
             RecKPS = 0;
             Combo = 0;
+            AllCheckPoints = new List<scrFloor>();
+            CurrentCheckPoint = 0;
         }
     }
 }

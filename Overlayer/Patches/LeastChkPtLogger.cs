@@ -1,5 +1,5 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
+using System;
 
 namespace Overlayer.Patches
 {
@@ -8,8 +8,8 @@ namespace Overlayer.Patches
     {
         public static void Postfix(scrController __instance)
         {
-            if (__instance.customLevel)
-                Variables.LeastChkPt = Math.Min(Variables.LeastChkPt, __instance.customLevel.checkpointsUsed);
+            if (CustomLevel.instance)
+                Variables.LeastChkPt = Math.Min(Variables.LeastChkPt, scrController.checkpointsUsed);
         }
     }
 }

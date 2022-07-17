@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityModManagerNet;
-using HarmonyLib;
+﻿using UnityModManagerNet;
 #pragma warning disable
 
 namespace Overlayer
@@ -15,7 +10,7 @@ namespace Overlayer
             => Instance = Load<Settings>(modEntry);
         public static void Save(UnityModManager.ModEntry modEntry)
             => Save(Instance, modEntry);
-        public static Settings Instance { get; private set; }
+        public static Settings Instance;
         [Draw("Decimals On Displaying Accuracy")]
         public int AccuracyDecimals = 2;
         [Draw("Decimals On Displaying XAccuracy")]
@@ -50,7 +45,14 @@ namespace Overlayer
         public int FrameTimeUpdateRate = 500;
         [Draw("Unlock ErrorMeter On Auto")]
         public bool UnlockErrorMeterAtAuto = true;
-        [Draw("Add Multipress At ErrorMeter")]
-        public bool AddMultipressAtErrorMeter = true;
+        [Draw("Add All Judgements At ErrorMeter")]
+        public bool AddAllJudgementsAtErrorMeter = true;
+        [Draw("Tick Images Of ErrorMeter")]
+        public int ErrorMeterHitImages = 60;
+        [Draw("Tick Life Of ErrorMeter (Seconds)", Type = DrawType.Slider, Min = 0, Max = 10, Precision = 1)]
+        public float ErrorMeterTickLife = 3f;
+        [Draw("Apply Pitch At Bpm Tags")]
+        public bool ApplyPitchAtBpmTags = true;
+        public string DeathMessage = "";
     }
 }

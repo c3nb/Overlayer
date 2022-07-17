@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using UnityEngine;
 
 namespace Overlayer.Patches
 {
@@ -10,9 +9,9 @@ namespace Overlayer.Patches
         {
             scrConductor conductor = scrConductor.instance;
             if (conductor == null || !conductor) return;
-			if (RDC.auto && Settings.Instance.UnlockErrorMeterAtAuto)
+            if (RDC.auto && Settings.Instance.UnlockErrorMeterAtAuto)
             {
-                scrController ctrl = conductor.controller;
+                scrController ctrl = scrController.instance;
                 scrPlanet cPlanet = ctrl.chosenplanet;
                 float angle = (float)(cPlanet.angle - cPlanet.targetExitAngle);
                 if (ctrl.isCW) angle *= -1f;

@@ -1,5 +1,5 @@
-﻿using HarmonyLib;
-using ADOFAI;
+﻿using ADOFAI;
+using HarmonyLib;
 
 namespace Overlayer.Patches
 {

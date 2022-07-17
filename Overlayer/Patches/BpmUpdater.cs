@@ -1,7 +1,7 @@
-﻿using System;
+﻿using HarmonyLib;
+using Overlayer.Tags.Global;
+using System;
 using System.Reflection;
-using System.Collections.Generic;
-using HarmonyLib;
 
 namespace Overlayer.Patches
 {
@@ -16,9 +16,9 @@ namespace Overlayer.Patches
         {
             public static void Postfix(CustomLevel __instance)
             {
-                if (!__instance.controller.gameworld) return;
-                if (__instance.controller.customLevel == null) return;
-                Init(__instance.controller);
+                if (!scrController.instance.gameworld) return;
+                if (CustomLevel.instance == null) return;
+                Init(scrController.instance);
             }
         }
         [HarmonyPatch(typeof(scrPressToStart), "ShowText")]
@@ -26,10 +26,10 @@ namespace Overlayer.Patches
         {
             public static void Postfix(scrPressToStart __instance)
             {
-                if (!__instance.controller.gameworld) return;
-                if (__instance.controller.customLevel != null) return;
-                Init(__instance.controller);
-                Variables.StartProg = __instance.controller.percentComplete * 100;
+                if (!scrController.instance.gameworld) return;
+                if (CustomLevel.instance != null) return;
+                Init(scrController.instance);
+                Variables.StartProg = scrController.instance.percentComplete * 100;
             }
         }
         [HarmonyPatch(typeof(scrPlanet), "MoveToNextFloor")]
@@ -37,16 +37,28 @@ namespace Overlayer.Patches
         {
             public static void Postfix(scrPlanet __instance, scrFloor floor)
             {
-                if (!__instance.controller.gameworld) return;
+                if (!scrController.instance.gameworld) return;
+                Variables.CurrentCheckPoint = GetCheckPointIndex(floor);
                 if (floor.nextfloor == null) return;
                 double curBPM = GetRealBpm(floor, bpm) * playbackSpeed * pitch;
                 bool isDongta = false;
-                Variables.TileBpm = Math.Round(bpm * __instance.controller.speed, Settings.Instance.TileBpmDecimals);
+                Variables.TileBpm = Math.Round(bpm * scrController.instance.speed, Settings.Instance.TileBpmDecimals);
                 if (isDongta || beforedt) curBPM = beforebpm;
                 Variables.CurBpm = Math.Round(curBPM, Settings.Instance.PerceivedBpmDecimals);
                 Variables.RecKPS = Math.Round(curBPM / 60, Settings.Instance.PerceivedKpsDecimals);
                 beforedt = isDongta;
                 beforebpm = curBPM;
+            }
+            public static int GetCheckPointIndex(scrFloor floor)
+            {
+                int i = 0;
+                foreach (var chkPt in Variables.AllCheckPoints)
+                {
+                    if (floor.seqID + 1 <= chkPt.seqID)
+                        return i;
+                    i++;
+                }
+                return i;
             }
         }
         public static double GetRealBpm(scrFloor floor, float bpm)
@@ -54,31 +66,36 @@ namespace Overlayer.Patches
             if (floor == null)
                 return bpm;
             if (floor.nextfloor == null)
-                return floor.controller.speed * bpm;
+                return scrController.instance.speed * bpm;
             return 60.0 / (floor.nextfloor.entryTime - floor.entryTime);
         }
         public static void Init(scrController __instance)
         {
+            Timings.TimingList.Clear();
+            Variables.IsStarted = true;
+            Variables.AllCheckPoints = scrLevelMaker.instance.listFloors.FindAll(f => f.GetComponent<ffxCheckpoint>() != null);
             float kps = 0;
-            if (__instance.customLevel != null)
+            if (CustomLevel.instance != null)
             {
-                pitch = (float)__instance.customLevel.levelData.pitch / 100;
+                pitch = (float)CustomLevel.instance.levelData.pitch / 100;
                 if (GCS.standaloneLevelMode) pitch *= (float)curSpd.GetValue(null);
                 playbackSpeed = scnEditor.instance.playbackSpeed;
-                bpm = __instance.customLevel.levelData.bpm * playbackSpeed * pitch;
+                bpm = CustomLevel.instance.levelData.bpm * playbackSpeed * pitch;
             }
             else
             {
-                pitch = __instance.conductor.song.pitch;
+                pitch = scrConductor.instance.song.pitch;
                 playbackSpeed = 1;
-                bpm = __instance.conductor.bpm * pitch;
+                bpm = scrConductor.instance.bpm * pitch;
             }
             float cur = bpm;
             if (__instance.currentSeqID != 0)
             {
-                double speed = __instance.controller.speed;
+                double speed = scrController.instance.speed;
                 cur = (float)(bpm * speed);
             }
+            if (!Settings.Instance.ApplyPitchAtBpmTags)
+                pitch = 1;
             Variables.TileBpm = Math.Round(cur, Settings.Instance.TileBpmDecimals);
             Variables.CurBpm = Math.Round(cur, Settings.Instance.PerceivedBpmDecimals);
             Variables.RecKPS = Math.Round(kps, Settings.Instance.PerceivedKpsDecimals);
