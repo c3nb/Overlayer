@@ -14,6 +14,7 @@ namespace Overlayer.Tags
             Mul,
             Div,
             Rem,
+            Pow,
             LParen,
             RParen,
             Comma,

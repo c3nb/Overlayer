@@ -79,7 +79,7 @@ namespace Overlayer.Tags.Nodes
         }
         Node ParseAS()
         {
-            Node left = ParseMDR();
+            Node left = ParseMDRP();
             while (true)
             {
                 OperatorNode op;
@@ -100,11 +100,11 @@ namespace Overlayer.Tags.Nodes
                 if (op.op == '\0')
                     return left;
                 NextToken();
-                var right = ParseMDR();
+                var right = ParseMDRP();
                 left = new BinaryNode(left, op, right);
             }
         }
-        Node ParseMDR()
+        Node ParseMDRP()
         {
             var left = ParseUnaryExpression();
             while (true)
@@ -122,6 +122,9 @@ namespace Overlayer.Tags.Nodes
                         break;
                     case Token.Kind.Rem:
                         op = new OperatorNode('%');
+                        break;
+                    case Token.Kind.Pow:
+                        op = new OperatorNode('^');
                         break;
                     default:
                         op = new OperatorNode('\0');
@@ -167,6 +170,7 @@ namespace Overlayer.Tags.Nodes
                         NextToken();
                         return node;
                     }
+                    else Errors = Errors.Add($"Cannot Find '{Current.Text}' Tag.");
                     return new NumberNode(0);
                 case Token.Kind.LParen:
                     NextToken();

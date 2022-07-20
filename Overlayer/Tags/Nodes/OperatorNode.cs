@@ -1,4 +1,5 @@
 ﻿using System.Reflection.Emit;
+using System.Reflection;
 
 namespace Overlayer.Tags.Nodes
 {
@@ -24,6 +25,10 @@ namespace Overlayer.Tags.Nodes
                 case '%':
                     opcode = OpCodes.Rem;
                     return;
+                case '^':
+                    opcode = OpCodes.Call;
+                    opMeth = CustomTag.functions["pow"];
+                    return;
                 case '\0':
                     opcode = OpCodes.Pop;
                     return;
@@ -31,7 +36,12 @@ namespace Overlayer.Tags.Nodes
         }
         public char op;
         public OpCode opcode;
+        public MethodInfo opMeth;
         public override void Emit(ILGenerator il)
-            => il.Emit(opcode);
+        {
+            if (opMeth != null)
+                il.Emit(opcode, opMeth);
+            else il.Emit(opcode);
+        }
     }
 }
