@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
 using UnityEngine;
 
 namespace Overlayer.Patches
@@ -58,8 +59,13 @@ namespace Overlayer.Patches
                 Variables.MultipressCount++;
             Queued[(int)hitMargin]++;
             ForceCall = true;
-            __instance.errorMeter.AddHit(QueuedAngle);
+            if (r92 != null)
+                r92(__instance.errorMeter, QueuedAngle);
+            else if (r94 != null)
+                r94(__instance.errorMeter, QueuedAngle, 1);
             ForceCall = false;
         }
+        public static readonly Action<scrHitErrorMeter, float, float> r94 = (Action<scrHitErrorMeter, float, float>)typeof(scrHitErrorMeter).GetMethod("AddHit", AccessTools.all, null, new[] { typeof(float), typeof(float) }, null)?.CreateDelegate(typeof(Action<scrHitErrorMeter, float, float>));
+        public static readonly Action<scrHitErrorMeter, float> r92 = (Action<scrHitErrorMeter, float>)typeof(scrHitErrorMeter).GetMethod("AddHit", AccessTools.all, null, new[] { typeof(float) }, null)?.CreateDelegate(typeof(Action<scrHitErrorMeter, float>));
     }
 }

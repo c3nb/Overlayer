@@ -10,12 +10,13 @@ namespace Overlayer.Tags.Global
         [Tag]
         public static float GetKps() => Kps;
         public static int Kps;
+        public static double KpsAvg;
+        public static int KpsMax;
+        public static int Total;
         public static void Calculate()
         {
             LinkedList<int> timePoints = new LinkedList<int>();
-            int max = 0, total = 0;
             long n = 0;
-            double avg = 0;
             Stopwatch watch = Stopwatch.StartNew();
             while (true)
             {
@@ -26,14 +27,14 @@ namespace Overlayer.Tags.Global
                     int num = temp;
                     foreach (int i in timePoints)
                         num += i;
-                    max = Math.Max(num, max);
+                    KpsMax = Math.Max(num, KpsMax);
                     if (num != 0)
                     {
-                        avg = (avg * n + num) / (n + 1.0);
+                        KpsAvg = (KpsAvg * n + num) / (n + 1.0);
                         n += 1L;
-                        total += temp;
+                        Total += temp;
                     }
-                    _ = timePoints.AddFirst(temp);
+                    timePoints.AddFirst(temp);
                     if (timePoints.Count >= 1000 / Settings.Instance.KPSUpdateRate)
                         timePoints.RemoveLast();
                     Kps = num;

@@ -80,6 +80,8 @@ namespace Overlayer.Tags.Global
         public static float MilliSecond() => DT.Now.Millisecond;
         [Tag("Multipress", "Multipress Count")]
         public static float Multipress() => Variables.MultipressCount;
+        [Tag("Combo", "Combo")]
+        public static float Combo() => Variables.Combo;
         [Tag("Fps", "Frame Rate")]
         public static float Fps() => (float)Math.Round(Variables.Fps, Settings.Instance.FPSDecimals);
         [Tag("FrameTime", "FrameTime")]

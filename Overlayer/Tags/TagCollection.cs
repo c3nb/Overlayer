@@ -38,7 +38,13 @@ namespace Overlayer.Tags
             MethodInfo[] methods = type.GetMethods((BindingFlags)15420);
             if (cTagAttr != null)
             {
-                MethodInfo valueGetter = methods.FirstOrDefault(m => m.GetCustomAttribute<TagAttribute>() != null);
+                MethodInfo valueGetter = methods.FirstOrDefault(m =>
+                {
+                    TagAttribute ta = m.GetCustomAttribute<TagAttribute>();
+                    if (ta is TagAttribute f)
+                        return f.Name == null && f.Description == null && f.NumberFormat == null;
+                    return false;
+                });
                 if (valueGetter == null)
                     throw new InvalidOperationException("ClassTag Must Have ValueGetter Method!");
                 if (!valueGetter.IsStatic)
