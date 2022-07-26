@@ -9,9 +9,9 @@ namespace Overlayer.Tags.Global
         [Tag("StartTile", "Start Tile")]
         public static float StartTile() => Variables.StartTile;
         [Tag("Accuracy", "Accuracy")]
-        public static float Accuracy() => (float)Math.Round(scrController.instance.mistakesManager.percentAcc * 100, Settings.Instance.AccuracyDecimals);
+        public static float Accuracy(float digits = -1) => (scrController.instance.mistakesManager.percentAcc * 100).Round(digits);
         [Tag("Progress", "Progress")]
-        public static float Progress() => (float)Math.Round((!scrLevelMaker.instance ? 0 : scrController.instance.percentComplete) * 100f, Settings.Instance.ProgressDecimals);
+        public static float Progress(float digits = -1) => ((!scrLevelMaker.instance ? 0 : scrController.instance.percentComplete) * 100f).Round(digits);
         [Tag("CheckPoint", "Check Point Used Count")]
         public static float CheckPoint() => scrController.checkpointsUsed;
         [Tag("CurCheckPoint", "Current Check Point Index")]
@@ -19,13 +19,7 @@ namespace Overlayer.Tags.Global
         [Tag("TotalCheckPoint", "Total Check Points Count")]
         public static float TotalCheckPoints() => Variables.AllCheckPoints.Count;
         [Tag("XAccuracy", "XAccuracy")]
-        public static float XAccuracy()
-        {
-            float value = (float)Math.Round(scrController.instance.mistakesManager.percentXAcc * 100, Settings.Instance.XAccuracyDecimals);
-            if (float.IsNaN(value))
-                return 0;
-            return value;
-        }
+        public static float XAccuracy(float digits = -1) => (scrController.instance.mistakesManager.percentXAcc * 100).Round(digits);
         [Tag("FailCount", "Fail Count")]
         public static float FailCount() => Variables.FailCount;
         [Tag("MissCount", "Miss Count")]
@@ -33,17 +27,17 @@ namespace Overlayer.Tags.Global
         [Tag("Overloads", "Overload Count")]
         public static float Overloads() => scrMistakesManager.hitMarginsCount[9];
         [Tag("CurBpm", "Perceived Bpm")]
-        public static float CurBpm() => (float)Variables.CurBpm;
+        public static float CurBpm(float digits = -1) => Variables.CurBpm.Round(digits);
         [Tag("TileBpm", "Tile Bpm")]
-        public static float TileBpm() => (float)Variables.TileBpm;
+        public static float TileBpm(float digits = -1) => Variables.TileBpm.Round(digits);
         [Tag("RecKps", "Perceived KPS")]
-        public static float RecKps() => (float)Variables.RecKPS;
+        public static float RecKps(float digits = -1) => Variables.RecKPS.Round(digits);
         [Tag("BestProgress", "Best Progress")]
-        public static float BestProgress() => (float)Variables.BestProg;
+        public static float BestProgress(float digits = -1) => Variables.BestProg.Round(digits);
         [Tag("LeastCheckPoint", "Least Check Point Used Count")]
         public static float LeastCheckPoint() => Variables.LeastChkPt;
         [Tag("StartProgress", "Start Progress")]
-        public static float StartProgress() => (float)Math.Round(Variables.StartProg, Settings.Instance.StartProgDecimals);
+        public static float StartProgress(float digits = -1) => Variables.StartProg.Round(digits);
         [Tag("CurMinute", "Now Minute Of Music")]
         public static float CurMinute() => Variables.CurMinute;
         [Tag("CurSecond", "Now Second Of Music", NumberFormat = "00")]
@@ -83,8 +77,8 @@ namespace Overlayer.Tags.Global
         [Tag("Combo", "Combo")]
         public static float Combo() => Variables.Combo;
         [Tag("Fps", "Frame Rate")]
-        public static float Fps() => (float)Math.Round(Variables.Fps, Settings.Instance.FPSDecimals);
+        public static float Fps(float digits = -1) => Variables.Fps.Round(digits);
         [Tag("FrameTime", "FrameTime")]
-        public static float FrameTime() => (float)Math.Round(Variables.FrameTime, Settings.Instance.FrametimeDecimals);
+        public static float FrameTime(float digits = -1) => Variables.FrameTime.Round(digits);
     }
 }

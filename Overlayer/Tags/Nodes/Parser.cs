@@ -192,6 +192,32 @@ namespace Overlayer.Tags.Nodes
                     {
                         NextToken();
                         var args = new Node[0];
+                        if (Current.TokenKind == Token.Kind.RParen)
+                        {
+                            if (Functions.TryGetValue(name, out MethodInfo meth))
+                            {
+                                NextToken();
+                                var parameters = meth.GetParameters();
+                                Node[] arguments = new Node[0];
+                                if (parameters.Length == 0)
+                                    return new FunctionNode(meth, new Node[0]);
+                                else if (parameters.All(p =>
+                                {
+                                    if (p.HasDefaultValue)
+                                    {
+                                        arguments = arguments.Add(new NumberNode((float)p.DefaultValue));
+                                        return true;
+                                    }
+                                    return false;
+                                }))
+                                    return new FunctionNode(meth, arguments);
+                            }
+                            else
+                            {
+                                Errors = Errors.Add($"Cannot Find Function {name}()");
+                                return new NumberNode(0);
+                            }
+                        }
                         while (true)
                         {
                             args = args.Add(ParseAS());

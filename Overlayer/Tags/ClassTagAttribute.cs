@@ -7,5 +7,6 @@ namespace Overlayer.Tags
     {
         public ClassTagAttribute(string name, string description) : base(name, description) { }
         public string[] Threads;
+        public bool HasOtherTags;
     }
 }

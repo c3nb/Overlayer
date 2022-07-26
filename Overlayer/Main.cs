@@ -85,7 +85,7 @@ namespace Overlayer
                     }
                     OText.Load();
                     if (!OText.Texts.Any())
-                        _ = new OText().Apply();
+                        new OText().Apply();
                     Harmony = new Harmony(modEntry.Info.Id);
                     Harmony.PatchAll(asm);
                     var settings = Settings.Instance;
@@ -188,7 +188,7 @@ namespace Overlayer
                         {
                             AllTags.RemoveTag(cTag.name);
                             NotPlayingTags.RemoveTag(cTag.name);
-                            cTag.Recompile();
+                            CustomTag.Recompile();
                             cTags.RemoveAt(i);
                         }
                         GUILayout.FlexibleSpace();

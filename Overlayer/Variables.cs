@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Overlayer.Tags.Global;
 
 namespace Overlayer
 {
@@ -72,6 +73,7 @@ namespace Overlayer
             Combo = 0;
             AllCheckPoints = new List<scrFloor>();
             CurrentCheckPoint = 0;
+            KeyJudgeTag.keyJudges = new KeyJudge[KeyJudgeTag.lineCount];
         }
     }
 }

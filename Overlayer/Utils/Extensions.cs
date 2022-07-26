@@ -1,5 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Overlayer.Utils
 {
@@ -12,6 +13,26 @@ namespace Overlayer.Utils
             else Main.Logger.Log($"{identifier ?? typeof(T).ToString()} is Not Null. ({obj})");
             return obj;
         }
+        public static T MakeFlexible<T>(this T comp) where T : Component
+        {
+            comp.gameObject.MakeFlexible();
+            return comp;
+        }
+        public static GameObject MakeFlexible(this GameObject go)
+        {
+            ContentSizeFitter csf = go.GetComponent<ContentSizeFitter>() ?? go.AddComponent<ContentSizeFitter>();
+            csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            return go;
+        }
+        public static Color ToColor(this float[] array)
+        {
+            if (array.Length > 3)
+                return new Color(array[0], array[1], array[2], array[3]);
+            return new Color(array[0], array[1], array[2]);
+        }
+        public static float[] ToArray(this Color color)
+            => new float[] { color.r, color.g, color.b, color.a };
         public static TextAnchor ToAnchor(this TextAlignmentOptions tao)
         {
             switch (tao)

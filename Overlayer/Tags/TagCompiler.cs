@@ -4,11 +4,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using Overlayer.Utils;
 
 namespace Overlayer.Tags
 {
     public class TagCompiler
     {
+        public static bool IsReferencing(string name)
+        {
+            for (int i = 0; i < ReferencingTags.Length; i++)
+                if (ReferencingTags[i].Name == name)
+                    return true;
+            return false;
+        }
+        public static Tag[] ReferencingTags = new Tag[0];
+        public static void UpdateReferences()
+        {
+            ReferencingTags = OText.Texts
+                .SelectMany(t => new[] 
+                { 
+                    t.PlayingCompiler, 
+                    t.NotPlayingCompiler,
+                })
+                .SelectMany(c => c.tags)
+                .Distinct().ToArray();
+        }
         public delegate string ValueGetter(TagCompiler compiler);
         public string source;
         public ValueGetter getter;
@@ -73,7 +93,7 @@ namespace Overlayer.Tags
                                     }
                                     else
                                     {
-                                        _ = float.TryParse(token.Option, out float result);
+                                        float.TryParse(token.Option, out float result);
                                         il.Emit(OpCodes.Ldc_R4, result);
                                         il.Emit(OpCodes.Callvirt, tag_optValue_Float);
                                     }
@@ -113,6 +133,7 @@ namespace Overlayer.Tags
             il.Emit(OpCodes.Call, string_Concats); // string.Concat 호출
             il.Emit(OpCodes.Ret);
             this.tags = tags.ToArray();
+            UpdateReferences();
             getter = (ValueGetter)value.CreateDelegate(typeof(ValueGetter));
         }
         public string Result => getter(this);

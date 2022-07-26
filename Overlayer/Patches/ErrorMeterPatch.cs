@@ -17,6 +17,8 @@ namespace Overlayer.Patches
         [HarmonyPrefix]
         public static bool AHPrefix(float angleDiff)
         {
+            if (!Settings.Instance.AddAllJudgementsAtErrorMeter)
+                return true;
             if (ForceCall) return true;
             QueuedAngle = angleDiff;
             return false;
@@ -57,6 +59,8 @@ namespace Overlayer.Patches
         {
             if (hitMargin == HitMargin.Multipress)
                 Variables.MultipressCount++;
+            if (!Settings.Instance.AddAllJudgementsAtErrorMeter)
+                return;
             Queued[(int)hitMargin]++;
             ForceCall = true;
             if (r92 != null)

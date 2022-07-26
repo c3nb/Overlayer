@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Overlayer.Tags.Global;
 using System;
+using Overlayer.Tags;
 using System.Reflection;
 
 namespace Overlayer.Patches
@@ -42,10 +43,10 @@ namespace Overlayer.Patches
                 if (floor.nextfloor == null) return;
                 double curBPM = GetRealBpm(floor, bpm) * playbackSpeed * pitch;
                 bool isDongta = false;
-                Variables.TileBpm = Math.Round(bpm * scrController.instance.speed, Settings.Instance.TileBpmDecimals);
+                Variables.TileBpm = bpm * scrController.instance.speed;
                 if (isDongta || beforedt) curBPM = beforebpm;
-                Variables.CurBpm = Math.Round(curBPM, Settings.Instance.PerceivedBpmDecimals);
-                Variables.RecKPS = Math.Round(curBPM / 60, Settings.Instance.PerceivedKpsDecimals);
+                Variables.CurBpm = curBPM;
+                Variables.RecKPS = curBPM / 60;
                 beforedt = isDongta;
                 beforebpm = curBPM;
             }
@@ -96,9 +97,9 @@ namespace Overlayer.Patches
             }
             if (!Settings.Instance.ApplyPitchAtBpmTags)
                 pitch = 1;
-            Variables.TileBpm = Math.Round(cur, Settings.Instance.TileBpmDecimals);
-            Variables.CurBpm = Math.Round(cur, Settings.Instance.PerceivedBpmDecimals);
-            Variables.RecKPS = Math.Round(kps, Settings.Instance.PerceivedKpsDecimals);
+            Variables.TileBpm = cur;
+            Variables.CurBpm = cur;
+            Variables.RecKPS = kps;
         }
     }
 }

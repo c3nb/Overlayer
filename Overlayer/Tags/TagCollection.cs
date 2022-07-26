@@ -41,8 +41,8 @@ namespace Overlayer.Tags
                 MethodInfo valueGetter = methods.FirstOrDefault(m =>
                 {
                     TagAttribute ta = m.GetCustomAttribute<TagAttribute>();
-                    if (ta is TagAttribute f)
-                        return f.Name == null && f.Description == null && f.NumberFormat == null;
+                    if (ta is TagAttribute f && f.IsDefault)
+                        return true;
                     return false;
                 });
                 if (valueGetter == null)
@@ -54,12 +54,14 @@ namespace Overlayer.Tags
                 tag.Threads = threads?.Select(m => new Thread((ThreadStart)m.CreateDelegate(typeof(ThreadStart)))).ToArray();
                 Array.Resize(ref tags, length + 1);
                 tags[length++] = tag;
-                goto Final;
+                if (!cTagAttr.HasOtherTags)
+                    goto Final;
             }
             foreach (MethodInfo method in methods)
             {
                 TagAttribute tagAttr = method.GetCustomAttribute<TagAttribute>();
                 if (tagAttr == null) continue;
+                if (tagAttr.IsDefault) continue;
                 Tag tag = new Tag(tagAttr.Name, tagAttr.Description, method, tagAttr.NumberFormat);
                 Array.Resize(ref tags, length + 1);
                 tags[length++] = tag;

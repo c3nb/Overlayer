@@ -288,6 +288,7 @@
     <Compile Include="Patches\ErrorMeterUnlocker.cs" />
     <Compile Include="Patches\AttemptsCounter.cs" />
     <Compile Include="Patches\GetHitMarginFixer.cs" />
+    <Compile Include="Patches\KeyJudgePatch.cs" />
     <Compile Include="Patches\LeastChkPtLogger.cs" />
     <Compile Include="Patches\Resetter.cs" />
     <Compile Include="Patches\StartProgUpdater.cs" />
@@ -300,6 +301,7 @@
     <Compile Include="Tags\CustomTag.cs" />
     <Compile Include="Tags\CustomTagCompiler.cs" />
     <Compile Include="Tags\Global\CurHitTags.cs" />
+    <Compile Include="Tags\Global\KeyJudgeTag.cs" />
     <Compile Include="Tags\Global\KPS.cs" />
     <Compile Include="Tags\Global\Misc.cs" />
     <Compile Include="Tags\Global\Scores.cs" />
@@ -321,7 +323,9 @@
     <Compile Include="Tags\TagAttribute.cs" />
     <Compile Include="Tags\TagCollection.cs" />
     <Compile Include="Tags\TagCompiler.cs" />
+    <Compile Include="Tags\TagExtensions.cs" />
     <Compile Include="Tags\Token.cs" />
+    <Compile Include="Utils\ArrayUtils.cs" />
     <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\GUIUtils.cs" />

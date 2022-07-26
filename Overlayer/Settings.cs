@@ -13,30 +13,6 @@ namespace Overlayer
         public static void Save(UnityModManager.ModEntry modEntry)
             => Save(Instance, modEntry);
         public static Settings Instance;
-        [Draw("Decimals On Displaying Accuracy")]
-        public int AccuracyDecimals = 2;
-        [Draw("Decimals On Displaying XAccuracy")]
-        public int XAccuracyDecimals = 2;
-        [Draw("Decimals On Displaying HitTiming")]
-        public int TimingDecimals = 2;
-        [Draw("Decimals On Displaying Progress")]
-        public int ProgressDecimals = 2;
-        [Draw("Decimals On Displaying Best Progress")]
-        public int BestProgDecimals = 2;
-        [Draw("Decimals On Displaying Start Progress")]
-        public int StartProgDecimals = 2;
-        [Draw("Decimals On Displaying Perceived Bpm")]
-        public int PerceivedBpmDecimals = 2;
-        [Draw("Decimals On Displaying Tile Bpm")]
-        public int TileBpmDecimals = 2;
-        [Draw("Decimals On Displaying Perceived KPS")]
-        public int PerceivedKpsDecimals = 2;
-        [Draw("Decimals On Displaying Current KPS")]
-        public int KPSDecimals = 2;
-        [Draw("Decimals On Displaying Current FPS")]
-        public int FPSDecimals = 2;
-        [Draw("Decimals On Displaying Current Frametime")]
-        public int FrametimeDecimals = 2;
         [Draw("Reset Stats On Start")]
         public bool Reset = true;
         [Draw("KPS UpdateRate")]

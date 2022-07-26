@@ -14,5 +14,6 @@ namespace Overlayer.Tags
         public string Name { get; }
         public string Description { get; }
         public string NumberFormat;
+        public bool IsDefault => Name == null && Description == null && NumberFormat == null;
     }
 }

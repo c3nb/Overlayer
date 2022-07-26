@@ -4,15 +4,15 @@ using UnityEngine.UI;
 
 namespace Overlayer.Patches
 {
-    [HarmonyPatch(typeof(scrCountdown), "ShowOverload")]
+    [HarmonyPatch(typeof(scrController), "FailAction")]
     public static class DeathMessagePatch
     {
         public static TagCompiler compiler;
-        public static void Postfix(Text ___text)
+        public static void Postfix(scrController __instance)
         {
             if (compiler.getter != null)
             {
-                ___text.text = compiler.Result;
+                __instance.txtTryCalibrating.text = compiler.Result;
             }
         }
     }

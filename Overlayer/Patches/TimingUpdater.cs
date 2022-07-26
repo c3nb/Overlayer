@@ -11,7 +11,7 @@ namespace Overlayer.Patches
         {
             if (OText.IsPlaying)
             {
-                Variables.Timing = Math.Round((__instance.angle - __instance.targetExitAngle) * (scrController.instance.isCW ? 1.0 : -1.0) * 60000.0 / (3.1415926535897931 * __instance.conductor.bpm * scrController.instance.speed * __instance.conductor.song.pitch), Settings.Instance.TimingDecimals);
+                Variables.Timing = (__instance.angle - __instance.targetExitAngle) * (scrController.instance.isCW ? 1.0 : -1.0) * 60000.0 / (3.1415926535897931 * __instance.conductor.bpm * scrController.instance.speed * __instance.conductor.song.pitch);
                 Timings.TimingList.Add(Variables.Timing);
                 if (!scrController.instance.noFail)
                     Variables.BestProg = Math.Max(Variables.BestProg, scrController.instance.percentComplete * 100);

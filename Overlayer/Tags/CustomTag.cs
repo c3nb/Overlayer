@@ -47,7 +47,7 @@ namespace Overlayer.Tags
                 return error = err[0];
             else return error = null;
         }
-        public void Recompile()
+        public static void Recompile()
         {
             foreach (OText text in OText.Texts)
             {
