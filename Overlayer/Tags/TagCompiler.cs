@@ -58,7 +58,7 @@ namespace Overlayer.Tags
             this.tags = new Tag[0];
             List<Tag> tags = new List<Tag>(); // 캐싱된 태그들을 Tag[]로 쉽게 옮기기 위해 만든 List<Tag>
             int lastIndex = 0;
-            Dictionary<string, int> tagIndex = new Dictionary<string, int>();
+            Dictionary<string, int> tokRawIndex = new Dictionary<string, int>();
             Dictionary<int, LocalBuilder> tagLocals = new Dictionary<int, LocalBuilder>();
             il.Emit(OpCodes.Ldc_I4, objsLength); // 몇개의 string이 들어갈 예정인지 capacity설정
             il.Emit(OpCodes.Newarr, typeof(string)); // string타입의 1차원 배열을 생성
@@ -72,11 +72,11 @@ namespace Overlayer.Tags
                 {
                     if (tag != null)
                     {
-                        if (!tagIndex.TryGetValue(tag.Name, out int index))
+                        if (!tokRawIndex.TryGetValue(token.Raw, out int index))
                         {
                             tags.Add(tag);
                             index = lastIndex++;
-                            tagIndex[tag.Name] = index;
+                            tokRawIndex[token.Raw] = index;
                             LocalBuilder loc = tagLocals[index] = il.DeclareLocal(typeof(string));
                             il.Emit(OpCodes.Ldarg_0); // 첫번째 매개변수(TagCompiler) 로드
                             il.Emit(OpCodes.Ldfld, tagsFld); // Tag[] tags필드 로드

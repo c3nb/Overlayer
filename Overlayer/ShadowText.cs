@@ -28,20 +28,20 @@ namespace Overlayer
         public static Font DefaultFont;
         public Action Updater;
         public TextMeshProUGUI Main;
-        public Text Shadow;
+        public TextMeshProUGUI Shadow;
         public int Number;
-        public TextAnchor Alignment
+        public TextAlignmentOptions Alignment
         {
-            get => Main.alignment.ToAnchor();
+            get => Main.alignment;
             set
             {
-                Main.alignment = value.ToAlignment();
+                Main.alignment = value;
                 Shadow.alignment = value;
             }
         }
-        public int FontSize
+        public float FontSize
         {
-            get => (int)Main.fontSize;
+            get => Main.fontSize;
             set
             {
                 Main.fontSize = value;
@@ -99,10 +99,9 @@ namespace Overlayer
             GameObject shadowObject = new GameObject();
             shadowObject.transform.SetParent(PublicCanvas.transform);
             shadowObject.MakeFlexible();
-            Shadow = shadowObject.AddComponent<Text>();
-            Shadow s = shadowObject.AddComponent<Shadow>();
-            s.effectColor = Color.black.WithAlpha(0.4f);
-            Shadow.font = DefaultFont;
+            Shadow = shadowObject.AddComponent<TextMeshProUGUI>();
+            Shadow.color = Color.black.WithAlpha(0.4f);
+            Shadow.font = DefaultTMPFont;
 
             GameObject mainObject = new GameObject();
             mainObject.transform.SetParent(PublicCanvas.transform);
@@ -113,7 +112,9 @@ namespace Overlayer
 
             Main.lineSpacing -= 25f;
             Main.lineSpacingAdjustment = 25f;
-            Shadow.lineSpacing -= .2f;
+
+            Shadow.lineSpacing -= 25f;
+            Shadow.lineSpacingAdjustment = 25f;
         }
         private void Update() => Updater();
         static bool initialized;
@@ -129,13 +130,13 @@ namespace Overlayer
             if (name == "Default")
             {
                 Main.font = DefaultTMPFont;
-                Shadow.font = DefaultFont;
+                Shadow.font = DefaultTMPFont;
                 return true;
             }
             if (Fonts.TryGetValue(name, out FontData data))
             {
                 Main.font = data.fontTMP;
-                Shadow.font = data.font;
+                Shadow.font = data.fontTMP;
                 return true;
             }
             else
@@ -147,7 +148,7 @@ namespace Overlayer
                     Font newFont = Font.CreateDynamicFontFromOSFont(name, 1);
                     TMP_FontAsset newTMPFont = TMP_FontAsset.CreateFontAsset(newFont);
                     Main.font = newTMPFont;
-                    Shadow.font = newFont;
+                    Shadow.font = newTMPFont;
                     newData.font = newFont;
                     newData.fontTMP = newTMPFont;
                     Fonts.Add(name, newData);

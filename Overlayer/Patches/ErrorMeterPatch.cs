@@ -17,8 +17,7 @@ namespace Overlayer.Patches
         [HarmonyPrefix]
         public static bool AHPrefix(float angleDiff)
         {
-            if (!Settings.Instance.AddAllJudgementsAtErrorMeter)
-                return true;
+            if (!Settings.Instance.AddAllJudgementsAtErrorMeter) return true;
             if (ForceCall) return true;
             QueuedAngle = angleDiff;
             return false;
@@ -52,6 +51,7 @@ namespace Overlayer.Patches
         {
             __instance.tickLife = Settings.Instance.ErrorMeterTickLife;
             __instance.tickCacheSize = Settings.Instance.ErrorMeterHitImages;
+            Queued = new int[10];
         }
         [HarmonyPatch(typeof(scrController), "ShowHitText")]
         [HarmonyPostfix]

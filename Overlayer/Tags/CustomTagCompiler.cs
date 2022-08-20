@@ -18,7 +18,7 @@ namespace Overlayer.Tags
         public ValueGetter getter;
         public CustomTagCompiler(TagCollection tagsReference)
             => this.tagsReference = tagsReference;
-        public CustomTagCompiler Compile(string name, string description, string text, Dictionary<string, float> consts, Dictionary<string, MethodInfo> functions, out string[] errors)
+        public CustomTagCompiler Compile(string name, string description, string text, Dictionary<string, float> consts, Dictionary<string, List<MethodInfo>> functions, out string[] errors)
         {
             parser = new Parser(text, tagsReference, consts, functions);
             Node node = parser.ParseExpression();

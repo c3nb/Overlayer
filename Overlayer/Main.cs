@@ -5,7 +5,10 @@ using Overlayer.Utils;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Threading;
 using UnityModManagerNet;
 using static UnityModManagerNet.UnityModManager;
 
@@ -21,6 +24,35 @@ namespace Overlayer
         public static float lastDeltaTime;
         public static TagCollection AllTags;
         public static TagCollection NotPlayingTags;
+        public static bool IsSimpleSeperatePatched = false;
+        public static bool IsAllSeperatePatched = false;
+        public static readonly Thread SeperatePatcher = new Thread(() =>
+        {
+            if (!IsSimpleSeperatePatched && Settings.Instance.SeperateKorean)
+            {
+                foreach (MethodInfo method in typeof(RDString).GetMethods((BindingFlags)15420).Concat(typeof(scnCLS).GetMethods((BindingFlags)15420)))
+                {
+                    try { Harmony.Patch(method, transpiler: new HarmonyMethod(SeperateKorean.sptr)); }
+                    catch { }
+                }
+                IsSimpleSeperatePatched = true;
+            }
+            if (!IsAllSeperatePatched && Settings.Instance.SeperateAllKorean)
+            {
+                var types = AppDomain.CurrentDomain.GetAssemblies().Where(asm => asm.GetName().Name == "Assembly-CSharp").SelectMany(asm => asm.GetTypes());
+                foreach (Type type in types.Where(t => t.Name != "RDString" && t.Name != "scnCLS"))
+                {
+                    string typeName = type.Name;
+                    if (typeName.Contains("ADO")) continue;
+                    foreach (MethodInfo method in type.GetMethods((BindingFlags)15420))
+                    {
+                        try { Harmony.Patch(method, transpiler: new HarmonyMethod(SeperateKorean.sptr)); }
+                        catch { }
+                    }
+                }
+                IsAllSeperatePatched = true;
+            }
+        });
         public static void Load(ModEntry modEntry)
         {
             Mod = modEntry;
@@ -92,6 +124,7 @@ namespace Overlayer
                     DeathMessagePatch.compiler = new TagCompiler(AllTags);
                     if (!string.IsNullOrEmpty(settings.DeathMessage))
                         DeathMessagePatch.compiler.Compile(settings.DeathMessage);
+                    Settings.Instance.OnChange();
                 }
                 else
                 {
@@ -198,11 +231,13 @@ namespace Overlayer
                         GUILayout.Space(3);
                     }
                 });
+                CustomTag.ConstantsGUI();
+                CustomTag.FunctionGUI();
             }
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Add Text"))
             {
-                _ = new OText().Apply();
+                new OText().Apply();
                 OText.Order();
             }
             GUILayout.FlexibleSpace();

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Overlayer.Utils;
 
 namespace Overlayer.Tags
 {
@@ -64,7 +65,7 @@ namespace Overlayer.Tags
                         if (str.All(c => char.IsDigit(c) || c == '.'))
                         {
                             TokenKind = Kind.Number;
-                            Value = float.Parse(str);
+                            Value = FastParser.ParseFloat(str);
                         }
                         else TokenKind = Kind.Identifier;
                         return;

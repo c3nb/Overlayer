@@ -70,8 +70,14 @@ namespace Overlayer.Patches
                 return scrController.instance.speed * bpm;
             return 60.0 / (floor.nextfloor.entryTime - floor.entryTime);
         }
+        public static string mapHash = "";
         public static void Init(scrController __instance)
         {
+            if (mapHash != __instance.caption)
+            {
+                ProgressDeath.Reset();
+                mapHash = __instance.caption;
+            }
             Timings.TimingList.Clear();
             Variables.IsStarted = true;
             Variables.AllCheckPoints = scrLevelMaker.instance.listFloors.FindAll(f => f.GetComponent<ffxCheckpoint>() != null);

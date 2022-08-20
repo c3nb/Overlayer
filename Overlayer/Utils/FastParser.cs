@@ -1,34 +1,7 @@
 ﻿using System;
-using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Attributes;
 
-namespace Overlayer.Test
+namespace Overlayer.Utils
 {
-    public static class Program
-    {
-        public static void Main(string[] args)
-        {
-            BenchmarkRunner.Run<Benchmark>();
-        }
-    }
-    public class Benchmark
-    {
-        [Benchmark]
-        public void ParseDoubleManual()
-        {
-            FastParser.ParseDouble("-123.123123");
-        }
-        [Benchmark]
-        public void ParseIntManual()
-        {
-            FastParser.ParseInt("-123123123");
-        }
-        [Benchmark]
-        public void ParseFloatManual()
-        {
-            FastParser.ParseFloat("-123.123123");
-        }
-    }
     public unsafe static class FastParser
     {
         public static int ParseInt(string s)
@@ -69,7 +42,7 @@ namespace Overlayer.Test
                     if (!isDot)
                         result = 10 * result + (*c - 48);
                     else result += (*c - 48) / dPow[dCount++];
-                Continue:
+                    Continue:
                     c++;
                 }
             }
@@ -97,7 +70,7 @@ namespace Overlayer.Test
                     if (!isDot)
                         result = 10 * result + (*c - 48);
                     else result += (*c - 48) / fPow[dCount++];
-                Continue:
+                    Continue:
                     c++;
                 }
             }

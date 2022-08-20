@@ -291,6 +291,7 @@
     <Compile Include="Patches\KeyJudgePatch.cs" />
     <Compile Include="Patches\LeastChkPtLogger.cs" />
     <Compile Include="Patches\Resetter.cs" />
+    <Compile Include="Patches\SeperateKorean.cs" />
     <Compile Include="Patches\StartProgUpdater.cs" />
     <Compile Include="Patches\TimingUpdater.cs" />
     <Compile Include="Patches\Updater.cs" />
@@ -304,6 +305,7 @@
     <Compile Include="Tags\Global\KeyJudgeTag.cs" />
     <Compile Include="Tags\Global\KPS.cs" />
     <Compile Include="Tags\Global\Misc.cs" />
+    <Compile Include="Tags\Global\ProgressDeath.cs" />
     <Compile Include="Tags\Global\Scores.cs" />
     <Compile Include="Tags\Global\Timings.cs" />
     <Compile Include="Tags\Lenient\LHitTags.cs" />
@@ -328,6 +330,7 @@
     <Compile Include="Utils\ArrayUtils.cs" />
     <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utils\FastParser.cs" />
     <Compile Include="Utils\GUIUtils.cs" />
     <Compile Include="Variables.cs" />
   </ItemGroup>

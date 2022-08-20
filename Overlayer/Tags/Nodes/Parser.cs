@@ -24,7 +24,7 @@ namespace Overlayer.Tags.Nodes
             position++;
             return cur;
         }
-        public Dictionary<string, MethodInfo> Functions;
+        public Dictionary<string, List<MethodInfo>> Functions;
         public Dictionary<string, float> Variables;
         public Token Peek(int offset)
         {
@@ -33,7 +33,7 @@ namespace Overlayer.Tags.Nodes
                 return null;
             return tokens[index];
         }
-        public Parser(string text, TagCollection tagsReference, Dictionary<string, float> variables = null, Dictionary<string, MethodInfo> functions = null)
+        public Parser(string text, TagCollection tagsReference, Dictionary<string, float> variables = null, Dictionary<string, List<MethodInfo>> functions = null)
         {
             Errors = new string[0];
             tokens = Token.Tokenize(text)
@@ -61,7 +61,7 @@ namespace Overlayer.Tags.Nodes
                     else
                     {
                         tagDict.Add(key, (index++, result));
-                        CanUsedByNotPlaying = Main.NotPlayingTags.Contains(result);
+                        CanUsedByNotPlaying &= Main.NotPlayingTags.Contains(result);
                     }
                     continue;
                 }
@@ -194,9 +194,10 @@ namespace Overlayer.Tags.Nodes
                         var args = new Node[0];
                         if (Current.TokenKind == Token.Kind.RParen)
                         {
-                            if (Functions.TryGetValue(name, out MethodInfo meth))
+                            if (Functions.TryGetValue(name, out List<MethodInfo> meths))
                             {
                                 NextToken();
+                                var meth = meths.Find(m => m.GetParameters().All(p => p.HasDefaultValue));
                                 var parameters = meth.GetParameters();
                                 Node[] arguments = new Node[0];
                                 if (parameters.Length == 0)
@@ -232,13 +233,17 @@ namespace Overlayer.Tags.Nodes
                             Errors = Errors.Add("Missing Close Parenthesis!");
                         NextToken();
                         var argsLength = args.Length;
-                        if (Functions.TryGetValue(name, out MethodInfo m))
+                        if (Functions.TryGetValue(name, out List<MethodInfo> ms))
                         {
+                            var m = ms.Find(mt => mt.GetParameters().Length == argsLength);
+                            if (m == null)
+                                goto notfound;
                             var parameters = m.GetParameters();
                             var paramTypes = parameters.Select(p => p.ParameterType);
-                            if (parameters.Length == argsLength && paramTypes.All(t => t == typeof(float)) && m.ReturnType == typeof(float))
+                            if (paramTypes.All(t => t == typeof(float)) && m.ReturnType == typeof(float))
                                 return new FunctionNode(m, args);
                         }
+                    notfound:
                         Errors = Errors.Add($"Cannot Find Function {name}({(argsLength == 1 ? "float" : Enumerable.Repeat("float", argsLength).Aggregate((c, n) => $"{c}, {n}"))})");
                         return new NumberNode(0);
                     }

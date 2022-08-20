@@ -26,12 +26,13 @@ namespace Overlayer
                 PlayingText = "<color=#ED3E3E>{CurTE}</color> <color=#EB9A46>{CurVE}</color> <color=#E3E370>{CurEP}</color> <color=#86E370>{CurP}</color> <color=#E3E370>{CurLP}</color> <color=#EB9A46>{CurVL}</color> <color=#ED3E3E>{CurTL}</color>";
                 FontSize = 44;
                 IsExpanded = true;
-                Alignment = TextAnchor.LowerLeft;
+                Alignment = TextAlignmentOptions.Left;
                 Font = "Default";
                 Active = true;
                 GradientText = false;
                 Gradient = new float[4][] { new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 }, new float[4] { 1, 1, 1, 1 } };
             }
+            public string Name;
             public float[] Position;
             public float[] Color;
             public int FontSize;
@@ -41,7 +42,7 @@ namespace Overlayer
             public float[] ShadowColor;
             public string Font;
             public bool Active;
-            public TextAnchor Alignment;
+            public TextAlignmentOptions Alignment;
             public bool GradientText;
             public float[][] Gradient;
             public void ValidCheck()
@@ -112,8 +113,10 @@ namespace Overlayer
             SText = ShadowText.NewText();
             UnityEngine.Object.DontDestroyOnLoad(SText.gameObject);
             TSetting = setting ?? new Setting();
-            TSetting.ValidCheck();
             Number = SText.Number;
+            TSetting.ValidCheck();
+            if (TSetting.Name == null)
+                TSetting.Name = $"Text {Number}";
             PlayingCompiler = new TagCompiler(TSetting.PlayingText, Main.AllTags);
             NotPlayingCompiler = new TagCompiler(TSetting.NotPlayingText, Main.NotPlayingTags);
             BrokenPlayingCompiler = new TagCompiler(tagBreaker.Replace(TSetting.PlayingText, string.Empty), Main.AllTags);
@@ -136,8 +139,16 @@ namespace Overlayer
         }
         public void GUI()
         {
-            if (TSetting.IsExpanded = GUILayout.Toggle(TSetting.IsExpanded, $"Text {Number}"))
+            GUILayout.BeginHorizontal();
+            TSetting.IsExpanded = GUILayout.Toggle(TSetting.IsExpanded, "");
+            if (TSetting.IsExpanded)
+                TSetting.Name = GUILayout.TextField(TSetting.Name);
+            else GUILayout.Label(TSetting.Name);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            if (TSetting.IsExpanded)
             {
+                GUILayout.BeginVertical();
                 GUIUtils.IndentGUI(() =>
                 {
                     var active = GUILayout.Toggle(TSetting.Active, "Active");
@@ -160,7 +171,7 @@ namespace Overlayer
                     if (GUIUtils.DrawEnum($"Text {Number} Alignment", ref TSetting.Alignment)) Apply();
                     if (GUILayout.Button("Reset"))
                     {
-                        TSetting.Alignment = TextAnchor.LowerLeft;
+                        TSetting.Alignment = TextAlignmentOptions.Left;
                         Apply();
                     }
                     GUILayout.FlexibleSpace();
@@ -259,6 +270,7 @@ namespace Overlayer
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
                 });
+                GUILayout.EndVertical();
             }
         }
         public static void Remove(OText text)
@@ -292,6 +304,7 @@ namespace Overlayer
             SText.FontSize = TSetting.FontSize;
             SText.Alignment = TSetting.Alignment;
             SText.Shadow.color = TSetting.ShadowColor.ToColor();
+            Tags.Global.ProgressDeath.Reset();
             PlayingCompiler.Compile(TSetting.PlayingText);
             NotPlayingCompiler.Compile(TSetting.NotPlayingText);
             BrokenPlayingCompiler.Compile(tagBreaker.Replace(TSetting.PlayingText, string.Empty));

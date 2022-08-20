@@ -86,6 +86,12 @@ namespace Overlayer.Utils
             => array = array.Push(item);
         public static void Pop<T>(ref T[] array, out T item)
             => array = array.Pop(out item);
+        public static void Copy<T>(this T[] array, out T[] result)
+        {
+            var len = array.Length;
+            result = new T[len];
+            Array.Copy(array, 0, result, 0, len);
+        }
         public static void Add<T>(ref T[] array, T item)
             => array = array.Add(item);
         public static void AddRange<T>(ref T[] array, IEnumerable<T> items)

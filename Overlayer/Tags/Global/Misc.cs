@@ -54,7 +54,7 @@ namespace Overlayer.Tags.Global
         public static float LeftTile() => Variables.LeftTile;
         [Tag("TotalTile", "Total Tile Count")]
         public static float TotalTile() => Variables.TotalTile;
-        [Tag("CurTile", "Current TIle Count")]
+        [Tag("CurTile", "Current Tile Count")]
         public static float CurTile() => Variables.CurrentTile;
         [Tag("Attempts", "Current Level Try Count")]
         public static float Attempts() => Variables.Attempts;

@@ -27,7 +27,7 @@ namespace Overlayer.Tags.Nodes
                     return;
                 case '^':
                     opcode = OpCodes.Call;
-                    opMeth = CustomTag.functions["pow"];
+                    opMeth = CustomTag.functions["pow"][0];
                     return;
                 case '\0':
                     opcode = OpCodes.Pop;
