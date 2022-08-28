@@ -1,7 +1,8 @@
 ﻿using System;
+using TagLib.Tags;
 using System.Collections.Generic;
 using System.Linq;
-using Overlayer.Utils;
+using TagLib.Utils;
 
 namespace Overlayer.Tags.Global
 {
@@ -21,7 +22,7 @@ namespace Overlayer.Tags.Global
             {
                 var split = key.Split('~');
                 if (split.Length <= 1) return false;
-                var range = (min: FastParser.ParseFloat(split[0]), max: FastParser.ParseFloat(split[1]));
+                var range = (min: split[0].ToFloat(), max: split[1].ToFloat());
                 return progress >= range.min && progress <= range.max;
             }).ToArray();
             for (int i = 0; i < keys.Length; i++)

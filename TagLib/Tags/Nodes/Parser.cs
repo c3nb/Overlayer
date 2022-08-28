@@ -4,9 +4,9 @@ using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Collections.Generic;
-using Overlayer.Utils;
+using TagLib.Utils;
 
-namespace Overlayer.Tags.Nodes
+namespace TagLib.Tags.Nodes
 {
     public class Parser
     {
@@ -61,7 +61,7 @@ namespace Overlayer.Tags.Nodes
                     else
                     {
                         tagDict.Add(key, (index++, result));
-                        CanUsedByNotPlaying &= Main.NotPlayingTags.Contains(result);
+                        CanUsedByNotPlaying &= TagManager.NotPlayingTags.Contains(result);
                     }
                     continue;
                 }

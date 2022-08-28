@@ -1,4 +1,4 @@
-﻿using Overlayer.Utils;
+﻿using TagLib.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading;
 using UnityEngine;
 
-namespace Overlayer.Tags
+namespace TagLib.Tags
 {
     public class TagCollection : IEnumerable<Tag>, IEnumerator<Tag>
     {
@@ -79,6 +79,13 @@ namespace Overlayer.Tags
             nTags = tags.ToDictionary(t => t.Name);
             tag.Start();
             length++;
+        }
+        public void AddTags(IEnumerable<Tag> tags)
+        {
+            this.tags = this.tags.AddRange(tags);
+            nTags = this.tags.ToDictionary(t => t.Name);
+            tags.ForEach(t => t.Start());
+            length += tags.Count();
         }
         public void RemoveTag(string name)
         {
@@ -168,5 +175,7 @@ namespace Overlayer.Tags
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
         }
+        public TagCollection Copy()
+            => new TagCollection(tags);
     }
 }

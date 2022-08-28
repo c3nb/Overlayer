@@ -1,7 +1,8 @@
 ﻿using HarmonyLib;
 using Overlayer.Patches;
-using Overlayer.Tags;
-using Overlayer.Utils;
+using TagLib.Tags;
+using TagLib.Utils;
+using TagLib;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +11,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Threading;
 using UnityModManagerNet;
+using System.Runtime.CompilerServices;
 using static UnityModManagerNet.UnityModManager;
 
 namespace Overlayer
@@ -22,41 +24,29 @@ namespace Overlayer
         public static float fpsTimer = 0;
         public static float fpsTimeTimer = 0;
         public static float lastDeltaTime;
-        public static TagCollection AllTags;
-        public static TagCollection NotPlayingTags;
-        public static bool IsSimpleSeperatePatched = false;
-        public static bool IsAllSeperatePatched = false;
-        public static readonly Thread SeperatePatcher = new Thread(() =>
-        {
-            if (!IsSimpleSeperatePatched && Settings.Instance.SeperateKorean)
-            {
-                foreach (MethodInfo method in typeof(RDString).GetMethods((BindingFlags)15420).Concat(typeof(scnCLS).GetMethods((BindingFlags)15420)))
-                {
-                    try { Harmony.Patch(method, transpiler: new HarmonyMethod(SeperateKorean.sptr)); }
-                    catch { }
-                }
-                IsSimpleSeperatePatched = true;
-            }
-            if (!IsAllSeperatePatched && Settings.Instance.SeperateAllKorean)
-            {
-                var types = AppDomain.CurrentDomain.GetAssemblies().Where(asm => asm.GetName().Name == "Assembly-CSharp").SelectMany(asm => asm.GetTypes());
-                foreach (Type type in types.Where(t => t.Name != "RDString" && t.Name != "scnCLS"))
-                {
-                    string typeName = type.Name;
-                    if (typeName.Contains("ADO")) continue;
-                    foreach (MethodInfo method in type.GetMethods((BindingFlags)15420))
-                    {
-                        try { Harmony.Patch(method, transpiler: new HarmonyMethod(SeperateKorean.sptr)); }
-                        catch { }
-                    }
-                }
-                IsAllSeperatePatched = true;
-            }
-        });
         public static void Load(ModEntry modEntry)
         {
             Mod = modEntry;
             Logger = modEntry.Logger;
+            var asm = Assembly.GetExecutingAssembly();
+            Settings.Load(modEntry);
+            TagManager.AllTags.LoadTags(asm);
+            TagManager.NotPlayingTags.AddTags(new[]
+            {
+                TagManager.AllTags["Year"],
+                TagManager.AllTags["Month"],
+                TagManager.AllTags["Day"],
+                TagManager.AllTags["Hour"],
+                TagManager.AllTags["Minute"],
+                TagManager.AllTags["Second"],
+                TagManager.AllTags["MilliSecond"],
+                TagManager.AllTags["Fps"],
+                TagManager.AllTags["FrameTime"],
+                TagManager.AllTags["CurKps"],
+            });
+            modEntry.OnToggle = OnToggle;
+            modEntry.OnGUI = OnGUI;
+            modEntry.OnSaveGUI = OnSaveGUI;
             modEntry.OnUpdate = (mod, deltaTime) =>
             {
                 if (Input.anyKeyDown)
@@ -68,7 +58,6 @@ namespace Overlayer
                     fpsTimer = 0;
                 }
                 fpsTimer += deltaTime;
-
                 if (fpsTimeTimer > Settings.Instance.FrameTimeUpdateRate / 1000.0f)
                 {
                     Variables.FrameTime = lastDeltaTime * 1000.0f;
@@ -76,9 +65,6 @@ namespace Overlayer
                 }
                 fpsTimeTimer += deltaTime;
             };
-            modEntry.OnToggle = OnToggle;
-            modEntry.OnGUI = OnGUI;
-            modEntry.OnSaveGUI = OnSaveGUI;
         }
         public static bool OnToggle(ModEntry modEntry, bool value)
         {
@@ -86,29 +72,12 @@ namespace Overlayer
             {
                 if (value)
                 {
-                    var asm = Assembly.GetExecutingAssembly();
                     Settings.Load(modEntry);
                     Variables.Reset();
-                    AllTags = new TagCollection();
-                    AllTags.LoadTags(asm);
-                    NotPlayingTags = new TagCollection(new[]
-                    {
-                        AllTags["Year"],
-                        AllTags["Month"],
-                        AllTags["Day"],
-                        AllTags["Hour"],
-                        AllTags["Minute"],
-                        AllTags["Second"],
-                        AllTags["MilliSecond"],
-                        AllTags["Fps"],
-                        AllTags["FrameTime"],
-                        AllTags["CurKps"],
-                    });
-                    AllTags.ForEach(t => t.Start());
                     CustomTag.Load();
                     foreach (CustomTag cTag in CustomTag.Tags)
                     {
-                        string err = cTag.Compile(AllTags, cTag.name, cTag.description, cTag.expression);
+                        string err = cTag.Compile(TagManager.AllTags, cTag.name, cTag.description, cTag.expression, Recompile);
                         cTag.name_ = cTag.name;
                         cTag.description_ = cTag.description;
                         cTag.expression_ = cTag.expression;
@@ -119,9 +88,9 @@ namespace Overlayer
                     if (!OText.Texts.Any())
                         new OText().Apply();
                     Harmony = new Harmony(modEntry.Info.Id);
-                    Harmony.PatchAll(asm);
+                    Harmony.PatchAll(Assembly.GetExecutingAssembly());
                     var settings = Settings.Instance;
-                    DeathMessagePatch.compiler = new TagCompiler(AllTags);
+                    DeathMessagePatch.compiler = new TextCompiler(TagManager.AllTags);
                     if (!string.IsNullOrEmpty(settings.DeathMessage))
                         DeathMessagePatch.compiler.Compile(settings.DeathMessage);
                     Settings.Instance.OnChange();
@@ -132,11 +101,7 @@ namespace Overlayer
                     try
                     {
                         OText.Clear();
-                        AllTags.Clear();
-                        NotPlayingTags.Clear();
                         DeathMessagePatch.compiler = null;
-                        AllTags = null;
-                        NotPlayingTags = null;
                         GC.Collect();
                     }
                     finally
@@ -213,15 +178,15 @@ namespace Overlayer
                         {
                             if (GUILayout.Button("Compile"))
                             {
-                                cTag.Compile(AllTags, cTag.name_, cTag.description_, cTag.expression_);
+                                cTag.Compile(TagManager.AllTags, cTag.name_, cTag.description_, cTag.expression_, Recompile);
                                 changed = false;
                             }
                         }
                         if (GUILayout.Button("Remove"))
                         {
-                            AllTags.RemoveTag(cTag.name);
-                            NotPlayingTags.RemoveTag(cTag.name);
-                            CustomTag.Recompile();
+                            TagManager.AllTags.RemoveTag(cTag.name);
+                            TagManager.NotPlayingTags.RemoveTag(cTag.name);
+                            Recompile();
                             cTags.RemoveAt(i);
                         }
                         GUILayout.FlexibleSpace();
@@ -244,7 +209,7 @@ namespace Overlayer
             GUILayout.EndHorizontal();
             for (int i = 0; i < OText.Texts.Count; i++)
                 OText.Texts[i].GUI();
-            AllTags.DescGUI();
+            TagManager.AllTags.DescGUI();
         }
         public static void OnSaveGUI(ModEntry modEntry)
         {
@@ -252,6 +217,50 @@ namespace Overlayer
             Variables.Reset();
             OText.Save();
             CustomTag.Save();
+        }
+        public static void Recompile()
+        {
+            foreach (OText text in OText.Texts)
+            {
+                text.PlayingCompiler.Compile(text.TSetting.PlayingText);
+                text.NotPlayingCompiler.Compile(text.TSetting.NotPlayingText);
+                text.BrokenPlayingCompiler.Compile(text.TSetting.PlayingText);
+                text.BrokenNotPlayingCompiler.Compile(text.TSetting.NotPlayingText);
+            }
+        }
+    }
+}
+namespace System.Runtime.CompilerServices
+{
+    internal static class IsExternalInit { }
+    [AttributeUsage(AttributeTargets.Module | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface | AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Event, Inherited = false)]
+    internal sealed class SkipLocalsInitAttribute : Attribute { }
+    public static class RuntimeFeature
+    {
+        public const string CovariantReturnsOfClasses = nameof(CovariantReturnsOfClasses);
+        public const string DefaultInterfaceImplementation = nameof(DefaultInterfaceImplementation);
+        public const string PortablePdb = nameof(PortablePdb);
+        public const string UnmanagedSignatureCallingConvention = nameof(UnmanagedSignatureCallingConvention);
+        public const string VirtualStaticsInInterfaces = nameof(VirtualStaticsInInterfaces);
+        public static bool IsDynamicCodeCompiled => true;
+        public static bool IsDynamicCodeSupported => true;
+        public static bool IsSupported(string feature)
+        {
+            switch (feature)
+            {
+                case CovariantReturnsOfClasses:
+                case DefaultInterfaceImplementation:
+                case PortablePdb:
+                case UnmanagedSignatureCallingConvention:
+                case VirtualStaticsInInterfaces:
+                    return true;
+                case nameof(IsDynamicCodeCompiled):
+                    return IsDynamicCodeCompiled;
+                case nameof(IsDynamicCodeSupported):
+                    return IsDynamicCodeSupported;
+                default:
+                    return false;
+            }
         }
     }
 }

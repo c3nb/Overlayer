@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using TinyJson;
 using UnityEngine;
-using Overlayer.Utils;
+using TagLib.Utils;
 
-namespace Overlayer.Tags
+namespace TagLib.Tags
 {
     public class CustomTag
     {
@@ -30,8 +30,8 @@ namespace Overlayer.Tags
         internal string description_;
         internal string expression_;
         internal string error;
-        internal CustomTagCompiler compiler;
-        public string Compile(TagCollection reference, string name, string desc, string expr)
+        internal TagCompiler compiler;
+        public string Compile(TagCollection reference, string name, string desc, string expr, Action callbackAfterCompile = null)
         {
             if (string.IsNullOrEmpty(name))
                 return error = "Name Cannot Be Empty!";
@@ -41,23 +41,13 @@ namespace Overlayer.Tags
             this.name = name;
             description = desc;
             expression = expr;
-            compiler = new CustomTagCompiler(reference);
+            compiler = new TagCompiler(reference);
             compiler.Compile(name, description, expression, constants, functions, out string[] err);
             canUsedByNotPlaying = compiler.CanUsedByNotPlaying;
-            Recompile();
+            callbackAfterCompile?.Invoke();
             if (err.Any())
                 return error = err[0];
             else return error = null;
-        }
-        public static void Recompile()
-        {
-            foreach (OText text in OText.Texts)
-            {
-                text.PlayingCompiler.Compile(text.TSetting.PlayingText);
-                text.NotPlayingCompiler.Compile(text.TSetting.NotPlayingText);
-                text.BrokenPlayingCompiler.Compile(text.TSetting.PlayingText);
-                text.BrokenNotPlayingCompiler.Compile(text.TSetting.NotPlayingText);
-            }
         }
         static bool funcgui = false;
         static bool constgui = false;
@@ -73,7 +63,7 @@ namespace Overlayer.Tags
                         {
                             foreach (var method in methodKvp.Value)
                             {
-                                var name = method.Name;
+                                var name = method.Name.ToLower();
                                 var parameters = method.GetParameters();
                                 var paramLen = parameters.Length;
                                 var paramStr = paramLen == 1 ? "value" : parameters.Aggregate("", (c, n) => $"{c}{(n.Name == "f" ? "value" : n.Name)}, ");

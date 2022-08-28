@@ -1,7 +1,7 @@
 ﻿using System.Reflection.Emit;
 using System.Reflection;
 
-namespace Overlayer.Tags.Nodes
+namespace TagLib.Tags.Nodes
 {
     public class OperatorNode : Node
     {

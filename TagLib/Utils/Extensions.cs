@@ -4,7 +4,7 @@ using HarmonyLib;
 using UnityEngine.UI;
 using System.Reflection;
 
-namespace Overlayer.Utils
+namespace TagLib.Utils
 {
     public static class Extensions
     {

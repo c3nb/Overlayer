@@ -1,4 +1,4 @@
-﻿using Overlayer.Utils;
+﻿using TagLib.Utils;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -95,7 +95,7 @@ namespace Overlayer
                 scaler.referenceResolution = new Vector2(1920, 1080);
                 DontDestroyOnLoad(PublicCanvas);
             }
-            
+
             GameObject shadowObject = new GameObject();
             shadowObject.transform.SetParent(PublicCanvas.transform);
             shadowObject.MakeFlexible();
@@ -155,6 +155,15 @@ namespace Overlayer
                     return true;
                 }
                 return false;
+            }
+        }
+        public bool Active
+        {
+            get => Main.gameObject.activeSelf;
+            set
+            {
+                Main.gameObject.SetActive(value);
+                Shadow.gameObject.SetActive(value);
             }
         }
     }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection.Emit;
 
-namespace Overlayer.Tags.Nodes
+namespace TagLib.Tags.Nodes
 {
     public class Operator
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Overlayer.Utils
+namespace TagLib.Utils
 {
     public static class EnumerableExtensions
     {

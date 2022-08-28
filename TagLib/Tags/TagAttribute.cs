@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Overlayer.Tags
+namespace TagLib.Tags
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public class TagAttribute : Attribute

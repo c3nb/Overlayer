@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using static UnityModManagerNet.UnityModManager.UI;
 
-namespace Overlayer.Utils
+namespace TagLib.Utils
 {
     public static class GUIUtils
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Overlayer.Utils
+namespace TagLib.Utils
 {
     public static class ArrayUtils
     {

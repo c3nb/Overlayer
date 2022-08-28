@@ -1,5 +1,6 @@
-﻿using Overlayer.Tags;
-using Overlayer.Utils;
+﻿using TagLib.Tags;
+using TagLib.Utils;
+using TagLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -76,7 +77,6 @@ namespace Overlayer
             ShadowText.Count = 0;
             Texts.Clear();
         }
-        public static readonly Regex tagBreaker = new Regex("<(.|\n)*?>", RegexOptions.Compiled);
         public static bool IsPlaying
         {
             get
@@ -117,10 +117,10 @@ namespace Overlayer
             TSetting.ValidCheck();
             if (TSetting.Name == null)
                 TSetting.Name = $"Text {Number}";
-            PlayingCompiler = new TagCompiler(TSetting.PlayingText, Main.AllTags);
-            NotPlayingCompiler = new TagCompiler(TSetting.NotPlayingText, Main.NotPlayingTags);
-            BrokenPlayingCompiler = new TagCompiler(tagBreaker.Replace(TSetting.PlayingText, string.Empty), Main.AllTags);
-            BrokenNotPlayingCompiler = new TagCompiler(tagBreaker.Replace(TSetting.NotPlayingText, string.Empty), Main.NotPlayingTags);
+            PlayingCompiler = new TextCompiler(TSetting.PlayingText, TagManager.AllTags);
+            NotPlayingCompiler = new TextCompiler(TSetting.NotPlayingText, TagManager.NotPlayingTags);
+            BrokenPlayingCompiler = new TextCompiler(TSetting.PlayingText.BreakRichTag(), TagManager.AllTags);
+            BrokenNotPlayingCompiler = new TextCompiler(TSetting.NotPlayingText.BreakRichTag(), TagManager.NotPlayingTags);
             SText.Updater = () =>
             {
                 if (IsPlaying)
@@ -153,7 +153,7 @@ namespace Overlayer
                 {
                     var active = GUILayout.Toggle(TSetting.Active, "Active");
                     if (active != TSetting.Active)
-                        SText.gameObject.SetActive(TSetting.Active = active);
+                        SText.Active = TSetting.Active = active;
                     GUILayout.BeginVertical();
 
                     GUILayout.BeginHorizontal();
@@ -277,6 +277,8 @@ namespace Overlayer
         {
             int index = Texts.IndexOf(text);
             Texts.RemoveAt(index);
+            UnityEngine.Object.Destroy(text.SText.Main.gameObject);
+            UnityEngine.Object.Destroy(text.SText.Shadow.gameObject);
             for (int i = index; i < Texts.Count; i++)
             {
                 var txt = Texts[i];
@@ -307,14 +309,14 @@ namespace Overlayer
             Tags.Global.ProgressDeath.Reset();
             PlayingCompiler.Compile(TSetting.PlayingText);
             NotPlayingCompiler.Compile(TSetting.NotPlayingText);
-            BrokenPlayingCompiler.Compile(tagBreaker.Replace(TSetting.PlayingText, string.Empty));
-            BrokenNotPlayingCompiler.Compile(tagBreaker.Replace(TSetting.NotPlayingText, string.Empty));
+            BrokenPlayingCompiler.Compile(TSetting.PlayingText.BreakRichTag());
+            BrokenNotPlayingCompiler.Compile(TSetting.NotPlayingText.BreakRichTag());
             return this;
         }
-        public TagCompiler PlayingCompiler;
-        public TagCompiler NotPlayingCompiler;
-        public TagCompiler BrokenPlayingCompiler;
-        public TagCompiler BrokenNotPlayingCompiler;
+        public TextCompiler PlayingCompiler;
+        public TextCompiler NotPlayingCompiler;
+        public TextCompiler BrokenPlayingCompiler;
+        public TextCompiler BrokenNotPlayingCompiler;
         public readonly ShadowText SText;
         public Setting TSetting;
         public int Number;

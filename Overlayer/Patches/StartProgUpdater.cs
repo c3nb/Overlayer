@@ -23,6 +23,7 @@ namespace Overlayer.Patches
 						else
 						{
 							___text.text = RDString.Get("status.go", null);
+							SetStartProg(__instance.controller);
 							___timeGoTween = (float)(__instance.conductor.crotchet / __instance.conductor.extraTicksCountdown[__instance.controller.curCountdown].speed) / __instance.conductor.song.pitch;
 						}
 					}
@@ -38,6 +39,7 @@ namespace Overlayer.Patches
 				if (num2 > __instance.conductor.GetCountdownTime(countdownTicks - 1) && !__instance.controller.goShown)
 				{
 					___text.text = RDString.Get("status.go", null);
+					SetStartProg(__instance.controller);
 					__instance.controller.goShown = true;
 					___timeGoTween = (float)__instance.conductor.crotchet;
 				}
@@ -58,11 +60,13 @@ namespace Overlayer.Patches
 					string text = GCS.speedTrialMode ? "levelSelect.SpeedTrial" : "status.getReady";
 					text = (GCS.practiceMode ? "status.practiceMode" : text);
 					___text.text = RDString.Get(text, null);
+					SetStartProg(__instance.controller);
 				}
 			}
 			if (!__instance.controller.goShown && __instance.conductor.fastTakeoff && (__instance.controller.state == States.PlayerControl || __instance.controller.state == States.Countdown || __instance.controller.state == States.Checkpoint))
 			{
 				___text.text = RDString.Get("status.go", null);
+				SetStartProg(__instance.controller);
 				__instance.controller.goShown = true;
 				___timeGoTween = (float)__instance.conductor.crotchet;
 			}

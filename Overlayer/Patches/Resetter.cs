@@ -10,13 +10,16 @@ namespace Overlayer.Patches
         public static void Reset(scrController __instance)
         {
             var caption = __instance.txtCaption?.text;
-            if (caption != MapId)
-            {
-                Variables.BestProg = 0;
-                Variables.LeastChkPt = 0;
-            }
             if (Settings.Instance.Reset)
+            {
+                if (caption != MapId)
+                {
+                    Variables.BestProg = 0;
+                    Variables.LeastChkPt = 0;
+                }
                 Variables.Reset();
+            }
+            ErrorMeterPatch.Queued = new int[10];
             MapId = caption;
         }
     }

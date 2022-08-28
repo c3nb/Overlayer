@@ -1,4 +1,6 @@
-﻿namespace Overlayer.Tags.Global
+﻿using TagLib.Tags;
+
+namespace Overlayer.Tags.Global
 {
     public static class CurHitTags
     {

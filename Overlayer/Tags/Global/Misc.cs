@@ -1,11 +1,20 @@
-﻿using System;
+﻿using TagLib.Tags;
+using TagLib.Utils;
 
 namespace Overlayer.Tags.Global
 {
     public static class Misc
     {
         [Tag("Pitch", "Current Pitch")]
-        public static float Pitch() => GCS.currentSpeedTrial;
+        public static float Pitch(float digits = -1) => GCS.currentSpeedTrial.Round(digits);
+        [Tag("EditorPitch", "Pitch In Editor")]
+        public static string EditorPitch() => (scnEditor.instance?.levelData?.pitch / 100.0).ToString();
+        [Tag("Title", "Title")]
+        public static string Title() => scnEditor.instance?.levelData?.song.BreakRichTag();
+        [Tag("Author", "Author")]
+        public static string Author() => scnEditor.instance?.levelData?.author.BreakRichTag();
+        [Tag("Artist", "Artist")]
+        public static string Artist() => scnEditor.instance?.levelData?.artist.BreakRichTag();
         [Tag("StartTile", "Start Tile")]
         public static float StartTile() => Variables.StartTile;
         [Tag("Accuracy", "Accuracy")]
@@ -40,13 +49,13 @@ namespace Overlayer.Tags.Global
         public static float StartProgress(float digits = -1) => Variables.StartProg.Round(digits);
         [Tag("CurMinute", "Now Minute Of Music")]
         public static float CurMinute() => Variables.CurMinute;
-        [Tag("CurSecond", "Now Second Of Music", NumberFormat = "00")]
+        [Tag("CurSecond", "Now Second Of Music")]
         public static float CurSecond() => Variables.CurSecond;
         [Tag("CurMilliSecond", "Now MilliSecond Of Music")]
         public static float CurMilliSecond() => Variables.CurMilliSecond;
         [Tag("TotalMinute", "Total Minute Of Music")]
         public static float TotalMinute() => Variables.TotalMinute;
-        [Tag("TotalSecond", "Total Second Of Music", NumberFormat = "00")]
+        [Tag("TotalSecond", "Total Second Of Music")]
         public static float TotalSecond() => Variables.TotalSecond;
         [Tag("TotalMilliSecond", "Total MilliSecond Of Music")]
         public static float TotalMilliSecond() => Variables.TotalMilliSecond;

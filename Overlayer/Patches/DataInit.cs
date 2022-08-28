@@ -1,6 +1,6 @@
 ﻿using ADOFAI;
 using HarmonyLib;
-using Overlayer.Tags;
+using TagLib.Tags;
 
 namespace Overlayer.Patches
 {
@@ -9,7 +9,7 @@ namespace Overlayer.Patches
     {
         public static void Postfix(LevelData __instance)
         {
-            if (!TagCompiler.IsReferencing("Attempts"))
+            if (!TextCompiler.IsReferencing("Attempts"))
                 return;
             string hash = MakeHash(__instance.author, __instance.artist, __instance.song);
             int attempts = Persistence.GetCustomWorldAttempts(hash);

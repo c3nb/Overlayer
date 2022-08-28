@@ -1,33 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Attributes;
 
-namespace Overlayer.Test
+namespace TagLib.Test
 {
     public static class Program
     {
         public static void Main(string[] args)
         {
-            BenchmarkRunner.Run<Benchmark>();
+            Console.WriteLine(string.Format("ff{0}", 3));
+            //BenchmarkRunner.Run<Benchmark>();
         }
     }
     public class Benchmark
     {
-        [Benchmark]
-        public void ParseDoubleManual()
-        {
-            FastParser.ParseDouble("-123.123123");
-        }
-        [Benchmark]
-        public void ParseIntManual()
-        {
-            FastParser.ParseInt("-123123123");
-        }
-        [Benchmark]
-        public void ParseFloatManual()
-        {
-            FastParser.ParseFloat("-123.123123");
-        }
+        public readonly int test = 23432434;
     }
     public unsafe static class FastParser
     {

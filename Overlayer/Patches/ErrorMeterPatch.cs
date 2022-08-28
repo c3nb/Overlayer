@@ -49,8 +49,6 @@ namespace Overlayer.Patches
         [HarmonyPrefix]
         public static void APrefix(scrHitErrorMeter __instance)
         {
-            __instance.tickLife = Settings.Instance.ErrorMeterTickLife;
-            __instance.tickCacheSize = Settings.Instance.ErrorMeterHitImages;
             Queued = new int[10];
         }
         [HarmonyPatch(typeof(scrController), "ShowHitText")]

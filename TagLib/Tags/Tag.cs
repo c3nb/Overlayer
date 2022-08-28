@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Threading;
 using ThreadState = System.Threading.ThreadState;
 
-namespace Overlayer.Tags
+namespace TagLib.Tags
 {
     public class Tag
     {

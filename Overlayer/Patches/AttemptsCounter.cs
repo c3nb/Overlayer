@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using System;
+using TagLib.Tags;
 using System.Collections.Generic;
 using Overlayer.Tags;
 
@@ -14,7 +15,7 @@ namespace Overlayer.Patches
         [HarmonyPostfix]
         public static void FCLLPostfix()
         {
-            if (!TagCompiler.IsReferencing("Attempts"))
+            if (!TextCompiler.IsReferencing("Attempts"))
                 return;
             if (!GCS.standaloneLevelMode && !GCS.useNoFail)
             {
@@ -31,7 +32,7 @@ namespace Overlayer.Patches
         [HarmonyPatch(typeof(scrController), "Start")]
         public static void Postfix(scrController __instance)
         {
-            if (!TagCompiler.IsReferencing("Attempts"))
+            if (!TextCompiler.IsReferencing("Attempts"))
                 return;
             if (ADOBase.sceneName.Contains("-") && !__instance.noFail)
                 Variables.Attempts = Persistence.GetWorldAttempts(scrController.currentWorld);
