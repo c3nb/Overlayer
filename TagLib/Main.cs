@@ -22,8 +22,6 @@ namespace TagLib
             Logger = modEntry.Logger;
             Harmony = new Harmony(modEntry.Info.Id);
             Harmony.PatchAll(Assembly.GetExecutingAssembly());
-            float f = 234;
-            Console.WriteLine(f.ToString("ff"));
         }
     }
 }

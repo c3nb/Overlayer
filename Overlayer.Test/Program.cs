@@ -4,20 +4,41 @@ using System.Text;
 using System.Text.RegularExpressions;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Attributes;
+using TagLib.Utils;
+using Overlayer.AdofaiggApi;
+using Overlayer.Tags.Global;
+using Overlayer.AdofaiggApi.Types;
 
-namespace TagLib.Test
+namespace Overlayer.Test
 {
     public static class Program
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(string.Format("ff{0}", 3));
             //BenchmarkRunner.Run<Benchmark>();
+            var one = PlayPoint.CalculatePlayPoint(20.6, 100, 97.93, 3166);
+            Console.WriteLine(one);
+        }
+        public static void MoveLast<T>(T[] array, T value)
+        {
+            for (int i = 0; i < array.Length - 1; i++)
+                array[i] = array[i + 1];
+            array[array.Length - 1] = value;
         }
     }
     public class Benchmark
     {
-        public readonly int test = 23432434;
+        public double d = 3000;
+        [Benchmark]
+        public void Math_Pow()
+        {
+            Math.Pow(d, 200);
+        }
+        [Benchmark]
+        public void PowEx()
+        {
+            d.Pow(200);
+        }
     }
     public unsafe static class FastParser
     {

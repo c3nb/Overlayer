@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -104,5 +105,6 @@ namespace TagLib.Utils
             => array = array.MoveFirst(item);
         public static void MoveLast<T>(ref T[] array, T item)
             => array = array.MoveLast(item);
+        public static T[] Empty<T>() => new T[0];
     }
 }

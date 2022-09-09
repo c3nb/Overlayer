@@ -278,9 +278,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdofaiggApi\Api.cs" />
+    <Compile Include="AdofaiggApi\Music.cs" />
+    <Compile Include="AdofaiggApi\Parameter.cs" />
+    <Compile Include="AdofaiggApi\Parameters.cs" />
+    <Compile Include="AdofaiggApi\Parameter`1.cs" />
+    <Compile Include="AdofaiggApi\Play.cs" />
+    <Compile Include="AdofaiggApi\Response.cs" />
+    <Compile Include="AdofaiggApi\SimpleLevel.cs" />
+    <Compile Include="AdofaiggApi\SortType.cs" />
+    <Compile Include="AdofaiggApi\Tag.cs" />
+    <Compile Include="AdofaiggApi\TinyLevel.cs" />
+    <Compile Include="AdofaiggApi\Types\Json.cs" />
+    <Compile Include="AdofaiggApi\Types\Level.cs" />
+    <Compile Include="AdofaiggApi\Types\PlayLog.cs" />
+    <Compile Include="AdofaiggApi\Types\Ranking.cs" />
+    <Compile Include="AdofaiggApi\User.cs" />
     <Compile Include="DT.cs" />
     <Compile Include="KeyCombo.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Newtonsoft.Json.cs" />
     <Compile Include="Patches\AttemptsCounter.cs" />
     <Compile Include="Patches\BpmUpdater.cs" />
     <Compile Include="Patches\DataInit.cs" />
@@ -301,6 +318,7 @@
     <Compile Include="Tags\Global\KeyJudgeTag.cs" />
     <Compile Include="Tags\Global\KPS.cs" />
     <Compile Include="Tags\Global\Misc.cs" />
+    <Compile Include="Tags\Global\PlayPoint.cs" />
     <Compile Include="Tags\Global\ProgressDeath.cs" />
     <Compile Include="Tags\Global\Scores.cs" />
     <Compile Include="Tags\Global\Timings.cs" />

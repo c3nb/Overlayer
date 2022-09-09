@@ -3,6 +3,7 @@ using UnityEngine;
 using HarmonyLib;
 using UnityEngine.UI;
 using System.Reflection;
+using System;
 
 namespace TagLib.Utils
 {
@@ -20,6 +21,8 @@ namespace TagLib.Utils
             comp.gameObject.MakeFlexible();
             return comp;
         }
+        public static double Pow(this double x, double y)
+            => Math.Exp(Math.Log(x) * y);
         public static GameObject MakeFlexible(this GameObject go)
         {
             ContentSizeFitter csf = go.GetComponent<ContentSizeFitter>() ?? go.AddComponent<ContentSizeFitter>();

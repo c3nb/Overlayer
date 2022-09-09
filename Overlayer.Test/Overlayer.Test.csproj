@@ -259,12 +259,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Overlayer\Overlayer.csproj">
       <Project>{54928bea-bd8b-46a5-8ec7-1355c4d7a977}</Project>
       <Name>Overlayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TagLib\TagLib.csproj">
+      <Project>{541404b2-1cb8-4610-8f07-7157f623b93d}</Project>
+      <Name>TagLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

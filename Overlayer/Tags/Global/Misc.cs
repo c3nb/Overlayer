@@ -17,6 +17,8 @@ namespace Overlayer.Tags.Global
         public static string Artist() => scnEditor.instance?.levelData?.artist.BreakRichTag();
         [Tag("StartTile", "Start Tile")]
         public static float StartTile() => Variables.StartTile;
+        [Tag("Difficulty", "Difficulty Of Current Level")]
+        public static float Difficulty(float digits = -1) => PlayPoint.CurrentDifficulty.Round(digits);
         [Tag("Accuracy", "Accuracy")]
         public static float Accuracy(float digits = -1) => (scrController.instance.mistakesManager.percentAcc * 100).Round(digits);
         [Tag("Progress", "Progress")]

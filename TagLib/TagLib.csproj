@@ -321,6 +321,7 @@
     <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\GUIUtils.cs" />
+    <Compile Include="Utils\MapExtensions.cs" />
     <Compile Include="Utils\StringUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -24,6 +24,7 @@ namespace Overlayer
         public static float fpsTimer = 0;
         public static float fpsTimeTimer = 0;
         public static float lastDeltaTime;
+
         public static void Load(ModEntry modEntry)
         {
             Mod = modEntry;

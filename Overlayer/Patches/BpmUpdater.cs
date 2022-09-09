@@ -78,6 +78,7 @@ namespace Overlayer.Patches
                 ProgressDeath.Reset();
                 mapHash = __instance.caption;
             }
+            PlayPoint.Setup(scnEditor.instance);
             Timings.TimingList.Clear();
             Variables.IsStarted = true;
             Variables.AllCheckPoints = scrLevelMaker.instance.listFloors.FindAll(f => f.GetComponent<ffxCheckpoint>() != null);
