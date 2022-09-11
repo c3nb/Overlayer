@@ -9,12 +9,12 @@ namespace TagLib.Tags
     {
         public string Name;
         public string Description;
-        public string NumberFormat;
         public bool IsString;
         public bool IsStringOpt;
         public bool IsOpt;
         public string DefOptStr;
         public float? DefOptNum;
+        public bool Hidden;
         public MethodInfo Raw;
         public Func<string> Str;
         public Func<float> Num;
@@ -23,11 +23,10 @@ namespace TagLib.Tags
         public Func<float, string> NumOptStr;
         public Func<float, float> NumOptNum;
         public Thread[] Threads;
-        internal Tag(string name, string description, MethodInfo raw, string format)
+        internal Tag(string name, string description, MethodInfo raw, bool hidden)
         {
             Name = name;
             Description = description;
-            NumberFormat = format;
             Raw = raw;
             Type retType = Raw.ReturnType;
             var @params = Raw.GetParameters();
@@ -83,6 +82,7 @@ namespace TagLib.Tags
                     Num = (Func<float>)Raw.CreateDelegate(typeof(Func<float>));
                 else throw new InvalidOperationException($"Tag's ValueGetter's Return Type Cannot Be {retType}. Only Supports float(System.Single) Or string(System.String)");
             }
+            Hidden = hidden;
         }
         internal Tag(string name, string description, Func<float, float> raw)
         {
@@ -125,9 +125,7 @@ namespace TagLib.Tags
             {
                 if (IsString)
                     return Str();
-                else if (NumberFormat == null)
-                    return Num().ToString();
-                else return Num().ToString(NumberFormat);
+                return Num().ToString();
             }
         }
         public float FloatValue() => Num();
@@ -136,17 +134,13 @@ namespace TagLib.Tags
         {
             if (IsString)
                 return NumOptStr(opt);
-            if (NumberFormat == null)
-                return NumOptNum(opt).ToString();
-            else return NumOptNum(opt).ToString(NumberFormat);
+            return NumOptNum(opt).ToString();
         }
         public string OptValue(string opt)
         {
             if (IsString)
                 return StrOptStr(opt);
-            if (NumberFormat == null)
-                return StrOptNum(opt).ToString();
-            else return StrOptNum(opt).ToString(NumberFormat);
+            return StrOptNum(opt).ToString();
         }
 
         public float OptValueFloat(float opt)

@@ -26,6 +26,7 @@ namespace Overlayer.AdofaiggApi
         public Response<T> Request<T>(Parameters parameters) where T : Json
         {
             string reqUrl = $"{API}{header}{parameters}";
+            Main.Logger.Log($"Request Url: {reqUrl}");
             string json = api.DownloadString(reqUrl);
             Response<T> r = JsonConvert.DeserializeObject<Response<T>>(json);
             r.json = json;

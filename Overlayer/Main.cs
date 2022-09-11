@@ -13,6 +13,8 @@ using System.Threading;
 using UnityModManagerNet;
 using System.Runtime.CompilerServices;
 using static UnityModManagerNet.UnityModManager;
+using System.IO;
+using Overlayer.Tags.Global;
 
 namespace Overlayer
 {
@@ -24,7 +26,6 @@ namespace Overlayer
         public static float fpsTimer = 0;
         public static float fpsTimeTimer = 0;
         public static float lastDeltaTime;
-
         public static void Load(ModEntry modEntry)
         {
             Mod = modEntry;
@@ -225,8 +226,8 @@ namespace Overlayer
             {
                 text.PlayingCompiler.Compile(text.TSetting.PlayingText);
                 text.NotPlayingCompiler.Compile(text.TSetting.NotPlayingText);
-                text.BrokenPlayingCompiler.Compile(text.TSetting.PlayingText);
-                text.BrokenNotPlayingCompiler.Compile(text.TSetting.NotPlayingText);
+                text.BrokenPlayingCompiler.Compile(text.TSetting.PlayingText.BreakRichTag());
+                text.BrokenNotPlayingCompiler.Compile(text.TSetting.NotPlayingText.BreakRichTag());
             }
         }
     }

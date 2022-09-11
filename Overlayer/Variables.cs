@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Overlayer.Tags.Global;
+using UnityEngine;
 
 namespace Overlayer
 {
@@ -52,6 +53,17 @@ namespace Overlayer
         public static int KpsTemp;
         public static float Fps;
         public static float FrameTime;
+
+        public static readonly Color tooEarlyColor = new Color(1.000f, 0.000f, 0.000f, 1.000f); //FF0000FF
+        public static readonly Color veryEarlyColor = new Color(1.000f, 0.436f, 0.306f, 1.000f); //FF6F4EFF
+        public static readonly Color earlyPerfectColor = new Color(0.627f, 1.000f, 0.306f, 1.000f); //A0FF4EFF
+        public static readonly Color perfectColor = new Color(0.376f, 1.000f, 0.307f, 1.000f); //60FF4EFF
+        public static readonly Color latePerfectColor = new Color(0.627f, 1.000f, 0.306f, 1.000f); //A0FF4EFF
+        public static readonly Color veryLateColor = new Color(1.000f, 0.435f, 0.306f, 1.000f); //FF6F4EFF
+        public static readonly Color tooLateColor = new Color(1.000f, 0.000f, 0.000f, 1.000f); //FF0000FF
+        public static readonly Color multipressColor = new Color(0.000f, 1.000f, 0.930f, 1.000f); //00FFEDFF
+        public static readonly Color failMissColor = new Color(0.851f, 0.346f, 1.000f, 1.000f); //D958FFFF
+        public static readonly Color failOverloadColor = new Color(0.851f, 0.346f, 1.000f, 1.000f); //D958FFFF
 
         public static void Reset()
         {

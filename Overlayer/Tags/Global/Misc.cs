@@ -8,7 +8,27 @@ namespace Overlayer.Tags.Global
         [Tag("Pitch", "Current Pitch")]
         public static float Pitch(float digits = -1) => GCS.currentSpeedTrial.Round(digits);
         [Tag("EditorPitch", "Pitch In Editor")]
-        public static string EditorPitch() => (scnEditor.instance?.levelData?.pitch / 100.0).ToString();
+        public static float EditorPitch(float digits = -1) => (scnEditor.instance.levelData.pitch / 100.0).Round(digits);
+        [Tag("TEHex", "TooEarly Judgement Hex Code")]
+        public static string TEHex() => "FF0000FF";
+        [Tag("VEHex", "VeryEarly Judgement Hex Code")]
+        public static string VEHex() => "FF6F4EFF";
+        [Tag("EPHex", "EarlyPerfect Judgement Hex Code")]
+        public static string EPHex() => "A0FF4EFF";
+        [Tag("PHex", "Perfect Judgement Hex Code")]
+        public static string PHex() => "60FF4EFF";
+        [Tag("LPHex", "LatePerfect Judgement Hex Code")]
+        public static string LPHex() => "A0FF4EFF";
+        [Tag("VLHex", "VeryLate Judgement Hex Code")]
+        public static string VLHex() => "FF6F4EFF";
+        [Tag("TLHex", "TooLate Judgement Hex Code")]
+        public static string TLHex() => "FF0000FF";
+        [Tag("MPHex", "Multipress Judgement Hex Code")]
+        public static string MPHex() => "00FFEDFF";
+        [Tag("FMHex", "FailMiss Judgement Hex Code")]
+        public static string FMHex() => "D958FFFF";
+        [Tag("FOHex", "FailOverload Judgement Hex Code")]
+        public static string FOHex() => "D958FFFF";
         [Tag("Title", "Title")]
         public static string Title() => scnEditor.instance?.levelData?.song.BreakRichTag();
         [Tag("Author", "Author")]

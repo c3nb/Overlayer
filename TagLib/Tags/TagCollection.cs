@@ -49,7 +49,7 @@ namespace TagLib.Tags
                     throw new InvalidOperationException("ClassTag Must Have ValueGetter Method!");
                 if (!valueGetter.IsStatic)
                     throw new InvalidOperationException("ValueGetter Must Be Static!");
-                Tag tag = new Tag(cTagAttr.Name, cTagAttr.Description, valueGetter, cTagAttr.NumberFormat);
+                Tag tag = new Tag(cTagAttr.Name, cTagAttr.Description, valueGetter, cTagAttr.Hidden);
                 IEnumerable<MethodInfo> threads = cTagAttr.Threads?.Select(st => type.GetMethod(st, (BindingFlags)15420));
                 tag.Threads = threads?.Select(m => new Thread((ThreadStart)m.CreateDelegate(typeof(ThreadStart)))).ToArray();
                 Array.Resize(ref tags, length + 1);
@@ -62,7 +62,7 @@ namespace TagLib.Tags
                 TagAttribute tagAttr = method.GetCustomAttribute<TagAttribute>();
                 if (tagAttr == null) continue;
                 if (tagAttr.IsDefault) continue;
-                Tag tag = new Tag(tagAttr.Name, tagAttr.Description, method, tagAttr.NumberFormat);
+                Tag tag = new Tag(tagAttr.Name, tagAttr.Description, method, tagAttr.Hidden);
                 Array.Resize(ref tags, length + 1);
                 tags[length++] = tag;
             }
@@ -167,6 +167,7 @@ namespace TagLib.Tags
                     for (int i = 0; i < length; i++)
                     {
                         var tag = tags[i];
+                        if (tag.Hidden) continue;
                         GUILayout.Label(tag.ToString());
                         GUILayout.Space(1);
                     }

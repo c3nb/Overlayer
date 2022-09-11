@@ -24,7 +24,7 @@ namespace Overlayer
                 Color = new float[4] { 1, 1, 1, 1 };
                 ShadowColor = new float[4] { 0, 0, 0, 0.5f };
                 NotPlayingText = "Not Playing";
-                PlayingText = "<color=#ED3E3E>{CurTE}</color> <color=#EB9A46>{CurVE}</color> <color=#E3E370>{CurEP}</color> <color=#86E370>{CurP}</color> <color=#E3E370>{CurLP}</color> <color=#EB9A46>{CurVL}</color> <color=#ED3E3E>{CurTL}</color>";
+                PlayingText = "<color=#{FMHex}>{MissCount}</color> <color=#{TEHex}>{CurTE}</color> <color=#{VEHex}>{CurVE}</color> <color=#{EPHex}>{CurEP}</color> <color=#{PHex}>{CurP}</color> <color=#{LPHex}>{CurLP}</color> <color=#{VLHex}>{CurVL}</color> <color=#{TLHex}>{CurTL}</color> <color=#{FOHex}>{Overloads}</color>";
                 FontSize = 44;
                 IsExpanded = true;
                 Alignment = TextAlignmentOptions.Left;
@@ -68,12 +68,14 @@ namespace Overlayer
         }
         public static void Clear()
         {
-            UnityEngine.Object.Destroy(ShadowText.PublicCanvas);
             foreach (var text in Texts)
             {
                 text.PlayingCompiler = null;
                 text.NotPlayingCompiler = null;
+                UnityEngine.Object.Destroy(text.SText.Main.gameObject);
+                UnityEngine.Object.Destroy(text.SText.Shadow.gameObject);
             }
+            UnityEngine.Object.Destroy(ShadowText.PublicCanvas);
             ShadowText.Count = 0;
             Texts.Clear();
         }
@@ -262,7 +264,7 @@ namespace Overlayer
                         TSetting = new Setting();
                         Apply();
                     }
-                    if (Number != 1 && GUILayout.Button("Destroy"))
+                    if (ShadowText.Count > 1 && GUILayout.Button("Destroy"))
                     {
                         UnityEngine.Object.Destroy(SText.gameObject);
                         Remove(this);

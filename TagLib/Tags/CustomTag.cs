@@ -121,6 +121,7 @@ namespace TagLib.Tags
             { "max", "Max Value" },
             { "min", "Min Value" },
             { "pow", "Power" },
+            { "exp", "Exponential" },
             { "round", "Rounding" },
             { "ceil", "Ceiling" },
             { "floor", "Floor" },
@@ -143,6 +144,7 @@ namespace TagLib.Tags
             { "max", new List<MethodInfo> { typeof(CustomTag).GetMethod("Max", (BindingFlags)15420) } },
             { "min", new List<MethodInfo> { typeof(CustomTag).GetMethod("Min", (BindingFlags)15420) } },
             { "pow", new List<MethodInfo> { typeof(CustomTag).GetMethod("Pow", (BindingFlags)15420) } },
+            { "exp", new List<MethodInfo> { typeof(CustomTag).GetMethod("Exp", (BindingFlags)15420) } },
             { "round", new List<MethodInfo> { typeof(CustomTag).GetMethod("Round", (BindingFlags)15420, null, new[] { typeof(float) }, null), 
                 typeof(CustomTag).GetMethod("Round", (BindingFlags)15420, null, new[] { typeof(float), typeof(float) }, null) } },
             { "ceil", new List<MethodInfo> { typeof(CustomTag).GetMethod("Ceil", (BindingFlags)15420) } },
@@ -150,6 +152,8 @@ namespace TagLib.Tags
             { "truncate", new List<MethodInfo> { typeof(CustomTag).GetMethod("Truncate", (BindingFlags)15420, null, new[] { typeof(float) }, null),
                 typeof(CustomTag).GetMethod("Truncate", (BindingFlags)15420, null, new[] { typeof(float), typeof(float) }, null) } },
         };
+        static float Exp(float f)
+            => (float)Math.Exp(f);
         static float Cos(float f)
             => (float)Math.Cos(f);
         static float Cosh(float f)

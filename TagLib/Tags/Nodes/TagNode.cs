@@ -14,7 +14,7 @@ namespace TagLib.Tags.Nodes
         {
             this.tag = tag;
             this.index = index;
-            this.option = option;
+            this.option = string.IsNullOrWhiteSpace(option) ? null : option;
             getTags = getTagsArray;
         }
         public override void Emit(ILGenerator il)

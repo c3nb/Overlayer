@@ -7,6 +7,7 @@ namespace Overlayer.AdofaiggApi.Types
     public class Level : Json
     {
         public static Response<Level> Request(params Parameter[] parameters) => Api.Level.Request<Level>(parameters);
+        public static Response<Level> Request(Parameters parameters) => Api.Level.Request<Level>(parameters);
         public int id;
         public string title;
         public double difficulty;
