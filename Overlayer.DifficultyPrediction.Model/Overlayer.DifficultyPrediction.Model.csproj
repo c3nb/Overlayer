@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8F2627DD-6AEF-4C42-9524-1924A214F94B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Overlayer.DifficultyPrediction.Model</RootNamespace>
+    <AssemblyName>Overlayer.DifficultyPrediction.Model</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+	<LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AdofaiMapConverter">
+      <HintPath>E:\AdofaiMapConverter\AdofaiMapConverter\bin\Debug\AdofaiMapConverter.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdofaiggApi\Api.cs" />
+    <Compile Include="AdofaiggApi\Music.cs" />
+    <Compile Include="AdofaiggApi\Parameter.cs" />
+    <Compile Include="AdofaiggApi\Parameters.cs" />
+    <Compile Include="AdofaiggApi\Parameter`1.cs" />
+    <Compile Include="AdofaiggApi\Play.cs" />
+    <Compile Include="AdofaiggApi\Response.cs" />
+    <Compile Include="AdofaiggApi\SimpleLevel.cs" />
+    <Compile Include="AdofaiggApi\SortType.cs" />
+    <Compile Include="AdofaiggApi\Tag.cs" />
+    <Compile Include="AdofaiggApi\TinyLevel.cs" />
+    <Compile Include="AdofaiggApi\Types\Json.cs" />
+    <Compile Include="AdofaiggApi\Types\Level.cs" />
+    <Compile Include="AdofaiggApi\Types\PlayLog.cs" />
+    <Compile Include="AdofaiggApi\Types\Ranking.cs" />
+    <Compile Include="AdofaiggApi\User.cs" />
+    <Compile Include="Newtonsoft.Json.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -270,7 +270,6 @@
     <Compile Include="DifficultyPrediction\DifficultyPredictor.training.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SocketHelper.cs" />
     <Compile Include="StringUtils.cs" />
   </ItemGroup>
   <ItemGroup>
