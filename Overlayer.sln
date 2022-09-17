@@ -7,10 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overlayer", "Overlayer\Over
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagLib", "TagLib\TagLib.csproj", "{541404B2-1CB8-4610-8F07-7157F623B93D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overlayer.DifficultyPrediction", "Overlayer.DifficultyPrediction\Overlayer.DifficultyPrediction.csproj", "{5062AF5B-ED74-42BC-925B-285184209089}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overlayer.DifficultyPrediction.Model", "Overlayer.DifficultyPrediction.Model\Overlayer.DifficultyPrediction.Model.csproj", "{8F2627DD-6AEF-4C42-9524-1924A214F94B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,21 +31,6 @@ Global
 		{541404B2-1CB8-4610-8F07-7157F623B93D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{541404B2-1CB8-4610-8F07-7157F623B93D}.Release|x64.ActiveCfg = Release|x64
 		{541404B2-1CB8-4610-8F07-7157F623B93D}.Release|x64.Build.0 = Release|x64
-		{5062AF5B-ED74-42BC-925B-285184209089}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5062AF5B-ED74-42BC-925B-285184209089}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5062AF5B-ED74-42BC-925B-285184209089}.Debug|x64.ActiveCfg = Debug|x64
-		{5062AF5B-ED74-42BC-925B-285184209089}.Debug|x64.Build.0 = Debug|x64
-		{5062AF5B-ED74-42BC-925B-285184209089}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5062AF5B-ED74-42BC-925B-285184209089}.Release|x64.ActiveCfg = Release|x64
-		{5062AF5B-ED74-42BC-925B-285184209089}.Release|x64.Build.0 = Release|x64
-		{8F2627DD-6AEF-4C42-9524-1924A214F94B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8F2627DD-6AEF-4C42-9524-1924A214F94B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8F2627DD-6AEF-4C42-9524-1924A214F94B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8F2627DD-6AEF-4C42-9524-1924A214F94B}.Debug|x64.Build.0 = Debug|Any CPU
-		{8F2627DD-6AEF-4C42-9524-1924A214F94B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8F2627DD-6AEF-4C42-9524-1924A214F94B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8F2627DD-6AEF-4C42-9524-1924A214F94B}.Release|x64.ActiveCfg = Release|Any CPU
-		{8F2627DD-6AEF-4C42-9524-1924A214F94B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

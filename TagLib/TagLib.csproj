@@ -321,6 +321,7 @@
     <Compile Include="TagManager.cs" />
     <Compile Include="Tags\ClassTagAttribute.cs" />
     <Compile Include="Tags\CustomTag.cs" />
+    <Compile Include="Tags\Nodes\NToken.cs" />
     <Compile Include="Tags\TagCompiler.cs" />
     <Compile Include="Tags\Nodes\BinaryNode.cs" />
     <Compile Include="Tags\Nodes\FunctionNode.cs" />

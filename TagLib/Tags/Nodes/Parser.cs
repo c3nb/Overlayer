@@ -10,15 +10,15 @@ namespace TagLib.Tags.Nodes
 {
     public class Parser
     {
-        public Token[] tokens;
+        public NToken[] tokens;
         public Tag[] tags;
         public Dictionary<string, (int, Tag)> tagDict;
         public string[] Errors;
         public int position;
         public int length;
         public bool CanUsedByNotPlaying = true;
-        public Token Current => Peek(0);
-        public Token NextToken()
+        public NToken Current => Peek(0);
+        public NToken NextToken()
         {
             var cur = Current;
             position++;
@@ -26,7 +26,7 @@ namespace TagLib.Tags.Nodes
         }
         public Dictionary<string, List<MethodInfo>> Functions;
         public Dictionary<string, float> Variables;
-        public Token Peek(int offset)
+        public NToken Peek(int offset)
         {
             int index = offset + position;
             if (index >= length)
@@ -36,7 +36,7 @@ namespace TagLib.Tags.Nodes
         public Parser(string text, TagCollection tagsReference, Dictionary<string, float> variables = null, Dictionary<string, List<MethodInfo>> functions = null)
         {
             Errors = new string[0];
-            tokens = Token.Tokenize(text)
+            tokens = NToken.Tokenize(text)
                 .Where(t => !string.IsNullOrWhiteSpace(t.Text))
                 .Select(t =>
                 {
@@ -46,9 +46,9 @@ namespace TagLib.Tags.Nodes
                 .ToArray();
             tagDict = new Dictionary<string, (int, Tag)>();
             int index = 0;
-            foreach (Token t in tokens)
+            foreach (NToken t in tokens)
             {
-                if (t.TokenKind != Token.Kind.Tag) continue;
+                if (t.TokenKind != NToken.Kind.Tag) continue;
                 var key = t.Text;
                 if (!tagDict.TryGetValue(key, out _))
                 {
@@ -87,17 +87,17 @@ namespace TagLib.Tags.Nodes
                     return left;
                 switch (Current.TokenKind)
                 {
-                    case Token.Kind.Add:
+                    case NToken.Kind.Add:
                         op = new OperatorNode('+');
                         break;
-                    case Token.Kind.Sub:
+                    case NToken.Kind.Sub:
                         op = new OperatorNode('-');
                         break;
                     default:
                         op = new OperatorNode('\0');
                         break;
                 }
-                if (op.op == '\0')
+                if (op.op == "\0")
                     return left;
                 NextToken();
                 var right = ParseMDRP();
@@ -114,23 +114,48 @@ namespace TagLib.Tags.Nodes
                     return left;
                 switch (Current.TokenKind)
                 {
-                    case Token.Kind.Mul:
+                    case NToken.Kind.Mul:
                         op = new OperatorNode('*');
                         break;
-                    case Token.Kind.Div:
+                    case NToken.Kind.Div:
                         op = new OperatorNode('/');
                         break;
-                    case Token.Kind.Rem:
+                    case NToken.Kind.Rem:
                         op = new OperatorNode('%');
                         break;
-                    case Token.Kind.Pow:
+                    case NToken.Kind.Pow:
                         op = new OperatorNode('^');
+                        break;
+
+                    case NToken.Kind.And:
+                        op = new OperatorNode("&&");
+                        break;
+                    case NToken.Kind.Or:
+                        op = new OperatorNode("||");
+                        break;
+                    case NToken.Kind.Eq:
+                        op = new OperatorNode("==");
+                        break;
+                    case NToken.Kind.Ine:
+                        op = new OperatorNode("!=");
+                        break;
+                    case NToken.Kind.Gt:
+                        op = new OperatorNode(">");
+                        break;
+                    case NToken.Kind.Ge:
+                        op = new OperatorNode(">=");
+                        break;
+                    case NToken.Kind.Lt:
+                        op = new OperatorNode("<");
+                        break;
+                    case NToken.Kind.Le:
+                        op = new OperatorNode("<=");
                         break;
                     default:
                         op = new OperatorNode('\0');
                         break;
                 }
-                if (op.op == '\0')
+                if (op.op == "\0")
                     return left;
                 NextToken();
                 var right = ParseUnaryExpression();
@@ -143,10 +168,10 @@ namespace TagLib.Tags.Nodes
             {
                 switch (Current.TokenKind)
                 {
-                    case Token.Kind.Add:
+                    case NToken.Kind.Add:
                         NextToken();
                         continue;
-                    case Token.Kind.Sub:
+                    case NToken.Kind.Sub:
                         NextToken();
                         var right = ParseUnaryExpression();
                         return new UnaryNode(right);
@@ -159,11 +184,11 @@ namespace TagLib.Tags.Nodes
         {
             switch (Current.TokenKind)
             {
-                case Token.Kind.Number:
+                case NToken.Kind.Number:
                     Node node = new NumberNode((float)Current.Value);
                     NextToken();
                     return node;
-                case Token.Kind.Tag:
+                case NToken.Kind.Tag:
                     if (tagDict.TryGetValue(Current.Text, out var tuple))
                     {
                         node = new TagNode(tuple.Item2, Current.Option, tuple.Item1, il => il.Emit(OpCodes.Ldarg_0));
@@ -172,17 +197,17 @@ namespace TagLib.Tags.Nodes
                     }
                     else Errors = Errors.Add($"Cannot Find '{Current.Text}' Tag.");
                     return new NumberNode(0);
-                case Token.Kind.LParen:
+                case NToken.Kind.LParen:
                     NextToken();
                     node = ParseAS();
-                    if (Current?.TokenKind != Token.Kind.RParen)
+                    if (Current?.TokenKind != NToken.Kind.RParen)
                         Errors = Errors.Add("Missing Close Parenthesis!");
                     NextToken();
                     return node;
-                case Token.Kind.Identifier:
+                case NToken.Kind.Identifier:
                     var name = Current.Text;
                     NextToken();
-                    if (Current?.TokenKind != Token.Kind.LParen)
+                    if (Current?.TokenKind != NToken.Kind.LParen)
                     {
                         if (Variables.TryGetValue(name, out float num))
                             return new NumberNode(num);
@@ -192,7 +217,7 @@ namespace TagLib.Tags.Nodes
                     {
                         NextToken();
                         var args = new Node[0];
-                        if (Current.TokenKind == Token.Kind.RParen)
+                        if (Current.TokenKind == NToken.Kind.RParen)
                         {
                             if (Functions.TryGetValue(name, out List<MethodInfo> meths))
                             {
@@ -222,14 +247,14 @@ namespace TagLib.Tags.Nodes
                         while (true)
                         {
                             args = args.Add(ParseAS());
-                            if (Current.TokenKind == Token.Kind.Comma)
+                            if (Current.TokenKind == NToken.Kind.Comma)
                             {
                                 NextToken();
                                 continue;
                             }
                             break;
                         }
-                        if (Current.TokenKind != Token.Kind.RParen)
+                        if (Current.TokenKind != NToken.Kind.RParen)
                             Errors = Errors.Add("Missing Close Parenthesis!");
                         NextToken();
                         var argsLength = args.Length;
@@ -240,7 +265,7 @@ namespace TagLib.Tags.Nodes
                                 goto notfound;
                             var parameters = m.GetParameters();
                             var paramTypes = parameters.Select(p => p.ParameterType);
-                            if (paramTypes.All(t => t == typeof(float)) && m.ReturnType == typeof(float))
+                            if (m.ReturnType == typeof(float))
                                 return new FunctionNode(m, args);
                         }
                     notfound:

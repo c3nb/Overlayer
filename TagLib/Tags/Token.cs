@@ -107,7 +107,7 @@ namespace TagLib.Tags
             for (int i = 0; i < text.Length; i++)
             {
                 char c = text[i];
-                First:
+            First:
                 if (tag)
                 {
                     if (c == '{')

@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TagLib.Tags;
-using HarmonyLib;
 using Overlayer.AdofaiggApi;
 using AgLevel = Overlayer.AdofaiggApi.Types.Level;
-using System.Reflection;
-using ADOFAI;
 using TagLib.Utils;
 using SA.GoogleDoc;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Net.Sockets;
-using System.Net;
-using System.Threading;
-using UnityEngine;
-using System.Runtime.CompilerServices;
 using Overlayer.Patches;
+using ACL = Overlayer.MapParser.CustomLevel;
+using System.IO;
+using JSON;
 
 namespace Overlayer.Tags.Global
 {
@@ -57,10 +48,17 @@ namespace Overlayer.Tags.Global
                 var result = Request(artist, title, author, string.IsNullOrWhiteSpace(levelData.pathData) ? levelData.angleData.Count : levelData.pathData.Length, (int)Math.Round(levelData.bpm));
                 if (result == null)
                 {
-                    if (DifficultyPredictor.SupportPredictDifficulty)
+                    try
+                    {
                         Main.Logger.Log($"Adjusting Difficulty To Predicted Difficulty {CurrentDifficulty = PredictDifficulty(instance)}..");
-                    else
-                        Main.Logger.Log($"Adjusting Difficulty To {CurrentDifficulty = levelData.difficulty.Map(1, 10, 1, 21)}..");
+                    }
+                    catch (Exception e)
+                    {
+                        var levelPath = instance.customLevel.levelPath;
+                        Main.Logger.Log($"Error On Predicting Difficulty:\n{e}");
+                        Main.Logger.Log($"Level Path: {levelPath}");
+                        Main.Logger.Log($"Adjusting Difficulty To Editor Difficulty {CurrentDifficulty = ((float)instance.levelData.difficulty).Map(1, 10, 1, 21)}");
+                    }
                 }
                 else CurrentDifficulty = result.difficulty;
             }
@@ -69,7 +67,23 @@ namespace Overlayer.Tags.Global
         {
             Main.Logger.Log($"<b>Requesting {artist} - {title}, {author}</b>");
             var result = AgLevel.Request(ActualParams());
-            if (result.count <= 0) return Fail();
+            if (result.count <= 0)
+            {
+                result = AgLevel.Request(ActualParams2());
+                if (result.count <= 0)
+                {
+                    result = AgLevel.Request(ActualParams3());
+                    if (result.count <= 0)
+                    {
+                        result = AgLevel.Request(ActualParams4());
+                        if (result.count <= 0)
+                            return Fail();
+                        return result.results[0];
+                    }
+                    return result.results[0];
+                }
+                return result.results[0];
+            }
             if (result.count > 1)
             {
                 Main.Logger.Log($"<b>Result Count Is {result.count}. Re-Requesting With Bpm..</b>");
@@ -101,6 +115,48 @@ namespace Overlayer.Tags.Global
                 artist = artist.TrimEx();
                 title = title.TrimEx();
                 author = author.TrimEx();
+                if (!string.IsNullOrWhiteSpace(artist) && !IsSameWithDefault("editor.artist", artist))
+                    parameters.Add(AgLevel.QueryArtist(artist));
+                if (!string.IsNullOrWhiteSpace(title) && !IsSameWithDefault("editor.title", title))
+                    parameters.Add(AgLevel.QueryTitle(title));
+                if (!string.IsNullOrWhiteSpace(author) && !IsSameWithDefault("editor.author", author))
+                    parameters.Add(AgLevel.QueryCreator(author));
+                return new Parameters(parameters);
+            }
+            Parameters ActualParams2(params Parameter[] with)
+            {
+                List<Parameter> parameters = new List<Parameter>(with);
+                artist = artist.TrimEx().Replace(" ", "");
+                title = title.TrimEx();
+                author = author.TrimEx();
+                if (!string.IsNullOrWhiteSpace(artist) && !IsSameWithDefault("editor.artist", artist))
+                    parameters.Add(AgLevel.QueryArtist(artist));
+                if (!string.IsNullOrWhiteSpace(title) && !IsSameWithDefault("editor.title", title))
+                    parameters.Add(AgLevel.QueryTitle(title));
+                if (!string.IsNullOrWhiteSpace(author) && !IsSameWithDefault("editor.author", author))
+                    parameters.Add(AgLevel.QueryCreator(author));
+                return new Parameters(parameters);
+            }
+            Parameters ActualParams3(params Parameter[] with)
+            {
+                List<Parameter> parameters = new List<Parameter>(with);
+                artist = artist.TrimEx();
+                title = title.TrimEx();
+                author = author.TrimEx().Replace(" ", "");
+                if (!string.IsNullOrWhiteSpace(artist) && !IsSameWithDefault("editor.artist", artist))
+                    parameters.Add(AgLevel.QueryArtist(artist));
+                if (!string.IsNullOrWhiteSpace(title) && !IsSameWithDefault("editor.title", title))
+                    parameters.Add(AgLevel.QueryTitle(title));
+                if (!string.IsNullOrWhiteSpace(author) && !IsSameWithDefault("editor.author", author))
+                    parameters.Add(AgLevel.QueryCreator(author));
+                return new Parameters(parameters);
+            }
+            Parameters ActualParams4(params Parameter[] with)
+            {
+                List<Parameter> parameters = new List<Parameter>(with);
+                artist = artist.TrimEx().Replace(" ", "");
+                title = title.TrimEx();
+                author = author.TrimEx().Replace(" ", "");
                 if (!string.IsNullOrWhiteSpace(artist) && !IsSameWithDefault("editor.artist", artist))
                     parameters.Add(AgLevel.QueryArtist(artist));
                 if (!string.IsNullOrWhiteSpace(title) && !IsSameWithDefault("editor.title", title))
@@ -143,19 +199,14 @@ namespace Overlayer.Tags.Global
         public static double PredictDifficulty(scnEditor editor)
         {
             var levelData = editor.levelData;
-            if (PredictedDiffCache.TryGetValue(DataInit.MakeHash(levelData.author, levelData.artist, levelData.song), out double diff))
-                return diff;
-            var floors = scrLevelMaker.instance.listFloors;
-            int tiles = string.IsNullOrWhiteSpace(levelData.pathData) ? levelData.angleData.Count : levelData.pathData.Length;
-            float bpmCache = levelData.bpm;
-            var allBpm = floors.Select(f => f.speed * bpmCache);
-            var bpmAvg = allBpm.Average();
-            var bpmDev = allBpm.Select(b => b - bpmAvg);
-            var bpmVariance = bpmDev.Select(d => d * d).Average();
-            var bpmStdDev = (float)Math.Sqrt(bpmVariance);
-            var predicted =  DifficultyPredictor.Predict(tiles, bpmAvg, bpmVariance, bpmStdDev);
-            return PredictedDiffCache[DataInit.MakeHash(levelData.author, levelData.artist, levelData.song)] = Clamp(Math.Round(predicted, 1), 1, 21);
+            var hash = DataInit.MakeHash(levelData.author, levelData.artist, levelData.song);
+            if (PredictedDiffCache.TryGetValue(hash, out var diff)) return diff;
+            var meta = GetMeta(editor.customLevel.levelPath);
+            var predicted = meta.Difficulty.ToFloat();
+            return PredictedDiffCache[hash] = Clamp(Math.Round(predicted, 1), 1, 21);
         }
+        public static LevelMeta GetMeta(string levelPath)
+            => LevelMeta.GetMeta(ACL.Read(JsonNode.Parse(File.ReadAllText(levelPath))));
         public static List<string> CachedState = new List<string>();
         public static Dictionary<string, double> PredictedDiffCache = new Dictionary<string, double>();
         public static Dictionary<string, string[]> CachedStrings = new Dictionary<string, string[]>();
@@ -170,24 +221,5 @@ namespace Overlayer.Tags.Global
             => x.Pow(y);
         public static double Clamp(double value, double min, double max)
             => value > max ? max : value < min ? min : value;
-    }
-    public static class DifficultyPredictor
-    {
-        public static readonly bool SupportPredictDifficulty = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        public static double Predict(int tiles, double bpmAvg, double bpmVariance, double bpmStdDev)
-        {
-            if (!SupportPredictDifficulty) return -1;
-            Process proc = new Process();
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.UseShellExecute = false;
-            psi.WindowStyle = ProcessWindowStyle.Hidden;
-            psi.CreateNoWindow = true;
-            psi.RedirectStandardOutput = true;
-            psi.FileName = "Mods/Overlayer/Overlayer.DifficultyPrediction.exe";
-            psi.Arguments = $"{tiles} {bpmAvg} {bpmVariance} {bpmStdDev}";
-            proc.StartInfo = psi;
-            proc.Start();
-            return proc.StandardOutput.ReadLine().ToDouble();
-        }
     }
 }

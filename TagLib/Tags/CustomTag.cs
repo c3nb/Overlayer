@@ -126,6 +126,7 @@ namespace TagLib.Tags
             { "ceil", "Ceiling" },
             { "floor", "Floor" },
             { "truncate", "Truncate" },
+            { "if", "If {condition} a Else b" },
         };
         public static readonly Dictionary<string, List<MethodInfo>> functions = new Dictionary<string, List<MethodInfo>>
         {
@@ -151,7 +152,10 @@ namespace TagLib.Tags
             { "floor", new List<MethodInfo> { typeof(CustomTag).GetMethod("Floor", (BindingFlags)15420) } },
             { "truncate", new List<MethodInfo> { typeof(CustomTag).GetMethod("Truncate", (BindingFlags)15420, null, new[] { typeof(float) }, null),
                 typeof(CustomTag).GetMethod("Truncate", (BindingFlags)15420, null, new[] { typeof(float), typeof(float) }, null) } },
+            { "if", new List<MethodInfo> { typeof(CustomTag).GetMethod("If", (BindingFlags)15420) } },
         };
+        static float If(bool condition, float a, float b)
+            => condition ? a : b;
         static float Exp(float f)
             => (float)Math.Exp(f);
         static float Cos(float f)
