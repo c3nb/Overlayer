@@ -1,7 +1,7 @@
-﻿using TagLib.Tags;
-using TagLib.Utils;
+﻿using Overlayer.Core;
+using Overlayer.Core.Utils;
 
-namespace Overlayer.Tags.Global
+namespace Overlayer.Core.Global
 {
     public static class Misc
     {
@@ -30,11 +30,11 @@ namespace Overlayer.Tags.Global
         [Tag("FOHex", "FailOverload Judgement Hex Code")]
         public static string FOHex() => "D958FFFF";
         [Tag("Title", "Title")]
-        public static string Title() => scnEditor.instance?.levelData?.song.BreakRichTag();
+        public static string Title() => scnEditor.instance?.levelData?.song.BreakRichTagWithoutSize();
         [Tag("Author", "Author")]
-        public static string Author() => scnEditor.instance?.levelData?.author.BreakRichTag();
+        public static string Author() => scnEditor.instance?.levelData?.author.BreakRichTagWithoutSize();
         [Tag("Artist", "Artist")]
-        public static string Artist() => scnEditor.instance?.levelData?.artist.BreakRichTag();
+        public static string Artist() => scnEditor.instance?.levelData?.artist.BreakRichTagWithoutSize();
         [Tag("StartTile", "Start Tile")]
         public static float StartTile() => Variables.StartTile;
         [Tag("Difficulty", "Difficulty Of Current Level")]

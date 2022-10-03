@@ -1,6 +1,6 @@
-﻿using TagLib.Tags;
+﻿using Overlayer.Core;
 
-namespace Overlayer.Tags.Normal
+namespace Overlayer.Core.Normal
 {
     public static class NHitTags
     {

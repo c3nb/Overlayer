@@ -1,6 +1,6 @@
-﻿using TagLib.Tags;
+﻿using Overlayer.Core;
 
-namespace Overlayer.Tags.Strict
+namespace Overlayer.Core.Strict
 {
     public static class SHitTags
     {

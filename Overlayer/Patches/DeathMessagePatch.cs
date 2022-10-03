@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
-using TagLib.Tags;
-using Overlayer.Tags.Global;
+using Overlayer.Core;
+using Overlayer.Core.Global;
 
 namespace Overlayer.Patches
 {

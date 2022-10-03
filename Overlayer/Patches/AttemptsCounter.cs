@@ -1,8 +1,7 @@
 ﻿using HarmonyLib;
 using System;
-using TagLib.Tags;
+using Overlayer.Core;
 using System.Collections.Generic;
-using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {

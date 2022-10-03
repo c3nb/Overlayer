@@ -1,13 +1,13 @@
 ﻿using System;
-using TagLib.Tags;
+using Overlayer.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using TagLib.Utils;
+using Overlayer.Core.Utils;
 
-namespace Overlayer.Tags.Global
+namespace Overlayer.Core.Global
 {
     [ClassTag("KeyJudge", "KeyCode:Judgement")]
     public static class KeyJudgeTag

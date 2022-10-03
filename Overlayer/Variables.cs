@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Overlayer.Tags.Global;
+using Overlayer.Core.Global;
 using UnityEngine;
 
 namespace Overlayer

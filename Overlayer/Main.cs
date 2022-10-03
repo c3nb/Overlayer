@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using Overlayer.Patches;
-using TagLib.Tags;
-using TagLib.Utils;
-using TagLib;
+using Overlayer.Core;
+using Overlayer.Core.Utils;
+using Overlayer;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +14,7 @@ using UnityModManagerNet;
 using System.Runtime.CompilerServices;
 using static UnityModManagerNet.UnityModManager;
 using System.IO;
+using Overlayer.Core.Global;
 using Overlayer.Tags.Global;
 
 namespace Overlayer
@@ -45,6 +46,10 @@ namespace Overlayer
                 TagManager.AllTags["Fps"],
                 TagManager.AllTags["FrameTime"],
                 TagManager.AllTags["CurKps"],
+                //TagManager.AllTags["CpuUsage"],
+                //TagManager.AllTags["AdofaiCpuUsage"],
+                //TagManager.AllTags["RamUsage"],
+                //TagManager.AllTags["AdofaiRamUsage"],
             });
             modEntry.OnToggle = OnToggle;
             modEntry.OnGUI = OnGUI;
@@ -79,12 +84,16 @@ namespace Overlayer
                     CustomTag.Load();
                     foreach (CustomTag cTag in CustomTag.Tags)
                     {
-                        string err = cTag.Compile(TagManager.AllTags, cTag.name, cTag.description, cTag.expression, Recompile);
-                        cTag.name_ = cTag.name;
-                        cTag.description_ = cTag.description;
-                        cTag.expression_ = cTag.expression;
-                        if (err != null)
-                            Logger.Log($"Custom Tag {cTag.name} Is An Error Occured ({err}). Please Check Your Expression");
+                        try
+                        {
+                            string err = cTag.Compile(TagManager.AllTags, cTag.name, cTag.description, cTag.expression, Recompile);
+                            cTag.name_ = cTag.name;
+                            cTag.description_ = cTag.description;
+                            cTag.expression_ = cTag.expression;
+                            if (err != null)
+                                Logger.Log($"Custom Tag {cTag.name} Is An Error Occured ({err}). Please Check Your Expression");
+                        }
+                        catch (Exception e) { Logger.Log($"Exception At Custom Tag {cTag.name}.\n{e}"); }
                     }
                     OText.Load();
                     if (!OText.Texts.Any())
@@ -147,54 +156,61 @@ namespace Overlayer
                 {
                     for (int i = 0; i < cTags.Count; i++)
                     {
-                        var changed = false;
                         CustomTag cTag = cTags[i];
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label("Name:");
-                        cTag.name_ = GUILayout.TextField(cTag.name_);
-                        if (cTag.name_ != cTag.name)
-                            changed = true;
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label("Description:");
-                        cTag.description_ = GUILayout.TextField(cTag.description_);
-                        if (cTag.description_ != cTag.description)
-                            changed = true;
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label("Expression:");
-                        cTag.expression_ = GUILayout.TextField(cTag.expression_);
-                        if (cTag.expression_ != cTag.expression)
-                            changed = true;
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-
-                        GUILayout.Label($"This Tag Can{(cTag.canUsedByNotPlaying ? "" : "not")} Be Used By Not Playing Text.");
-
-                        GUILayout.BeginHorizontal();
-                        if (changed == true)
+                        if (cTag.collapsed = GUILayout.Toggle(cTag.collapsed, $"{cTag.name}"))
                         {
-                            if (GUILayout.Button("Compile"))
+                            GUIUtils.IndentGUI(() =>
                             {
-                                cTag.Compile(TagManager.AllTags, cTag.name_, cTag.description_, cTag.expression_, Recompile);
-                                changed = false;
-                            }
+                                var changed = false;
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("Name:");
+                                cTag.name_ = GUILayout.TextField(cTag.name_);
+                                if (cTag.name_ != cTag.name)
+                                    changed = true;
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("Description:");
+                                cTag.description_ = GUILayout.TextField(cTag.description_);
+                                if (cTag.description_ != cTag.description)
+                                    changed = true;
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("Expression:");
+                                cTag.expression_ = GUILayout.TextField(cTag.expression_);
+                                if (cTag.expression_ != cTag.expression)
+                                    changed = true;
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+
+                                GUILayout.Label($"This Tag Can{(cTag.canUsedByNotPlaying ? "" : "not")} Be Used By Not Playing Text.");
+                                GUILayout.Label($"This Tag Is {(cTag.isStringTag ? "String" : "Number")} Tag.");
+
+                                GUILayout.BeginHorizontal();
+                                if (changed == true)
+                                {
+                                    if (GUILayout.Button("Compile"))
+                                    {
+                                        cTag.Compile(TagManager.AllTags, cTag.name_, cTag.description_, cTag.expression_, Recompile);
+                                        changed = false;
+                                    }
+                                }
+                                if (GUILayout.Button("Remove"))
+                                {
+                                    TagManager.AllTags.RemoveTag(cTag.name);
+                                    TagManager.NotPlayingTags.RemoveTag(cTag.name);
+                                    Recompile();
+                                    cTags.RemoveAt(i);
+                                }
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+                                if (cTag.error != null)
+                                    GUILayout.Label($"Compilation Error: {cTag.error}");
+                            });
                         }
-                        if (GUILayout.Button("Remove"))
-                        {
-                            TagManager.AllTags.RemoveTag(cTag.name);
-                            TagManager.NotPlayingTags.RemoveTag(cTag.name);
-                            Recompile();
-                            cTags.RemoveAt(i);
-                        }
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-                        if (cTag.error != null)
-                            GUILayout.Label($"Compilation Error: {cTag.error}");
                         GUILayout.Space(3);
                     }
                 });
@@ -226,8 +242,8 @@ namespace Overlayer
             {
                 text.PlayingCompiler.Compile(text.TSetting.PlayingText);
                 text.NotPlayingCompiler.Compile(text.TSetting.NotPlayingText);
-                text.BrokenPlayingCompiler.Compile(text.TSetting.PlayingText.BreakRichTag());
-                text.BrokenNotPlayingCompiler.Compile(text.TSetting.NotPlayingText.BreakRichTag());
+                text.BrokenPlayingCompiler.Compile(text.TSetting.PlayingText.BreakRichTagWithoutSize());
+                text.BrokenNotPlayingCompiler.Compile(text.TSetting.NotPlayingText.BreakRichTagWithoutSize());
             }
         }
     }

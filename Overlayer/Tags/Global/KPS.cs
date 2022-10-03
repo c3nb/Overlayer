@@ -1,9 +1,9 @@
 ﻿using System;
-using TagLib.Tags;
+using Overlayer.Core;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Overlayer.Tags.Global
+namespace Overlayer.Core.Global
 {
     [ClassTag("CurKps", "Current KPS", Threads = new[] { "Calculate" })]
     public static class KPS

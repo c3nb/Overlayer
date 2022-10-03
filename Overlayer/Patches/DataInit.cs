@@ -1,6 +1,6 @@
 ﻿using ADOFAI;
 using HarmonyLib;
-using TagLib.Tags;
+using Overlayer.Core;
 
 namespace Overlayer.Patches
 {

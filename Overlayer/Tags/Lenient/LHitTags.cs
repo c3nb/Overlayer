@@ -1,6 +1,6 @@
-﻿using TagLib.Tags;
+﻿using Overlayer.Core;
 
-namespace Overlayer.Tags.Lenient
+namespace Overlayer.Core.Lenient
 {
     public static class LHitTags
     {

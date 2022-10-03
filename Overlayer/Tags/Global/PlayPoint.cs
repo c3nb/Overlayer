@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TagLib.Tags;
+using Overlayer.Core;
 using Overlayer.AdofaiggApi;
 using AgLevel = Overlayer.AdofaiggApi.Types.Level;
-using TagLib.Utils;
+using Overlayer.Core.Utils;
 using SA.GoogleDoc;
 using Overlayer.Patches;
 using ACL = Overlayer.MapParser.CustomLevel;
 using System.IO;
 using JSON;
 
-namespace Overlayer.Tags.Global
+namespace Overlayer.Core.Global
 {
     [ClassTag("PlayPoint", "PlayPoint(PP) In Adofai.gg")]
     public static class PlayPoint

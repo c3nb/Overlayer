@@ -1,9 +1,9 @@
 ﻿using System;
-using TagLib.Tags;
+using Overlayer.Core;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Overlayer.Tags.Global
+namespace Overlayer.Core.Global
 {
     public static class Timings
     {

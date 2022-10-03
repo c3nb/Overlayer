@@ -1,6 +1,6 @@
-﻿using TagLib.Tags;
-using TagLib.Utils;
-using TagLib;
+﻿using Overlayer.Core;
+using Overlayer.Core.Utils;
+using Overlayer;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -121,8 +121,8 @@ namespace Overlayer
                 TSetting.Name = $"Text {Number}";
             PlayingCompiler = new TextCompiler(TSetting.PlayingText, TagManager.AllTags);
             NotPlayingCompiler = new TextCompiler(TSetting.NotPlayingText, TagManager.NotPlayingTags);
-            BrokenPlayingCompiler = new TextCompiler(TSetting.PlayingText.BreakRichTag(), TagManager.AllTags);
-            BrokenNotPlayingCompiler = new TextCompiler(TSetting.NotPlayingText.BreakRichTag(), TagManager.NotPlayingTags);
+            BrokenPlayingCompiler = new TextCompiler(TSetting.PlayingText.BreakRichTagWithoutSize(), TagManager.AllTags);
+            BrokenNotPlayingCompiler = new TextCompiler(TSetting.NotPlayingText.BreakRichTagWithoutSize(), TagManager.NotPlayingTags);
             SText.Updater = () =>
             {
                 if (IsPlaying)
@@ -308,11 +308,11 @@ namespace Overlayer
             SText.FontSize = TSetting.FontSize;
             SText.Alignment = TSetting.Alignment;
             SText.Shadow.color = TSetting.ShadowColor.ToColor();
-            Tags.Global.ProgressDeath.Reset();
+            Core.Global.ProgressDeath.Reset();
             PlayingCompiler.Compile(TSetting.PlayingText);
             NotPlayingCompiler.Compile(TSetting.NotPlayingText);
-            BrokenPlayingCompiler.Compile(TSetting.PlayingText.BreakRichTag());
-            BrokenNotPlayingCompiler.Compile(TSetting.NotPlayingText.BreakRichTag());
+            BrokenPlayingCompiler.Compile(TSetting.PlayingText.BreakRichTagWithoutSize());
+            BrokenNotPlayingCompiler.Compile(TSetting.NotPlayingText.BreakRichTagWithoutSize());
             return this;
         }
         public TextCompiler PlayingCompiler;

@@ -1,10 +1,10 @@
 ﻿using System;
-using TagLib.Tags;
+using Overlayer.Core;
 using System.Collections.Generic;
 using System.Linq;
-using TagLib.Utils;
+using Overlayer.Core.Utils;
 
-namespace Overlayer.Tags.Global
+namespace Overlayer.Core.Global
 {
     [ClassTag("ProgressDeath", "Death Count For Progress")]
     public static class ProgressDeath

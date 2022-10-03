@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
-using Overlayer.Tags.Global;
+using Overlayer.Core.Global;
 using System;
-using TagLib.Tags;
+using Overlayer.Core;
 using System.Reflection;
 
 namespace Overlayer.Patches

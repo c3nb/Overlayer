@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using Overlayer.Tags.Global;
+using Overlayer.Core.Global;
 
 namespace Overlayer.Patches
 {

@@ -1,6 +1,6 @@
-﻿using TagLib.Tags;
+﻿using Overlayer.Core;
 
-namespace Overlayer.Tags.Global
+namespace Overlayer.Core.Global
 {
     public static class CurHitTags
     {
