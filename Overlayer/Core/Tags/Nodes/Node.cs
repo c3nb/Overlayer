@@ -1,7 +1,7 @@
 ﻿using System.Reflection.Emit;
 using System;
 
-namespace Overlayer.Core.Nodes
+namespace Overlayer.Core.Tags.Nodes
 {
     public abstract class Node
     {

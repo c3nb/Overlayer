@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System;
 
-namespace Overlayer.Core.Nodes
+namespace Overlayer.Core.Tags.Nodes
 {
     public class OperatorNode : Node
     {

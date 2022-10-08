@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Overlayer.Core.Utils;
 
-namespace Overlayer.Core.Nodes
+namespace Overlayer.Core.Tags.Nodes
 {
     public class NToken
     {

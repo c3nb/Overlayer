@@ -149,6 +149,8 @@ namespace Overlayer.Core
             position = -1;
             length = 0;
         }
+        public bool Contains(Tag tag)
+            => Array.FindIndex(tags, t => t.Name == tag.Name) != -1;
         public int Count => length;
         IEnumerator IEnumerable.GetEnumerator() => this;
         IEnumerator<Tag> IEnumerable<Tag>.GetEnumerator() => this;

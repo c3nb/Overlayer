@@ -1,0 +1,105 @@
+<#@ include file="./CodegenCommons.ttinclude" once="true" #>
+<#@ include file="./GroupingConstants.ttinclude" once="true" #>
+using System;
+using JetBrains.Annotations;
+using Vostok.Metrics.Grouping;
+using Vostok.Metrics.Models;
+<# if (model.UseCaching) { this.WriteLine("using Vostok.Metrics.Primitives.Caching;"); } #>
+
+namespace <#= model.MetricNamespace #>
+{
+    [PublicAPI]
+    public static class <#= model.ExtensionClassName #>
+    {
+<# if (model.CustomCreate != null) { this.Write(model.CustomCreate); } #>
+
+<# if (model.CustomCreate == null) { #>
+        /// <inheritdoc cref="<#= model.InheritDocType #>"/>
+        /// <param name="context">Context this metric will belong to.</param>
+        /// <param name="name">Name of the metric. It will be added to event's <see cref="MetricEvent.Tags"/> with key set to <see cref="Vostok.Metrics.WellKnownTagKeys.Name"/>.</param>
+        /// <param name="config">Optional metric-specific config.</param>
+        [NotNull]
+        public static <#= model.MetricInterface #> Create<#= model.MetricClass #>([NotNull] this IMetricContext context, [NotNull] string name, [CanBeNull] <#= model.MetricConfigClass #> config = null)
+            <# if (model.UseCaching) { this.Write("=> GlobalCache.Obtain(context, name, null, () "); } #>=> new <#= model.MetricClass #>(context, MetricTagsMerger.Merge(context.Tags, name), config ?? <#= model.MetricConfigClass #>.Default)<# if (model.UseCaching) { this.Write(")"); } #>;
+<# } #>
+
+        #region Metric group extensions
+
+        /// <summary>
+        /// <para>
+        /// Creates a group of <see cref="<#= model.InheritDocType #>"><#= model.MetricClass #>s</see>.
+        /// Metrics in the group share the same context tags and <paramref name="name"/> but have different dynamic tags.
+        /// </para>
+        /// <para>Dynamic tags are specified by an instance of <typeparamref name="TFor"/>.</para>
+        /// <para><typeparamref name="TFor"/> type must have at least one public property marked with <see cref="MetricTagAttribute"/>.</para>
+        /// <inheritdoc cref="<#= model.InheritDocType #>"/>
+        /// </summary>
+        /// <param name="context">Context this metric will belong to.</param>
+        /// <param name="name">Name of the metric. It will be added to event's <see cref="MetricEvent.Tags"/> with key set to <see cref="Vostok.Metrics.WellKnownTagKeys.Name"/>.</param>
+        /// <param name="config">Optional metric-specific config.</param>
+        /// <inheritdoc cref="<#= model.InheritDocType #>"/>
+        [NotNull]
+        public static IMetricGroup<TFor, <#= model.MetricInterface #>> Create<#= model.MetricClass #><TFor>([NotNull] this IMetricContext context, [NotNull] string name, [CanBeNull] <#= model.MetricConfigClass #> config = null)
+            <# if (model.UseCaching) { this.Write("=> GlobalCache.Obtain(context, name, typeof(TFor), () "); } #>=> new MetricGroup<TFor, <#= model.MetricInterface #>>(MetricForTagsFactory(context, name, config ?? <#= model.MetricConfigClass #>.Default))<# if (model.UseCaching) { this.Write(")"); } #>;
+<# for (var keysCount = 1; keysCount <= DynamicTags_StringKeys_MaxKeyCount; keysCount++) { #>
+
+        /// <summary>
+        /// <para>
+        /// Creates a group of <see cref="<#= model.InheritDocType #>"><#= model.MetricClass #>s</see>.
+        /// Metrics in the group share the same context tags and <paramref name="name"/> but have different dynamic tags.
+        /// </para>
+        /// <para>
+        /// Dynamic tags are specified by string parameters. Define the keys now and pass the values later.
+        /// </para>
+        /// <inheritdoc cref="<#= model.InheritDocType #>"/>
+        /// </summary>
+        /// <param name="context">Context this metric will belong to.</param>
+        /// <param name="name">Name of the metric. It will be added to event's <see cref="MetricEvent.Tags"/> with key set to <see cref="Vostok.Metrics.WellKnownTagKeys.Name"/>.</param>
+<# for (var i = 1; i <= keysCount; i++) { #>
+        /// <param name="key<#= i #>">Key of dynamic tag number <#= i #>.</param>
+<# } #>
+        /// <param name="config">Optional config</param>
+        /// <inheritdoc cref="<#= model.InheritDocType #>"/>
+        [NotNull]
+        public static IMetricGroup<#= keysCount #><<#= model.MetricInterface #>> Create<#= model.MetricClass #>([NotNull] this IMetricContext context, [NotNull] string name, <#= FormatParameters("[NotNull] string key{0}", keysCount) #>, [CanBeNull] <#= model.MetricConfigClass #> config = null)
+            <# if (model.UseCaching) { this.Write("=> GlobalCache.Obtain(context, name, (" + FormatParameters("key{0}", keysCount) + "), () "); } #>=> CreateMetricGroup(context, name, config, <#= FormatParameters("key{0}", keysCount) #>)<# if (model.UseCaching) { this.Write(")"); } #>;
+<# } #>
+
+        #endregion
+
+        #region Helper methods
+
+        private static MetricGroup<<#= model.MetricClass #>> CreateMetricGroup(IMetricContext context, string name, <#= model.MetricConfigClass #> config = null, params string[] keys)
+            => new MetricGroup<<#= model.MetricClass #>>(MetricForTagsFactory(context, name, config ?? <#= model.MetricConfigClass #>.Default), keys);
+
+        private static Func<MetricTags, <#= model.MetricClass #>> MetricForTagsFactory(IMetricContext context, string name, <#= model.MetricConfigClass #> config)
+            => tags => new <#= model.MetricClass #>(context, MetricTagsMerger.Merge(context.Tags, name, tags), config);
+
+        #endregion
+    }
+}
+<#+
+MetricExtensionsModel model { get; set; }
+
+class MetricExtensionsModel 
+{
+    public string MetricClass { get; set; }
+    public string MetricInterface { get; set; }
+    public string MetricConfigClass { get; set; }
+    public string MetricNamespace { get; set; }
+    public string ExtensionClassName { get; set; }
+    public string InheritDocType { get; set; }
+    public string CustomCreate { get; set; }
+    public bool UseCaching { get; set; }
+
+    public MetricExtensionsModel(string metricClass)
+    {
+        MetricClass = metricClass;
+        MetricInterface = $"I{MetricClass}";
+        MetricConfigClass = $"{MetricClass}Config";
+        MetricNamespace = $"Vostok.Metrics.Primitives.{MetricClass}";
+        ExtensionClassName = $"{MetricClass}FactoryExtensions";
+        InheritDocType = MetricInterface;
+    }
+}
+#>

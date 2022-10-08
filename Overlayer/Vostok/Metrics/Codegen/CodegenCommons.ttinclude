@@ -1,0 +1,14 @@
+<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<# #>
+<#@ assembly name="System.Linq" #>
+<#@ assembly name="System.Core" #>
+<# #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Linq" #>
+<#+ 
+string FormatParameters(string parameter, int count) 
+{
+    return string.Join(", ", Enumerable.Range(1, count).Select(x => string.Format(parameter, x)));
+}
+#>

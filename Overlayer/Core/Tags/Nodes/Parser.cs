@@ -6,8 +6,9 @@ using System.Reflection.Emit;
 using System.Collections.Generic;
 using Overlayer.Core.Utils;
 using Overlayer.Core.Tags.Nodes;
+using System.Xml.XPath;
 
-namespace Overlayer.Core.Nodes
+namespace Overlayer.Core.Tags.Nodes
 {
     public class Parser
     {
@@ -115,6 +116,7 @@ namespace Overlayer.Core.Nodes
                 OperatorNode op;
                 if (Current == null)
                     return left;
+                IsString |= left.ResultType == typeof(string);
                 switch (Current.TokenKind)
                 {
                     case NToken.Kind.Mul:
@@ -162,8 +164,6 @@ namespace Overlayer.Core.Nodes
                     return left;
                 NextToken();
                 var right = ParseUnaryExpression();
-                if (left.ResultType == typeof(float) && right.ResultType == typeof(string))
-                    op = new OperatorNode(op.op, true);
                 left = new BinaryNode(left, op, right);
             }
         }
@@ -201,7 +201,7 @@ namespace Overlayer.Core.Nodes
                 case NToken.Kind.Tag:
                     if (tagDict.TryGetValue(Current.Text, out var tuple))
                     {
-                        node = new TagNode(tuple.Item2, Current.Option, tuple.Item1, il => il.Emit(OpCodes.Ldarg_0), () => IsString);
+                        node = new TagNode(tuple.Item2, Current.Option, tuple.Item1, il => il.Emit(OpCodes.Ldarg_0));
                         NextToken();
                         return node;
                     }
@@ -273,13 +273,16 @@ namespace Overlayer.Core.Nodes
                         var argsLength = args.Length;
                         if (Functions.TryGetValue(name, out List<MethodInfo> ms))
                         {
-                            var m = ms.Find(mt => mt.GetParameters().Length == argsLength);
+                            var m = ms.Find(m =>
+                            {
+                                var @params = m.GetParameters();
+                                return @params.Length == argsLength && 
+                                    (m.ReturnType == typeof(float) || m.ReturnType == typeof(string)) &&
+                                    @params.Select(p => p.ParameterType).SequenceEqual(args.Select(n => n.ResultType));
+                            });
                             if (m == null)
                                 goto notfound;
-                            var parameters = m.GetParameters();
-                            var paramTypes = parameters.Select(p => p.ParameterType);
-                            if (m.ReturnType == typeof(float) || m.ReturnType == typeof(string))
-                                return new FunctionNode(m, args);
+                            return new FunctionNode(m, args);
                         }
                     notfound:
                         Errors = Errors.Add($"Cannot Find Function {name}({FormatArgument(args)})");

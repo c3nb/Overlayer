@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Reflection.Emit;
-using Overlayer.Core.Nodes;
 
-namespace Overlayer.Core.Nodes
+namespace Overlayer.Core.Tags.Nodes
 {
     public class BinaryNode : Node
     {

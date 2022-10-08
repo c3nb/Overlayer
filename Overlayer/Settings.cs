@@ -20,6 +20,8 @@ namespace Overlayer
         public int KPSUpdateRate = 20;
         [Draw("FPS UpdateRate")]
         public int FPSUpdateRate = 500;
+        [Draw("Performance Status UpdateRate")]
+        public int PerfStatUpdateRate = 500;
         [Draw("FrameTime UpdateRate")]
         public int FrameTimeUpdateRate = 500;
         [Draw("Add All Judgements At ErrorMeter")]

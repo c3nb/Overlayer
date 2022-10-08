@@ -14,6 +14,7 @@ namespace Overlayer.Core
         public string Name { get; }
         public string Description { get; }
         public bool Hidden = false;
+        public bool AllowAtNotPlaying = false;
         public bool IsDefault => Name == null && Description == null;
     }
 }

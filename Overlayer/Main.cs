@@ -33,6 +33,7 @@ namespace Overlayer
             Logger = modEntry.Logger;
             var asm = Assembly.GetExecutingAssembly();
             Settings.Load(modEntry);
+            Performance.Init();
             TagManager.AllTags.LoadTags(asm);
             TagManager.NotPlayingTags.AddTags(new[]
             {
@@ -46,10 +47,18 @@ namespace Overlayer
                 TagManager.AllTags["Fps"],
                 TagManager.AllTags["FrameTime"],
                 TagManager.AllTags["CurKps"],
-                //TagManager.AllTags["CpuUsage"],
-                //TagManager.AllTags["AdofaiCpuUsage"],
-                //TagManager.AllTags["RamUsage"],
-                //TagManager.AllTags["AdofaiRamUsage"],
+
+                TagManager.AllTags["ProcessorCount"],
+                TagManager.AllTags["MemoryGBytes"],
+                TagManager.AllTags["CpuUsage"],
+                TagManager.AllTags["TotalCpuUsage"],
+                TagManager.AllTags["MemoryUsage"],
+                TagManager.AllTags["TotalMemoryUsage"],
+                TagManager.AllTags["MemoryUsageGBytes"],
+                TagManager.AllTags["TotalMemoryUsageGBytes"],
+
+                TagManager.AllTags["FMHex"],
+
             });
             modEntry.OnToggle = OnToggle;
             modEntry.OnGUI = OnGUI;

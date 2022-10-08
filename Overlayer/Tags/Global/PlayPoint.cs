@@ -69,12 +69,15 @@ namespace Overlayer.Core.Global
             var result = AgLevel.Request(ActualParams());
             if (result.count <= 0)
             {
+                Main.Logger.Log($"<b>Result Count Is {result.count}. Re-Requesting With Fixup Artist Name..</b>");
                 result = AgLevel.Request(ActualParams2());
                 if (result.count <= 0)
                 {
+                    Main.Logger.Log($"<b>Result Count Is {result.count}. Re-Requesting With Fixup Author Name..</b>");
                     result = AgLevel.Request(ActualParams3());
                     if (result.count <= 0)
                     {
+                        Main.Logger.Log($"<b>Result Count Is {result.count}. Re-Requesting With Fixup Artist And Author Name..</b>");
                         result = AgLevel.Request(ActualParams4());
                         if (result.count <= 0)
                             return Fail();

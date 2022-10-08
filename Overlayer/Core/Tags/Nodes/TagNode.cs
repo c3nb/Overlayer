@@ -3,45 +3,28 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Overlayer.Core.Nodes
+namespace Overlayer.Core.Tags.Nodes
 {
     public class TagNode : Node
     {
-        public override Type ResultType => isString() ? typeof(string) : typeof(float);
+        public override Type ResultType => tag.Str == null ? typeof(float) : typeof(string);
         public Tag tag;
         public int index;
         public string option;
         public Action<ILGenerator> getTags;
-        public Func<bool> isString;
-        public TagNode(Tag tag, string option, int index, Action<ILGenerator> getTagsArray, Func<bool> isString)
+        public TagNode(Tag tag, string option, int index, Action<ILGenerator> getTagsArray)
         {
             this.tag = tag;
             this.index = index;
             this.option = string.IsNullOrWhiteSpace(option) ? null : option;
             getTags = getTagsArray;
-            this.isString = isString;
         }
         public override void Emit(ILGenerator il)
         {
             getTags(il);
             il.Emit(OpCodes.Ldc_I4, index);
             il.Emit(OpCodes.Ldelem_Ref);
-            LocalBuilder loc = Push(tag);
-            if (loc.LocalType == typeof(float))
-            {
-                if (isString())
-                {
-                    il.Emit(OpCodes.Ldloca, loc);
-                    il.Emit(OpCodes.Call, float_ToString);
-                }
-                else il.Emit(OpCodes.Ldloc, loc);
-            }
-            else
-            {
-                il.Emit(OpCodes.Ldloc, loc);
-                if (!isString())
-                    il.Emit(OpCodes.Call, string_ToFloat);
-            }
+            il.Emit(OpCodes.Ldloc, Push(tag));
             LocalBuilder Push(Tag tag)
             {
                 if (tag.IsOpt)
@@ -104,9 +87,6 @@ namespace Overlayer.Core.Nodes
                 }
             }
         }
-        public static readonly MethodInfo string_ToFloat = typeof(StringUtils).GetMethod("ToFloat");
-        public static readonly MethodInfo float_ToString = typeof(float).GetMethod("ToString", Type.EmptyTypes);
-
         public static MethodInfo tag_string_Value => TextCompiler.tag_string_Value;
         public static MethodInfo tag_float_Value => TextCompiler.tag_float_Value;
         public static MethodInfo tag_optValue_Float => TextCompiler.tag_optValue_Float;
