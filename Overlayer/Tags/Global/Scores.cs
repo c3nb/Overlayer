@@ -1,6 +1,6 @@
 ﻿using Overlayer.Core;
 
-namespace Overlayer.Core.Global
+namespace Overlayer.Tags.Global
 {
     public static class Scores
     {

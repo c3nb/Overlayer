@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using Overlayer.Core;
-using Overlayer.Core.Global;
+using Overlayer.Tags.Global;
 
 namespace Overlayer.Patches
 {

@@ -11,7 +11,7 @@ using ACL = Overlayer.MapParser.CustomLevel;
 using System.IO;
 using JSON;
 
-namespace Overlayer.Core.Global
+namespace Overlayer.Tags.Global
 {
     [ClassTag("PlayPoint", "PlayPoint(PP) In Adofai.gg")]
     public static class PlayPoint

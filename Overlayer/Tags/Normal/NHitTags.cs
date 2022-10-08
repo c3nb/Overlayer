@@ -1,6 +1,6 @@
 ﻿using Overlayer.Core;
 
-namespace Overlayer.Core.Normal
+namespace Overlayer.Tags.Normal
 {
     public static class NHitTags
     {

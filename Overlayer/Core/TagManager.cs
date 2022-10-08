@@ -8,7 +8,7 @@ namespace Overlayer.Core
 {
     public static class TagManager
     {
-        public static TagCollection AllTags = new TagCollection();
-        public static TagCollection NotPlayingTags = new TagCollection();
+        public static readonly TagCollection AllTags = new TagCollection();
+        public static readonly TagCollection NotPlayingTags = new TagCollection();
     }
 }

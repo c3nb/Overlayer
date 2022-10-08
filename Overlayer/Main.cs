@@ -14,7 +14,6 @@ using UnityModManagerNet;
 using System.Runtime.CompilerServices;
 using static UnityModManagerNet.UnityModManager;
 using System.IO;
-using Overlayer.Core.Global;
 using Overlayer.Tags.Global;
 
 namespace Overlayer
@@ -57,8 +56,16 @@ namespace Overlayer
                 TagManager.AllTags["MemoryUsageGBytes"],
                 TagManager.AllTags["TotalMemoryUsageGBytes"],
 
-                TagManager.AllTags["FMHex"],
-
+                TagManager.AllTags["TLHex"],
+                TagManager.AllTags["VEHex"],
+                TagManager.AllTags["EPHex"],
+                TagManager.AllTags["PHex"],
+                TagManager.AllTags["LPHex"],
+                TagManager.AllTags["VLHex"],
+                TagManager.AllTags["TLHex"],
+                TagManager.AllTags["MPHex"],
+                TagManager.AllTags["FOHex"],
+                TagManager.AllTags["FOHex"],
             });
             modEntry.OnToggle = OnToggle;
             modEntry.OnGUI = OnGUI;

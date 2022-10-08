@@ -98,7 +98,7 @@ namespace Overlayer
             {
                 List<Setting> settings = File.ReadAllText(JsonPath).FromJson<List<Setting>>();
                 for (int i = 0; i < settings.Count; i++)
-                    _ = new OText(settings[i]).Apply();
+                    new OText(settings[i]).Apply();
                 Order();
             }
         }
@@ -308,7 +308,7 @@ namespace Overlayer
             SText.FontSize = TSetting.FontSize;
             SText.Alignment = TSetting.Alignment;
             SText.Shadow.color = TSetting.ShadowColor.ToColor();
-            Core.Global.ProgressDeath.Reset();
+            Tags.Global.ProgressDeath.Reset();
             PlayingCompiler.Compile(TSetting.PlayingText);
             NotPlayingCompiler.Compile(TSetting.NotPlayingText);
             BrokenPlayingCompiler.Compile(TSetting.PlayingText.BreakRichTagWithoutSize());

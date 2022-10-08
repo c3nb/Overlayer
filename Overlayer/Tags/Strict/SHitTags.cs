@@ -1,6 +1,6 @@
 ﻿using Overlayer.Core;
 
-namespace Overlayer.Core.Strict
+namespace Overlayer.Tags.Strict
 {
     public static class SHitTags
     {

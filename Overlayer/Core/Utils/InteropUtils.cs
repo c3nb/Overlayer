@@ -42,7 +42,7 @@ namespace Overlayer.Core.Utils
                 throw new Exception($"Cannot Load Library: {libPath}!");
             }
         }
-        public static int FreeLIbrary(IntPtr lib)
+        public static int FreeLibrary(IntPtr lib)
         {
             if (IsWindows)
                 return WindowsFreeLibrary(lib);

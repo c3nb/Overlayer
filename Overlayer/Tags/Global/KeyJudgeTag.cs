@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Overlayer.Core.Utils;
 
-namespace Overlayer.Core.Global
+namespace Overlayer.Tags.Global
 {
     [ClassTag("KeyJudge", "KeyCode:Judgement")]
     public static class KeyJudgeTag

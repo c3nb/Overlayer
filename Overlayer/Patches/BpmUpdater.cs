@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using Overlayer.Core.Global;
+using Overlayer.Tags.Global;
 using System;
 using Overlayer.Core;
 using System.Reflection;

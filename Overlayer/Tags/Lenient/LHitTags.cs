@@ -1,6 +1,6 @@
 ﻿using Overlayer.Core;
 
-namespace Overlayer.Core.Lenient
+namespace Overlayer.Tags.Lenient
 {
     public static class LHitTags
     {

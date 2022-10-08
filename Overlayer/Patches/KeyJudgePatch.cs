@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
-using Overlayer.Core.Global;
+using Overlayer.Tags.Global;
 using Overlayer.Core.Utils;
 
 namespace Overlayer.Patches

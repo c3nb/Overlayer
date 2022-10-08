@@ -3,7 +3,7 @@ using Overlayer.Core;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Overlayer.Core.Global
+namespace Overlayer.Tags.Global
 {
     [ClassTag("CurKps", "Current KPS", Threads = new[] { "Calculate" })]
     public static class KPS

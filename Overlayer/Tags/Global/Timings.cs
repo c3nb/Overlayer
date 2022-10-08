@@ -3,7 +3,7 @@ using Overlayer.Core;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Overlayer.Core.Global
+namespace Overlayer.Tags.Global
 {
     public static class Timings
     {

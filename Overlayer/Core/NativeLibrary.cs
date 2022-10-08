@@ -15,7 +15,7 @@ namespace Overlayer.Core
         {
             if (disposed) return;
             LibHandle = IntPtr.Zero;
-            InteropUtils.FreeLIbrary(LibHandle);
+            InteropUtils.FreeLibrary(LibHandle);
             disposed = true;
         }
         public IntPtr GetFunction(string name)

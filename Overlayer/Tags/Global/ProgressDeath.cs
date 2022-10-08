@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Overlayer.Core.Utils;
 
-namespace Overlayer.Core.Global
+namespace Overlayer.Tags.Global
 {
     [ClassTag("ProgressDeath", "Death Count For Progress")]
     public static class ProgressDeath
