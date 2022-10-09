@@ -10,6 +10,7 @@ using TinyJson;
 using TMPro;
 using UnityEngine;
 using UnityModManagerNet;
+using Overlayer.Core.Translation;
 
 namespace Overlayer
 {
@@ -23,7 +24,7 @@ namespace Overlayer
                 Position = new float[2] { 0.011628f, 1 };
                 Color = new float[4] { 1, 1, 1, 1 };
                 ShadowColor = new float[4] { 0, 0, 0, 0.5f };
-                NotPlayingText = "Not Playing";
+                NotPlayingText = Main.Language[TranslationKeys.NotPlaying];
                 PlayingText = "<color=#{FMHex}>{MissCount}</color> <color=#{TEHex}>{CurTE}</color> <color=#{VEHex}>{CurVE}</color> <color=#{EPHex}>{CurEP}</color> <color=#{PHex}>{CurP}</color> <color=#{LPHex}>{CurLP}</color> <color=#{VLHex}>{CurVL}</color> <color=#{TLHex}>{CurTL}</color> <color=#{FOHex}>{Overloads}</color>";
                 FontSize = 44;
                 IsExpanded = true;
@@ -55,7 +56,7 @@ namespace Overlayer
                 if (ShadowColor == null)
                     ShadowColor = new float[4] { 0, 0, 0, 0.5f };
                 if (NotPlayingText == null)
-                    NotPlayingText = "Not Playing";
+                    NotPlayingText = Main.Language[TranslationKeys.NotPlaying];
                 if (PlayingText == null)
                     PlayingText = "<color=#ED3E3E>{CurTE}</color> <color=#EB9A46>{CurVE}</color> <color=#E3E370>{CurEP}</color> <color=#86E370>{CurP}</color> <color=#E3E370>{CurLP}</color> <color=#EB9A46>{CurVL}</color> <color=#ED3E3E>{CurTL}</color>";
                 if (FontSize == 0)
@@ -118,7 +119,7 @@ namespace Overlayer
             Number = SText.Number;
             TSetting.ValidCheck();
             if (TSetting.Name == null)
-                TSetting.Name = $"Text {Number}";
+                TSetting.Name = $"{Main.Language[TranslationKeys.Text]} {Number}";
             PlayingCompiler = new TextCompiler(TSetting.PlayingText, TagManager.AllTags);
             NotPlayingCompiler = new TextCompiler(TSetting.NotPlayingText, TagManager.NotPlayingTags);
             BrokenPlayingCompiler = new TextCompiler(TSetting.PlayingText.BreakRichTagWithoutSize(), TagManager.AllTags);
@@ -153,25 +154,25 @@ namespace Overlayer
                 GUILayout.BeginVertical();
                 GUIUtils.IndentGUI(() =>
                 {
-                    var active = GUILayout.Toggle(TSetting.Active, "Active");
+                    var active = GUILayout.Toggle(TSetting.Active, Main.Language[TranslationKeys.Active]);
                     if (active != TSetting.Active)
                         SText.Active = TSetting.Active = active;
                     GUILayout.BeginVertical();
 
                     GUILayout.BeginHorizontal();
-                    if (UnityModManager.UI.DrawFloatField(ref TSetting.Position[0], "Text X-Position")) Apply();
+                    if (UnityModManager.UI.DrawFloatField(ref TSetting.Position[0], Main.Language[TranslationKeys.TextXPos])) Apply();
                     TSetting.Position[0] = GUILayout.HorizontalSlider(TSetting.Position[0], 0, 1);
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
-                    if (UnityModManager.UI.DrawFloatField(ref TSetting.Position[1], "Text Y-Position")) Apply();
+                    if (UnityModManager.UI.DrawFloatField(ref TSetting.Position[1], Main.Language[TranslationKeys.TextYPos])) Apply();
                     TSetting.Position[1] = GUILayout.HorizontalSlider(TSetting.Position[1], 0, 1);
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label("Text Alignment:");
-                    if (GUIUtils.DrawEnum($"Text {Number} Alignment", ref TSetting.Alignment)) Apply();
-                    if (GUILayout.Button("Reset"))
+                    GUILayout.Label($"{Main.Language[TranslationKeys.TextAlignment]}:");
+                    if (GUIUtils.DrawEnum($"{Main.Language[TranslationKeys.Text]} {Number} {Main.Language[TranslationKeys.Alignment]}", ref TSetting.Alignment)) Apply();
+                    if (GUILayout.Button(Main.Language[TranslationKeys.Reset]))
                     {
                         TSetting.Alignment = TextAlignmentOptions.Left;
                         Apply();
@@ -184,59 +185,59 @@ namespace Overlayer
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
-                    if (UnityModManager.UI.DrawIntField(ref TSetting.FontSize, "Text Size")) Apply();
+                    if (UnityModManager.UI.DrawIntField(ref TSetting.FontSize, Main.Language[TranslationKeys.TextSize])) Apply();
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
-                    if (GUIUtils.DrawTextField(ref TSetting.Font, "Text Font")) Apply();
-                    if (GUILayout.Button("Log Font List"))
+                    if (GUIUtils.DrawTextField(ref TSetting.Font, Main.Language[TranslationKeys.TextFont])) Apply();
+                    if (GUILayout.Button(Main.Language[TranslationKeys.LogFontList]))
                         for (int i = 0; i < ShadowText.fontNames.Length; i++)
                             Main.Logger.Log($"{i + 1}. {ShadowText.fontNames[i]}");
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label("Text Color");
+                    GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
                     GUILayout.Space(1);
                     if (GUIUtils.DrawColor(ref TSetting.Color)) Apply();
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label("Shadow Color");
+                    GUILayout.Label(Main.Language[TranslationKeys.ShadowColor]);
                     GUILayout.Space(1);
                     if (GUIUtils.DrawColor(ref TSetting.ShadowColor)) Apply();
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
 
-                    bool newGradientText = GUILayout.Toggle(TSetting.GradientText, "Gradient");
+                    bool newGradientText = GUILayout.Toggle(TSetting.GradientText, Main.Language[TranslationKeys.Gradient]);
                     if (newGradientText)
                     {
                         GUIUtils.IndentGUI(() =>
                         {
                             GUILayout.BeginHorizontal();
-                            GUILayout.Label("Top Left");
+                            GUILayout.Label(Main.Language[TranslationKeys.TopLeft]);
                             GUILayout.Space(1);
                             if (GUIUtils.DrawColor(ref TSetting.Gradient[0])) Apply();
                             GUILayout.FlexibleSpace();
                             GUILayout.EndHorizontal();
 
                             GUILayout.BeginHorizontal();
-                            GUILayout.Label("Top Right");
+                            GUILayout.Label(Main.Language[TranslationKeys.TopRight]);
                             GUILayout.Space(1);
                             if (GUIUtils.DrawColor(ref TSetting.Gradient[1])) Apply();
                             GUILayout.FlexibleSpace();
                             GUILayout.EndHorizontal();
 
                             GUILayout.BeginHorizontal();
-                            GUILayout.Label("Bottom Left");
+                            GUILayout.Label(Main.Language[TranslationKeys.BottomLeft]);
                             GUILayout.Space(1);
                             if (GUIUtils.DrawColor(ref TSetting.Gradient[2])) Apply();
                             GUILayout.FlexibleSpace();
                             GUILayout.EndHorizontal();
 
                             GUILayout.BeginHorizontal();
-                            GUILayout.Label("Bottom Right");
+                            GUILayout.Label(Main.Language[TranslationKeys.BottomRight]);
                             GUILayout.Space(1);
                             if (GUIUtils.DrawColor(ref TSetting.Gradient[3])) Apply();
                             GUILayout.FlexibleSpace();
@@ -249,22 +250,22 @@ namespace Overlayer
                         Apply();
                     }
                     GUILayout.BeginHorizontal();
-                    if (GUIUtils.DrawTextArea(ref TSetting.PlayingText, "Text")) Apply();
+                    if (GUIUtils.DrawTextArea(ref TSetting.PlayingText, Main.Language[TranslationKeys.Text])) Apply();
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
-                    if (GUIUtils.DrawTextArea(ref TSetting.NotPlayingText, "Text Displayed When Not Playing")) Apply();
+                    if (GUIUtils.DrawTextArea(ref TSetting.NotPlayingText, Main.Language[TranslationKeys.TextDisplayedWhenNotPlaying])) Apply();
                     GUILayout.EndHorizontal();
                     GUILayout.EndVertical();
 
                     GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Refresh")) Apply();
-                    if (GUILayout.Button("Reset"))
+                    if (GUILayout.Button(Main.Language[TranslationKeys.Refresh])) Apply();
+                    if (GUILayout.Button(Main.Language[TranslationKeys.Reset]))
                     {
                         TSetting = new Setting();
                         Apply();
                     }
-                    if (ShadowText.Count > 1 && GUILayout.Button("Destroy"))
+                    if (ShadowText.Count > 1 && GUILayout.Button(Main.Language[TranslationKeys.Destroy]))
                     {
                         UnityEngine.Object.Destroy(SText.gameObject);
                         Remove(this);

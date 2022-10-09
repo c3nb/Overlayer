@@ -50,7 +50,7 @@ namespace Overlayer.Core
                     throw new InvalidOperationException("ClassTag Must Have ValueGetter Method!");
                 if (!valueGetter.IsStatic)
                     throw new InvalidOperationException("ValueGetter Must Be Static!");
-                Tag tag = new Tag(cTagAttr.Name, cTagAttr.Description, valueGetter, cTagAttr.Hidden);
+                Tag tag = new Tag(cTagAttr.Name, valueGetter, cTagAttr.Hidden);
                 IEnumerable<MethodInfo> threads = cTagAttr.Threads?.Select(st => type.GetMethod(st, (BindingFlags)15420));
                 tag.Threads = threads?.Select(m => new Thread((ThreadStart)m.CreateDelegate(typeof(ThreadStart)))).ToArray();
                 Array.Resize(ref tags, length + 1);
@@ -63,7 +63,7 @@ namespace Overlayer.Core
                 TagAttribute tagAttr = method.GetCustomAttribute<TagAttribute>();
                 if (tagAttr == null) continue;
                 if (tagAttr.IsDefault) continue;
-                Tag tag = new Tag(tagAttr.Name, tagAttr.Description, method, tagAttr.Hidden);
+                Tag tag = new Tag(tagAttr.Name, method, tagAttr.Hidden);
                 Array.Resize(ref tags, length + 1);
                 tags[length++] = tag;
             }

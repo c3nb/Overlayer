@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Overlayer.Tags.Global
 {
-    [ClassTag("CurKps", "Current KPS", Threads = new[] { "Calculate" })]
+    [ClassTag("CurKps", Threads = new[] { "Calculate" })]
     public static class KPS
     {
         [Tag]

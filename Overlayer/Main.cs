@@ -15,6 +15,8 @@ using System.Runtime.CompilerServices;
 using static UnityModManagerNet.UnityModManager;
 using System.IO;
 using Overlayer.Tags.Global;
+using System.Text;
+using Overlayer.Core.Translation;
 
 namespace Overlayer
 {
@@ -23,6 +25,7 @@ namespace Overlayer
         public static ModEntry Mod;
         public static ModEntry.ModLogger Logger;
         public static Harmony Harmony;
+        public static Language Language;
         public static float fpsTimer = 0;
         public static float fpsTimeTimer = 0;
         public static float lastDeltaTime;
@@ -32,6 +35,7 @@ namespace Overlayer
             Logger = modEntry.Logger;
             var asm = Assembly.GetExecutingAssembly();
             Settings.Load(modEntry);
+            UpdateLanguage();
             Performance.Init();
             TagManager.AllTags.LoadTags(asm);
             TagManager.NotPlayingTags.AddTags(new[]
@@ -96,7 +100,6 @@ namespace Overlayer
                 if (value)
                 {
                     Settings.Load(modEntry);
-                    curLang = Settings.Instance.lang;
                     Variables.Reset();
                     CustomTag.Load();
                     foreach (CustomTag cTag in CustomTag.Tags)
@@ -108,9 +111,9 @@ namespace Overlayer
                             cTag.description_ = cTag.description;
                             cTag.expression_ = cTag.expression;
                             if (err != null)
-                                Logger.Log($"Custom Tag {cTag.name} Is An Error Occured ({err}). Please Check Your Expression");
+                                Logger.Log($"{Language[TranslationKeys.CustomTag]} {cTag.name} {Language[TranslationKeys.IsErrorOccured]} ({err}). {Language[TranslationKeys.PlzChkYourExpr]}");
                         }
-                        catch (Exception e) { Logger.Log($"Exception At Custom Tag {cTag.name}.\n{e}"); }
+                        catch (Exception e) { Logger.Log($"{Language[TranslationKeys.ExceptionAt]} {TranslationKeys.CustomTag} {cTag.name}.\n{e}"); }
                     }
                     OText.Load();
                     if (!OText.Texts.Any())
@@ -122,7 +125,6 @@ namespace Overlayer
                     DeathMessagePatch.compiler = new TextCompiler(TagManager.AllTags);
                     if (!string.IsNullOrEmpty(settings.DeathMessage))
                         DeathMessagePatch.compiler.Compile(settings.DeathMessage);
-                    Settings.Instance.OnChange();
                 }
                 else
                 {
@@ -150,7 +152,6 @@ namespace Overlayer
         public static void OnGUI(ModEntry modEntry)
         {
             var settings = Settings.Instance;
-            settings.Draw(modEntry);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("한국어"))
             {
@@ -164,8 +165,9 @@ namespace Overlayer
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            settings.DrawManual();
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Death Message");
+            GUILayout.Label(Language[TranslationKeys.DeathMessage]);
             var dm = GUILayout.TextField(settings.DeathMessage);
             if (dm != settings.DeathMessage)
             {
@@ -176,10 +178,10 @@ namespace Overlayer
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             var cTags = CustomTag.Tags;
-            if (settings.EditingCustomTags = GUILayout.Toggle(settings.EditingCustomTags, "Edit CustomTags"))
+            if (settings.EditingCustomTags = GUILayout.Toggle(settings.EditingCustomTags, Language[TranslationKeys.EditCustomTag]))
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("New Custom Tag"))
+                if (GUILayout.Button(Language[TranslationKeys.NewCustomTag]))
                     cTags.Add(new CustomTag());
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
@@ -194,7 +196,7 @@ namespace Overlayer
                             {
                                 var changed = false;
                                 GUILayout.BeginHorizontal();
-                                GUILayout.Label("Name:");
+                                GUILayout.Label($"{Language[TranslationKeys.Name]}:");
                                 cTag.name_ = GUILayout.TextField(cTag.name_);
                                 if (cTag.name_ != cTag.name)
                                     changed = true;
@@ -202,7 +204,7 @@ namespace Overlayer
                                 GUILayout.EndHorizontal();
 
                                 GUILayout.BeginHorizontal();
-                                GUILayout.Label("Description:");
+                                GUILayout.Label($"{Language[TranslationKeys.Description]}:");
                                 cTag.description_ = GUILayout.TextField(cTag.description_);
                                 if (cTag.description_ != cTag.description)
                                     changed = true;
@@ -210,26 +212,26 @@ namespace Overlayer
                                 GUILayout.EndHorizontal();
 
                                 GUILayout.BeginHorizontal();
-                                GUILayout.Label("Expression:");
+                                GUILayout.Label($"{Language[TranslationKeys.Expression]}:");
                                 cTag.expression_ = GUILayout.TextField(cTag.expression_);
                                 if (cTag.expression_ != cTag.expression)
                                     changed = true;
                                 GUILayout.FlexibleSpace();
                                 GUILayout.EndHorizontal();
 
-                                GUILayout.Label($"This Tag Can{(cTag.canUsedByNotPlaying ? "" : "not")} Be Used By Not Playing Text.");
-                                GUILayout.Label($"This Tag Is {(cTag.isStringTag ? "String" : "Number")} Tag.");
+                                GUILayout.Label($"{Language[TranslationKeys.ThisTag]} {(cTag.canUsedByNotPlaying ? Language[TranslationKeys.CanBeUsedNotPlayingText] : Language[TranslationKeys.CannotBeUsedNotPlayingText])}.");
+                                GUILayout.Label((cTag.isStringTag ? Language[TranslationKeys.ThisTagIsStringTag] : Language[TranslationKeys.ThisTagIsNumberTag]) + '.');
 
                                 GUILayout.BeginHorizontal();
                                 if (changed == true)
                                 {
-                                    if (GUILayout.Button("Compile"))
+                                    if (GUILayout.Button(Language[TranslationKeys.Compile]))
                                     {
                                         cTag.Compile(TagManager.AllTags, cTag.name_, cTag.description_, cTag.expression_, Recompile);
                                         changed = false;
                                     }
                                 }
-                                if (GUILayout.Button("Remove"))
+                                if (GUILayout.Button(Language[TranslationKeys.Remove]))
                                 {
                                     TagManager.AllTags.RemoveTag(cTag.name);
                                     TagManager.NotPlayingTags.RemoveTag(cTag.name);
@@ -239,7 +241,7 @@ namespace Overlayer
                                 GUILayout.FlexibleSpace();
                                 GUILayout.EndHorizontal();
                                 if (cTag.error != null)
-                                    GUILayout.Label($"Compilation Error: {cTag.error}");
+                                    GUILayout.Label($"{Language[TranslationKeys.CompilationError]}: {cTag.error}");
                             });
                         }
                         GUILayout.Space(3);
@@ -249,7 +251,7 @@ namespace Overlayer
                 CustomTag.FunctionGUI();
             }
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add Text"))
+            if (GUILayout.Button(Language[TranslationKeys.AddText]))
             {
                 new OText().Apply();
                 OText.Order();
@@ -262,20 +264,16 @@ namespace Overlayer
         }
         public static void UpdateLanguage()
         {
-            if (Settings.Instance.lang != curLang)
+            switch (Settings.Instance.lang)
             {
-                switch (curLang = Settings.Instance.lang)
-                {
-                    case SystemLanguage.English:
-                        Translate.Unload();
-                        return;
-                    case SystemLanguage.Korean:
-                        Translate.Load();
-                        return;
-                }
+                case SystemLanguage.Korean:
+                    Language = Language.Korean;
+                    break;
+                case SystemLanguage.English:
+                    Language = Language.English;
+                    break;
             }
         }
-        public static SystemLanguage curLang;
         public static void OnSaveGUI(ModEntry modEntry)
         {
             Settings.Save(modEntry);

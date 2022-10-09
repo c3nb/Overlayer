@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Collections.Generic;
 using Overlayer.Core.Utils;
-using Overlayer.Core.Tags.Nodes;
+using Overlayer.Core.Translation;
 using System.Xml.XPath;
 
 namespace Overlayer.Core.Tags.Nodes
@@ -59,7 +59,7 @@ namespace Overlayer.Core.Tags.Nodes
                     Tag result;
                     if ((result = tagsReference[key]) == null)
                     {
-                        Errors = Errors.Add($"Cannot Find {{{key}}} Tag!");
+                        Errors = Errors.Add($"{Main.Language[TranslationKeys.CannotFind]} {{{key}}} {Main.Language[TranslationKeys.Tag]}!");
                         continue;
                     }
                     else
@@ -205,13 +205,13 @@ namespace Overlayer.Core.Tags.Nodes
                         NextToken();
                         return node;
                     }
-                    else Errors = Errors.Add($"Cannot Find '{Current.Text}' Tag.");
+                    else Errors = Errors.Add($"{Main.Language[TranslationKeys.CannotFind]} '{Current.Text}' {Main.Language[TranslationKeys.Tag]}.");
                     return IsString ? new StringNode("") : new NumberNode(0);
                 case NToken.Kind.LParen:
                     NextToken();
                     node = ParseAS();
                     if (Current?.TokenKind != NToken.Kind.RParen)
-                        Errors = Errors.Add("Missing Close Parenthesis!");
+                        Errors = Errors.Add($"{Main.Language[TranslationKeys.MissingCloseParenthesis]}!");
                     NextToken();
                     return node;
                 case NToken.Kind.Identifier:
@@ -253,7 +253,7 @@ namespace Overlayer.Core.Tags.Nodes
                             }
                             else
                             {
-                                Errors = Errors.Add($"Cannot Find Function {name}()");
+                                Errors = Errors.Add($"{Main.Language[TranslationKeys.CannotFind]} {Main.Language[TranslationKeys.Function]} {name}()");
                                 return IsString ? new StringNode("") : new NumberNode(0);
                             }
                         }
@@ -268,7 +268,7 @@ namespace Overlayer.Core.Tags.Nodes
                             break;
                         }
                         if (Current.TokenKind != NToken.Kind.RParen)
-                            Errors = Errors.Add("Missing Close Parenthesis!");
+                            Errors = Errors.Add($"{Main.Language[TranslationKeys.MissingCloseParenthesis]}!");
                         NextToken();
                         var argsLength = args.Length;
                         if (Functions.TryGetValue(name, out List<MethodInfo> ms))
@@ -285,11 +285,11 @@ namespace Overlayer.Core.Tags.Nodes
                             return new FunctionNode(m, args);
                         }
                     notfound:
-                        Errors = Errors.Add($"Cannot Find Function '{name}({FormatArgument(args)})'");
+                        Errors = Errors.Add($"{Main.Language[TranslationKeys.CannotFind]} {Main.Language[TranslationKeys.Function]} '{name}({FormatArgument(args)})'");
                         return IsString ? new StringNode("") : new NumberNode(0);
                     }
                 default:
-                    Errors = Errors.Add($"Invalid Token! (Kind:{Current.TokenKind}, Value:{Current.Text})");
+                    Errors = Errors.Add($"{Main.Language[TranslationKeys.InvalidToken]}! (Kind:{Current.TokenKind}, Value:{Current.Text})");
                     return IsString ? new StringNode("") : new NumberNode(0);
             }
         }

@@ -6,15 +6,10 @@ namespace Overlayer.Core
     public class TagAttribute : Attribute
     {
         public TagAttribute() { }
-        public TagAttribute(string name, string description)
-        {
-            Name = name;
-            Description = description;
-        }
+        public TagAttribute(string name) => Name = name;
         public string Name { get; }
-        public string Description { get; }
         public bool Hidden = false;
         public bool AllowAtNotPlaying = false;
-        public bool IsDefault => Name == null && Description == null;
+        public bool IsDefault => Name == null;
     }
 }

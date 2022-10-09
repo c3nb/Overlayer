@@ -9,7 +9,7 @@ using Overlayer.Core.Utils;
 
 namespace Overlayer.Tags.Global
 {
-    [ClassTag("KeyJudge", "KeyCode:Judgement")]
+    [ClassTag("KeyJudge")]
     public static class KeyJudgeTag
     {
         [Tag]

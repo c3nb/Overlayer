@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using ThreadState = System.Threading.ThreadState;
@@ -8,7 +9,8 @@ namespace Overlayer.Core
     public class Tag
     {
         public string Name;
-        public string Description;
+        public string Description => description == null ? Main.Language[Name] : description;
+        private string description;
         public bool IsString;
         public bool IsStringOpt;
         public bool IsOpt;
@@ -23,10 +25,9 @@ namespace Overlayer.Core
         public Func<float, string> NumOptStr;
         public Func<float, float> NumOptNum;
         public Thread[] Threads;
-        internal Tag(string name, string description, MethodInfo raw, bool hidden)
+        internal Tag(string name, MethodInfo raw, bool hidden)
         {
             Name = name;
-            Description = description;
             Raw = raw;
             Type retType = Raw.ReturnType;
             var @params = Raw.GetParameters();
@@ -87,7 +88,7 @@ namespace Overlayer.Core
         internal Tag(string name, string description, Func<float, float> raw, Func<string> rawStr)
         {
             Name = name;
-            Description = description;
+            this.description = description;
             if (raw != null)
             {
                 NumOptNum = raw;

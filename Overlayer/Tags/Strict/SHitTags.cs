@@ -4,21 +4,21 @@ namespace Overlayer.Tags.Strict
 {
     public static class SHitTags
     {
-        [Tag("SHit", "HitMargin in Strict Difficulty")]
+        [Tag("SHit")]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Strict);
-        [Tag("STE", "TooEarly in Strict Difficulty")]
+        [Tag("STE")]
         public static float TE() => Variables.StrictCounts[HitMargin.TooEarly];
-        [Tag("SVE", "VeryEarly in Strict Difficulty")]
+        [Tag("SVE")]
         public static float VE() => Variables.StrictCounts[HitMargin.VeryEarly];
-        [Tag("SEP", "EarlyPerfect in Strict Difficulty")]
+        [Tag("SEP")]
         public static float EP() => Variables.StrictCounts[HitMargin.EarlyPerfect];
-        [Tag("SP", "Perfect in Strict Difficulty")]
+        [Tag("SP")]
         public static float P() => Variables.StrictCounts[HitMargin.Perfect];
-        [Tag("SLP", "LatePerfect in Strict Difficulty")]
+        [Tag("SLP")]
         public static float LP() => Variables.StrictCounts[HitMargin.LatePerfect];
-        [Tag("SVL", "VeryLate in Strict Difficulty")]
+        [Tag("SVL")]
         public static float VL() => Variables.StrictCounts[HitMargin.VeryLate];
-        [Tag("STL", "TooLate in Strict Difficulty")]
+        [Tag("STL")]
         public static float TL() => Variables.StrictCounts[HitMargin.TooLate];
     }
 }

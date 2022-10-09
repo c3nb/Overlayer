@@ -5,113 +5,113 @@ namespace Overlayer.Tags.Global
 {
     public static class Misc
     {
-        [Tag("Radius", "Current Planet's Radius")]
+        [Tag("Radius")]
         public static float Radius(float digits = -1) => scrController.instance.chosenplanet.cosmeticRadius.Round(digits);
-        [Tag("Pitch", "Current Pitch")]
+        [Tag("Pitch")]
         public static float Pitch(float digits = -1) => GCS.currentSpeedTrial.Round(digits);
-        [Tag("EditorPitch", "Pitch In Editor")]
+        [Tag("EditorPitch")]
         public static float EditorPitch(float digits = -1) => (scnEditor.instance.levelData.pitch / 100.0).Round(digits);
-        [Tag("TEHex", "TooEarly Judgement Hex Code")]
+        [Tag("TEHex")]
         public static string TEHex() => "FF0000FF";
-        [Tag("VEHex", "VeryEarly Judgement Hex Code")]
+        [Tag("VEHex")]
         public static string VEHex() => "FF6F4EFF";
-        [Tag("EPHex", "EarlyPerfect Judgement Hex Code")]
+        [Tag("EPHex")]
         public static string EPHex() => "A0FF4EFF";
-        [Tag("PHex", "Perfect Judgement Hex Code")]
+        [Tag("PHex")]
         public static string PHex() => "60FF4EFF";
-        [Tag("LPHex", "LatePerfect Judgement Hex Code")]
+        [Tag("LPHex")]
         public static string LPHex() => "A0FF4EFF";
-        [Tag("VLHex", "VeryLate Judgement Hex Code")]
+        [Tag("VLHex")]
         public static string VLHex() => "FF6F4EFF";
-        [Tag("TLHex", "TooLate Judgement Hex Code")]
+        [Tag("TLHex")]
         public static string TLHex() => "FF0000FF";
-        [Tag("MPHex", "Multipress Judgement Hex Code")]
+        [Tag("MPHex")]
         public static string MPHex() => "00FFEDFF";
-        [Tag("FMHex", "FailMiss Judgement Hex Code")]
+        [Tag("FMHex")]
         public static string FMHex() => "D958FFFF";
-        [Tag("FOHex", "FailOverload Judgement Hex Code")]
+        [Tag("FOHex")]
         public static string FOHex() => "D958FFFF";
-        [Tag("Title", "Title")]
+        [Tag("Title")]
         public static string Title() => scnEditor.instance?.levelData?.song.BreakRichTagWithoutSize();
-        [Tag("Author", "Author")]
+        [Tag("Author")]
         public static string Author() => scnEditor.instance?.levelData?.author.BreakRichTagWithoutSize();
-        [Tag("Artist", "Artist")]
+        [Tag("Artist")]
         public static string Artist() => scnEditor.instance?.levelData?.artist.BreakRichTagWithoutSize();
-        [Tag("StartTile", "Start Tile")]
+        [Tag("StartTile")]
         public static float StartTile() => Variables.StartTile;
-        [Tag("Difficulty", "Difficulty Of Current Level")]
+        [Tag("Difficulty")]
         public static float Difficulty(float digits = -1) => PlayPoint.CurrentDifficulty.Round(digits);
-        [Tag("Accuracy", "Accuracy")]
+        [Tag("Accuracy")]
         public static float Accuracy(float digits = -1) => (scrController.instance.mistakesManager.percentAcc * 100).Round(digits);
-        [Tag("Progress", "Progress")]
+        [Tag("Progress")]
         public static float Progress(float digits = -1) => ((!scrLevelMaker.instance ? 0 : scrController.instance.percentComplete) * 100f).Round(digits);
-        [Tag("CheckPoint", "Check Point Used Count")]
+        [Tag("CheckPoint")]
         public static float CheckPoint() => scrController.checkpointsUsed;
-        [Tag("CurCheckPoint", "Current Check Point Index")]
+        [Tag("CurCheckPoint")]
         public static float CurCheckPoint() => Variables.CurrentCheckPoint;
-        [Tag("TotalCheckPoint", "Total Check Points Count")]
+        [Tag("TotalCheckPoint")]
         public static float TotalCheckPoints() => Variables.AllCheckPoints.Count;
-        [Tag("XAccuracy", "XAccuracy")]
+        [Tag("XAccuracy")]
         public static float XAccuracy(float digits = -1) => (scrController.instance.mistakesManager.percentXAcc * 100).Round(digits);
-        [Tag("FailCount", "Fail Count")]
+        [Tag("FailCount")]
         public static float FailCount() => Variables.FailCount;
-        [Tag("MissCount", "Miss Count")]
+        [Tag("MissCount")]
         public static float MissCount() => scrMistakesManager.hitMarginsCount[8];
-        [Tag("Overloads", "Overload Count")]
+        [Tag("Overloads")]
         public static float Overloads() => scrMistakesManager.hitMarginsCount[9];
-        [Tag("CurBpm", "Perceived Bpm")]
+        [Tag("CurBpm")]
         public static float CurBpm(float digits = -1) => Variables.CurBpm.Round(digits);
-        [Tag("TileBpm", "Tile Bpm")]
+        [Tag("TileBpm")]
         public static float TileBpm(float digits = -1) => Variables.TileBpm.Round(digits);
-        [Tag("RecKps", "Perceived KPS")]
+        [Tag("RecKps")]
         public static float RecKps(float digits = -1) => Variables.RecKPS.Round(digits);
-        [Tag("BestProgress", "Best Progress")]
+        [Tag("BestProgress")]
         public static float BestProgress(float digits = -1) => Variables.BestProg.Round(digits);
-        [Tag("LeastCheckPoint", "Least Check Point Used Count")]
+        [Tag("LeastCheckPoint")]
         public static float LeastCheckPoint() => Variables.LeastChkPt;
-        [Tag("StartProgress", "Start Progress")]
+        [Tag("StartProgress")]
         public static float StartProgress(float digits = -1) => Variables.StartProg.Round(digits);
-        [Tag("CurMinute", "Now Minute Of Music")]
+        [Tag("CurMinute")]
         public static float CurMinute() => Variables.CurMinute;
-        [Tag("CurSecond", "Now Second Of Music")]
+        [Tag("CurSecond")]
         public static float CurSecond() => Variables.CurSecond;
-        [Tag("CurMilliSecond", "Now MilliSecond Of Music")]
+        [Tag("CurMilliSecond")]
         public static float CurMilliSecond() => Variables.CurMilliSecond;
-        [Tag("TotalMinute", "Total Minute Of Music")]
+        [Tag("TotalMinute")]
         public static float TotalMinute() => Variables.TotalMinute;
-        [Tag("TotalSecond", "Total Second Of Music")]
+        [Tag("TotalSecond")]
         public static float TotalSecond() => Variables.TotalSecond;
-        [Tag("TotalMilliSecond", "Total MilliSecond Of Music")]
+        [Tag("TotalMilliSecond")]
         public static float TotalMilliSecond() => Variables.TotalMilliSecond;
-        [Tag("LeftTile", "Left Tile Count")]
+        [Tag("LeftTile")]
         public static float LeftTile() => Variables.LeftTile;
-        [Tag("TotalTile", "Total Tile Count")]
+        [Tag("TotalTile")]
         public static float TotalTile() => Variables.TotalTile;
-        [Tag("CurTile", "Current Tile Count")]
+        [Tag("CurTile")]
         public static float CurTile() => Variables.CurrentTile;
-        [Tag("Attempts", "Current Level Try Count")]
+        [Tag("Attempts")]
         public static float Attempts() => Variables.Attempts;
-        [Tag("Year", "Year Of System Time")]
+        [Tag("Year")]
         public static float Year() => DT.Now.Year;
-        [Tag("Month", "Month Of System Time")]
+        [Tag("Month")]
         public static float Month() => DT.Now.Month;
-        [Tag("Day", "Day Of System Time")]
+        [Tag("Day")]
         public static float Day() => DT.Now.Day;
-        [Tag("Hour", "Hour Of System Time")]
+        [Tag("Hour")]
         public static float Hour() => DT.Now.Hour;
-        [Tag("Minute", "Minute Of System Time")]
+        [Tag("Minute")]
         public static float Minute() => DT.Now.Minute;
-        [Tag("Second", "Second Of System Time")]
+        [Tag("Second")]
         public static float Second() => DT.Now.Second;
-        [Tag("MilliSecond", "MilliSecond Of System Time")]
+        [Tag("MilliSecond")]
         public static float MilliSecond() => DT.Now.Millisecond;
-        [Tag("Multipress", "Multipress Count")]
+        [Tag("Multipress")]
         public static float Multipress() => Variables.MultipressCount;
-        [Tag("Combo", "Combo")]
+        [Tag("Combo")]
         public static float Combo() => Variables.Combo;
-        [Tag("Fps", "Frame Rate")]
+        [Tag("Fps")]
         public static float Fps(float digits = -1) => Variables.Fps.Round(digits);
-        [Tag("FrameTime", "FrameTime")]
+        [Tag("FrameTime")]
         public static float FrameTime(float digits = -1) => Variables.FrameTime.Round(digits);
     }
 }

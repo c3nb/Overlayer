@@ -316,6 +316,8 @@ namespace Overlayer.Core.Utils
                 str[--idx] = '-';
             return new string(str, idx, str.Length - idx);
         }
+        public static string Escape(this string str) => str.Replace(@"\", @"\\").Replace(":", @"\:");
+        public static string Unescape(this string str) => str.Replace(@"\:", ":").Replace(@"\\", @"\");
         #region Private
         private static char BreakMidGrammar(this char c)
         {

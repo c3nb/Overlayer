@@ -7,9 +7,9 @@ namespace Overlayer.Tags.Global
 {
     public static class Timings
     {
-        [Tag("Timing", "Hit Timing")]
+        [Tag("Timing")]
         public static float Timing(float digits = -1) => Variables.Timing.Round(digits);
-        [Tag("TimingAvg", "Average Hit Timing")]
+        [Tag("TimingAvg")]
         public static float TimingAvg(float digits = -1)
         {
             if (TimingList.Any())

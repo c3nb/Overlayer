@@ -13,7 +13,7 @@ using JSON;
 
 namespace Overlayer.Tags.Global
 {
-    [ClassTag("PlayPoint", "PlayPoint(PP) In Adofai.gg")]
+    [ClassTag("PlayPoint")]
     public static class PlayPoint
     {
         public static double CurrentDifficulty = 0;

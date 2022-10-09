@@ -9,6 +9,34 @@ namespace Overlayer.Core.Utils
 {
     public static class GUIUtils
     {
+        public static bool RightToggle(bool value, string label)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            value = GUILayout.Toggle(value, "");
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            return value;
+        }
+        public static string SpaceTextField(string value, string label, int space = 100)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            value = GUILayout.TextField(value, GUILayout.Width(space));
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            return value;
+        }
+        public static int SpaceIntField(int value, string label, int space = 100)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            string strVal = value.ToStringFast();
+            strVal = GUILayout.TextField(strVal, GUILayout.Width(space));
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            return strVal.ToInt();
+        }
         public static void IndentGUI(Action GUI, float verticalSpace = 0f, float indentSize = 20f)
         {
             GUILayout.BeginHorizontal();

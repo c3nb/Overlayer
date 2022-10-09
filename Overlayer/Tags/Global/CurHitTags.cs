@@ -4,23 +4,23 @@ namespace Overlayer.Tags.Global
 {
     public static class CurHitTags
     {
-        [Tag("CurHit", "HitMargin in Current Difficulty")]
+        [Tag("CurHit")]
         public static string Hit() => RDString.Get("HitMargin." + GetCurHitMargin(GCS.difficulty));
-        [Tag("CurTE", "TooEarly in Current Difficulty")]
+        [Tag("CurTE")]
         public static float TE() => GetCurDiffCount(HitMargin.TooEarly);
-        [Tag("CurVE", "VeryEarly in Current Difficulty")]
+        [Tag("CurVE")]
         public static float VE() => GetCurDiffCount(HitMargin.VeryEarly);
-        [Tag("CurEP", "EarlyPerfect in Current Difficulty")]
+        [Tag("CurEP")]
         public static float EP() => GetCurDiffCount(HitMargin.EarlyPerfect);
-        [Tag("CurP", "Perfect in Current Difficulty")]
+        [Tag("CurP")]
         public static float P() => GetCurDiffCount(HitMargin.Perfect);
-        [Tag("CurLP", "LatePerfect in Current Difficulty")]
+        [Tag("CurLP")]
         public static float LP() => GetCurDiffCount(HitMargin.LatePerfect);
-        [Tag("CurVL", "VeryLate in Current Difficulty")]
+        [Tag("CurVL")]
         public static float VL() => GetCurDiffCount(HitMargin.VeryLate);
-        [Tag("CurTL", "TooLate in Current Difficulty")]
+        [Tag("CurTL")]
         public static float TL() => GetCurDiffCount(HitMargin.TooLate);
-        [Tag("CurDifficulty", "Current Difficulty")]
+        [Tag("CurDifficulty")]
         public static string Difficulty() => RDString.Get("enum.Difficulty." + GCS.difficulty);
         public static int GetCurDiffCount(HitMargin hit)
         {

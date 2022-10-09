@@ -6,7 +6,7 @@ using System.Reflection;
 using TinyJson;
 using UnityEngine;
 using Overlayer.Core.Utils;
-using Overlayer.AdofaiggApi;
+using Overlayer.Core.Translation;
 
 namespace Overlayer.Core
 {
@@ -37,9 +37,9 @@ namespace Overlayer.Core
         public string Compile(TagCollection reference, string name, string desc, string expr, Action callbackAfterCompile = null)
         {
             if (string.IsNullOrEmpty(name))
-                return error = "Name Cannot Be Empty!";
+                return error = Main.Language[TranslationKeys.NameCannotBeEmpty];
             else if (string.IsNullOrEmpty(expr))
-                return error = "Expression Cannot Be Empty!";
+                return error = Main.Language[TranslationKeys.ExprCannotBeEmpty];
             reference.RemoveTag(this.name);
             this.name = name;
             description = desc;
@@ -62,12 +62,12 @@ namespace Overlayer.Core
         {
             GUIUtils.IndentGUI(() =>
             {
-                if (funcgui = GUILayout.Toggle(funcgui, "Functions"))
+                if (funcgui = GUILayout.Toggle(funcgui, Main.Language[TranslationKeys.Functions]))
                 {
                     GUIUtils.IndentGUI(() =>
                     {
-                        foreach (var methodKvp in funcDescs)
-                            GUILayout.Label($"{methodKvp.Key}: {methodKvp.Value}");
+                        foreach (var methodKvp in functions)
+                            GUILayout.Label($"{methodKvp.Key.ToLower()}: {Main.Language[methodKvp.Key.ToLower()]}");
                     });
                 }
             });
@@ -76,12 +76,12 @@ namespace Overlayer.Core
         {
             GUIUtils.IndentGUI(() =>
             {
-                if (constgui = GUILayout.Toggle(constgui, "Constants"))
+                if (constgui = GUILayout.Toggle(constgui, Main.Language[TranslationKeys.Constants]))
                 {
                     GUIUtils.IndentGUI(() =>
                     {
                         foreach (var kvp in constants)
-                            GUILayout.Label($"{kvp.Key}: {kvp.Value} {constDescs[kvp.Key]}");
+                            GUILayout.Label($"{kvp.Key}: {kvp.Value} {Main.Language[kvp.Key]}");
                     });
                 }
             });
@@ -92,40 +92,6 @@ namespace Overlayer.Core
             { "e", 2.7182818284590451f },
             { "radDeg", 57.29578049f },
             { "degRad",  0.017453292f },
-        };
-        public static readonly Dictionary<string, string> constDescs = new Dictionary<string, string>()
-        {
-            { "pi", "PI" },
-            { "e", "Euler's Number" },
-            { "radDeg", "Radian To Degree" },
-            { "degRad",  "Degree To Radian" },
-        };
-        public static readonly Dictionary<string, string> funcDescs = new Dictionary<string, string>()
-        {
-            { "cos(Number)", "Cosine" },
-            { "cosh(Number)", "Hyperbolic Cosine" },
-            { "sin(Number)", "Sine" },
-            { "sinh(Number)", "Hyperbolic Sine" },
-            { "tan(Number)", "Tangent" },
-            { "tanh(Number)", "Hyperbolic Tangent" },
-            { "log(Number)", "Logarithm" },
-            { "abs(Number)", "Absolute Value" },
-            { "acos(Number)", "Arc Cosine" },
-            { "asin(Number)", "Arc Sine" },
-            { "atan(Number)", "Arc Tangent" },
-            { "sqrt(Number)", "Square Root" },
-            { "max(Number, Number)", "Max Value" },
-            { "min(Number, Number)", "Min Value" },
-            { "pow(Number, Number)", "Power" },
-            { "exp(Number)", "Exponential" },
-            { "round(Number)", "Rounding" },
-            { "round(Number, Number)", "Rounding" },
-            { "ceil(Number)", "Ceiling" },
-            { "floor(Number)", "Floor" },
-            { "truncate(Number)", "Truncate" },
-            { "truncate(Number, Number)", "Truncate" },
-            { "if(Condition, String|Number, String|Number)", "If {condition} a Else b" },
-            { "tostring(Number)", "Number To String" },
         };
         public static readonly Dictionary<string, List<MethodInfo>> functions = new Dictionary<string, List<MethodInfo>>
         {
@@ -149,8 +115,8 @@ namespace Overlayer.Core
                 typeof(CustomTag).GetMethod("Round", (BindingFlags)15420, null, new[] { typeof(float), typeof(float) }, null) } },
             { "ceil", new List<MethodInfo> { typeof(CustomTag).GetMethod("Ceil", (BindingFlags)15420) } },
             { "floor", new List<MethodInfo> { typeof(CustomTag).GetMethod("Floor", (BindingFlags)15420) } },
-            { "tostring", new List<MethodInfo> { typeof(CustomTag).GetMethod("ToString_", (BindingFlags)15420, null, new[] { typeof(float) }, null),
-                typeof(CustomTag).GetMethod("ToString_", (BindingFlags)15420, null, new[] { typeof(bool) }, null)} },
+            { "tostring", new List<MethodInfo> { typeof(CustomTag).GetMethod("ToString", (BindingFlags)15420, null, new[] { typeof(float) }, null),
+                typeof(CustomTag).GetMethod("ToString", (BindingFlags)15420, null, new[] { typeof(bool) }, null)} },
             { "truncate", new List<MethodInfo> { typeof(CustomTag).GetMethod("Truncate", (BindingFlags)15420, null, new[] { typeof(float) }, null),
                 typeof(CustomTag).GetMethod("Truncate", (BindingFlags)15420, null, new[] { typeof(float), typeof(float) }, null) } },
             { "if", new List<MethodInfo> { typeof(CustomTag).GetMethod("If", (BindingFlags)15420, null, new[] { typeof(bool), typeof(float), typeof(float) }, null),
@@ -160,9 +126,9 @@ namespace Overlayer.Core
             => condition ? a : b;
         static float If(bool condition, float a, float b)
             => condition ? a : b;
-        static string ToString_(float t)
+        static string ToString(float t)
             => t.ToString();
-        static string ToString_(bool t)
+        static string ToString(bool t)
             => t.ToString();
         static float Exp(float f)
             => (float)Math.Exp(f);

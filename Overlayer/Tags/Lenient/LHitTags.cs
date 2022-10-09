@@ -4,21 +4,21 @@ namespace Overlayer.Tags.Lenient
 {
     public static class LHitTags
     {
-        [Tag("LHit", "HitMargin in Lenient Difficulty")]
+        [Tag("LHit")]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Lenient);
-        [Tag("LTE", "TooEarly in Lenient Difficulty")]
+        [Tag("LTE")]
         public static float TE() => Variables.LenientCounts[HitMargin.TooEarly];
-        [Tag("LVE", "VeryEarly in Lenient Difficulty")]
+        [Tag("LVE")]
         public static float VE() => Variables.LenientCounts[HitMargin.VeryEarly];
-        [Tag("LEP", "EarlyPerfect in Lenient Difficulty")]
+        [Tag("LEP")]
         public static float EP() => Variables.LenientCounts[HitMargin.EarlyPerfect];
-        [Tag("LP", "Perfect in Lenient Difficulty")]
+        [Tag("LP")]
         public static float P() => Variables.LenientCounts[HitMargin.Perfect];
-        [Tag("LLP", "LatePerfect in Lenient Difficulty")]
+        [Tag("LLP")]
         public static float LP() => Variables.LenientCounts[HitMargin.LatePerfect];
-        [Tag("LVL", "VeryLate in Lenient Difficulty")]
+        [Tag("LVL")]
         public static float VL() => Variables.LenientCounts[HitMargin.VeryLate];
-        [Tag("LTL", "TooLate in Lenient Difficulty")]
+        [Tag("LTL")]
         public static float TL() => Variables.LenientCounts[HitMargin.TooLate];
     }
 }

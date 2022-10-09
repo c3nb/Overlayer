@@ -59,21 +59,21 @@ namespace Overlayer.Tags.Global
             Initialized = true;
         }
 
-        [Tag("ProcessorCount", "CPU Core's Count")]
+        [Tag("ProcessorCount")]
         public static float ProcessorCount_() => ProcessorCount;
-        [Tag("MemoryGBytes", "Total Physics Memory Size (GigaBytes)")]
+        [Tag("MemoryGBytes")]
         public static float MemoryGBytes_(float digits = -1) => (MemoryMBytes / (1024f * 1024f * 1024f)).Round(digits);
-        [Tag("CpuUsage", "Adofai's Cpu Usage (Percentage)")]
+        [Tag("CpuUsage")]
         public static float CpuUsage_(float digits = -1) => CpuUsage.Round(digits);
-        [Tag("TotalCpuUsage", "Total Cpu Usage (Percentage)")]
+        [Tag("TotalCpuUsage")]
         public static float TotalCpuUsage_(float digits = -1) => TotalCpuUsage.Round(digits);
-        [Tag("MemoryUsage", "Adofai's Memory Usage (Percentage)")]
+        [Tag("MemoryUsage")]
         public static float MemoryUsage_(float digits = -1) => MemoryUsage.Round(digits);
-        [Tag("TotalMemoryUsage", "Total Memory Usage (Percentage)")]
+        [Tag("TotalMemoryUsage")]
         public static float TotalMemoryUsage_(float digits = -1) => TotalMemoryUsage.Round(digits);
-        [Tag("MemoryUsageGBytes", "Adofai's Memory Usage (GigaBytes)")]
+        [Tag("MemoryUsageGBytes")]
         public static float MemoryUsageGBytes_(float digits = -1) => (MemoryUsageMBytes / 1024f).Round(digits);
-        [Tag("TotalMemoryUsageGBytes", "Total Memory Usage (GigaBytes)")]
+        [Tag("TotalMemoryUsageGBytes")]
         public static float TotalMemoryUsageGBytes_(float digits = -1) => (TotalMemoryUsageMBytes / 1024f).Round(digits);
         [StructLayout(LayoutKind.Sequential)]
         public class MemoryStatus
