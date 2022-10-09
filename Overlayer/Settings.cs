@@ -28,6 +28,7 @@ namespace Overlayer
         public bool AddAllJudgementsAtErrorMeter = true;
         [Draw("Apply Pitch At Bpm Tags")]
         public bool ApplyPitchAtBpmTags = true;
+        public SystemLanguage lang = SystemLanguage.English;
         public string DeathMessage = "";
         public bool EditingCustomTags = false;
     }

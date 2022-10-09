@@ -56,7 +56,7 @@ namespace Overlayer
                 TagManager.AllTags["MemoryUsageGBytes"],
                 TagManager.AllTags["TotalMemoryUsageGBytes"],
 
-                TagManager.AllTags["TLHex"],
+                TagManager.AllTags["TEHex"],
                 TagManager.AllTags["VEHex"],
                 TagManager.AllTags["EPHex"],
                 TagManager.AllTags["PHex"],
@@ -64,7 +64,7 @@ namespace Overlayer
                 TagManager.AllTags["VLHex"],
                 TagManager.AllTags["TLHex"],
                 TagManager.AllTags["MPHex"],
-                TagManager.AllTags["FOHex"],
+                TagManager.AllTags["FMHex"],
                 TagManager.AllTags["FOHex"],
             });
             modEntry.OnToggle = OnToggle;
@@ -96,6 +96,7 @@ namespace Overlayer
                 if (value)
                 {
                     Settings.Load(modEntry);
+                    curLang = Settings.Instance.lang;
                     Variables.Reset();
                     CustomTag.Load();
                     foreach (CustomTag cTag in CustomTag.Tags)
@@ -116,6 +117,7 @@ namespace Overlayer
                         new OText().Apply();
                     Harmony = new Harmony(modEntry.Info.Id);
                     Harmony.PatchAll(Assembly.GetExecutingAssembly());
+                    UpdateLanguage();
                     var settings = Settings.Instance;
                     DeathMessagePatch.compiler = new TextCompiler(TagManager.AllTags);
                     if (!string.IsNullOrEmpty(settings.DeathMessage))
@@ -147,8 +149,21 @@ namespace Overlayer
         }
         public static void OnGUI(ModEntry modEntry)
         {
-            Settings.Instance.Draw(modEntry);
             var settings = Settings.Instance;
+            settings.Draw(modEntry);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("한국어"))
+            {
+                settings.lang = SystemLanguage.Korean;
+                UpdateLanguage();
+            }
+            if (GUILayout.Button("English"))
+            {
+                settings.lang = SystemLanguage.English;
+                UpdateLanguage();
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("Death Message");
             var dm = GUILayout.TextField(settings.DeathMessage);
@@ -245,6 +260,22 @@ namespace Overlayer
                 OText.Texts[i].GUI();
             TagManager.AllTags.DescGUI();
         }
+        public static void UpdateLanguage()
+        {
+            if (Settings.Instance.lang != curLang)
+            {
+                switch (curLang = Settings.Instance.lang)
+                {
+                    case SystemLanguage.English:
+                        Translate.Unload();
+                        return;
+                    case SystemLanguage.Korean:
+                        Translate.Load();
+                        return;
+                }
+            }
+        }
+        public static SystemLanguage curLang;
         public static void OnSaveGUI(ModEntry modEntry)
         {
             Settings.Save(modEntry);

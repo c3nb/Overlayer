@@ -48,10 +48,13 @@ namespace Overlayer.Core
             compiler.Compile(name, description, expression, constants, functions, out string[] err);
             isStringTag = compiler.IsStringTag;
             canUsedByNotPlaying = compiler.CanUsedByNotPlaying;
-            callbackAfterCompile?.Invoke();
             if (err.Any())
                 return error = err[0];
-            else return error = null;
+            else
+            {
+                callbackAfterCompile?.Invoke();
+                return error = null;
+            }
         }
         static bool funcgui = false;
         static bool constgui = false;
@@ -111,14 +114,16 @@ namespace Overlayer.Core
             { "asin(Number)", "Arc Sine" },
             { "atan(Number)", "Arc Tangent" },
             { "sqrt(Number)", "Square Root" },
-            { "max(Number)", "Max Value" },
-            { "min(Number)", "Min Value" },
-            { "pow(Number)", "Power" },
+            { "max(Number, Number)", "Max Value" },
+            { "min(Number, Number)", "Min Value" },
+            { "pow(Number, Number)", "Power" },
             { "exp(Number)", "Exponential" },
             { "round(Number)", "Rounding" },
+            { "round(Number, Number)", "Rounding" },
             { "ceil(Number)", "Ceiling" },
             { "floor(Number)", "Floor" },
             { "truncate(Number)", "Truncate" },
+            { "truncate(Number, Number)", "Truncate" },
             { "if(Condition, String|Number, String|Number)", "If {condition} a Else b" },
             { "tostring(Number)", "Number To String" },
         };

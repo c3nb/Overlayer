@@ -5,6 +5,8 @@ namespace Overlayer.Tags.Global
 {
     public static class Misc
     {
+        [Tag("Radius", "Current Planet's Radius")]
+        public static float Radius(float digits = -1) => scrController.instance.chosenplanet.cosmeticRadius.Round(digits);
         [Tag("Pitch", "Current Pitch")]
         public static float Pitch(float digits = -1) => GCS.currentSpeedTrial.Round(digits);
         [Tag("EditorPitch", "Pitch In Editor")]

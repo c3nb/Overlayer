@@ -364,6 +364,7 @@
     <Compile Include="Core\Tags\TagExtensions.cs" />
     <Compile Include="Core\Tags\TextCompiler.cs" />
     <Compile Include="Core\Tags\Token.cs" />
+    <Compile Include="Core\Translate.cs" />
     <Compile Include="Core\Utils\ArrayUtils.cs" />
     <Compile Include="Core\Utils\EnumerableExtensions.cs" />
     <Compile Include="Core\Utils\Extensions.cs" />

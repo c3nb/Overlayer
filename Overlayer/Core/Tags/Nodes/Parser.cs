@@ -285,7 +285,7 @@ namespace Overlayer.Core.Tags.Nodes
                             return new FunctionNode(m, args);
                         }
                     notfound:
-                        Errors = Errors.Add($"Cannot Find Function {name}({FormatArgument(args)})");
+                        Errors = Errors.Add($"Cannot Find Function '{name}({FormatArgument(args)})'");
                         return IsString ? new StringNode("") : new NumberNode(0);
                     }
                 default:
@@ -299,7 +299,7 @@ namespace Overlayer.Core.Tags.Nodes
                 return "";
             if (arg.Length == 1)
                 return arg[0].ResultType.Name;
-            string result = arg.Aggregate("", (s, n) => $"{s}{n}, ");
+            string result = arg.Aggregate("", (s, n) => $"{s}{n.ResultType.Name}, ");
             return result.Remove(result.Length - 2);
         }
     }

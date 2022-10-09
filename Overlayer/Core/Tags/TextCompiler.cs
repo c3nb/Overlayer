@@ -17,20 +17,14 @@ namespace Overlayer.Core
                     return true;
             return false;
         }
-        public static List<Tag> ReferencingTags = new List<Tag>();
+        public static List<Tag> ReferencingTags { get; private set; } = new List<Tag>();
         public static void UpdateReferences()
             => ReferencingTags = ReferencingTags.Distinct().ToList();
         public delegate string ValueGetter(TextCompiler compiler);
         public string source;
         public ValueGetter getter;
         public TagCollection tagsReference;
-        /// <summary>
-        /// 원래는 AssemblyBuilder, ModuleBuilder, TypeBuilder, MethodBuilder로 하려 했으나 매번 바뀔때마다 컴파일 해야하므로 메모리가 터질것 같아 DynamicMethod사용
-        /// </summary>
         public DynamicMethod value;
-        /// <summary>
-        /// DyanamicMethod에서 접근할 Tag 배열
-        /// </summary>
         public Tag[] tags;
         public TextCompiler(TagCollection tagsReference) => this.tagsReference = tagsReference;
         public TextCompiler(string source, TagCollection tagsReference) : this(tagsReference) => Compile(source);
@@ -44,16 +38,16 @@ namespace Overlayer.Core
                 getter = t => "";
                 return;
             }
-            value = new DynamicMethod($"ValueGetter{random.Next()}", typeof(string), new[] { typeof(TextCompiler) }); // 메서드 이름 중복으로 혹시 모를 사고 방지
+            value = new DynamicMethod($"ValueGetter{random.Next()}", typeof(string), new[] { typeof(TextCompiler) });
             ILGenerator il = value.GetILGenerator();
             this.tags = new Tag[0];
-            List<Tag> tags = new List<Tag>(); // 캐싱된 태그들을 Tag[]로 쉽게 옮기기 위해 만든 List<Tag>
+            List<Tag> tags = new List<Tag>();
             int lastIndex = 0;
             Dictionary<string, int> tokRawIndex = new Dictionary<string, int>();
             Dictionary<int, LocalBuilder> tagLocals = new Dictionary<int, LocalBuilder>();
-            il.Emit(OpCodes.Ldc_I4, objsLength); // 몇개의 string이 들어갈 예정인지 capacity설정
-            il.Emit(OpCodes.Newarr, typeof(string)); // string타입의 1차원 배열을 생성
-            il.Emit(OpCodes.Dup); // 앞서 생성된 string의 1차원 배열을 string[]의 지역변수에 설정
+            il.Emit(OpCodes.Ldc_I4, objsLength); 
+            il.Emit(OpCodes.Newarr, typeof(string));
+            il.Emit(OpCodes.Dup); 
             int idx = 0;
             foreach (Token token in tokens)
             {
@@ -69,10 +63,10 @@ namespace Overlayer.Core
                             index = lastIndex++;
                             tokRawIndex[token.Raw] = index;
                             LocalBuilder loc = tagLocals[index] = il.DeclareLocal(typeof(string));
-                            il.Emit(OpCodes.Ldarg_0); // 첫번째 매개변수(TagCompiler) 로드
-                            il.Emit(OpCodes.Ldfld, tagsFld); // Tag[] tags필드 로드
-                            il.Emit(OpCodes.Ldc_I4, index); // 배열의 인덱스 로드
-                            il.Emit(OpCodes.Ldelem_Ref); // 배열의 값을 참조로드
+                            il.Emit(OpCodes.Ldarg_0); 
+                            il.Emit(OpCodes.Ldfld, tagsFld); 
+                            il.Emit(OpCodes.Ldc_I4, index); 
+                            il.Emit(OpCodes.Ldelem_Ref);
                             var t = Push(tag, token);
                             Format(tag, token, t);
                             il.Emit(OpCodes.Stloc, loc);
@@ -83,12 +77,12 @@ namespace Overlayer.Core
                     else il.Emit(OpCodes.Ldstr, token.Raw);
                 }
                 else il.Emit(OpCodes.Ldstr, token.Raw);
-                il.Emit(OpCodes.Stelem_Ref); // 배열에 참조 설정
-                if (idx != objsLength - 1) // 마지막 요소조차 Duplicate할 경우, Ret과정에서 오류가 발생하기 때문에 마지막 index인지 검사
+                il.Emit(OpCodes.Stelem_Ref);
+                if (idx != objsLength - 1) 
                     il.Emit(OpCodes.Dup);
                 idx++;
             }
-            il.Emit(OpCodes.Call, string_Concats); // string.Concat 호출
+            il.Emit(OpCodes.Call, string_Concats); 
             il.Emit(OpCodes.Ret);
             this.tags = tags.ToArray();
             ReferencingTags.AddRange(tags);
