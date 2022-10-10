@@ -20,6 +20,7 @@ namespace Overlayer.Core.Tags.Nodes
         public int length;
         public bool CanUsedByNotPlaying = true;
         public bool IsString = false;
+        public List<ArgumentNode> args;
         public NToken Current => Peek(0);
         public NToken NextToken()
         {
@@ -36,7 +37,7 @@ namespace Overlayer.Core.Tags.Nodes
                 return null;
             return tokens[index];
         }
-        public Parser(string text, TagCollection tagsReference, Dictionary<string, float> variables = null, Dictionary<string, List<MethodInfo>> functions = null)
+        public Parser(string text, TagCollection tagsReference, List<ArgumentNode> args, Dictionary<string, float> variables = null, Dictionary<string, List<MethodInfo>> functions = null)
         {
             Errors = new string[0];
             tokens = NToken.Tokenize(text)
@@ -48,6 +49,7 @@ namespace Overlayer.Core.Tags.Nodes
                     return t;
                 })
                 .ToArray();
+            this.args = args;
             tagDict = new Dictionary<string, (int, Tag)>();
             int index = 0;
             foreach (NToken t in tokens)
@@ -79,7 +81,9 @@ namespace Overlayer.Core.Tags.Nodes
         }
         public Node ParseExpression()
         {
-            return ParseAS();
+            Node node = ParseAS();
+            IsString = node.ResultType == typeof(string);
+            return node;
         }
         Node ParseAS()
         {
@@ -219,6 +223,22 @@ namespace Overlayer.Core.Tags.Nodes
                     NextToken();
                     if (Current?.TokenKind != NToken.Kind.LParen)
                     {
+                        if (args?.Any() ?? false && name == "arg")
+                        {
+                            if (Current?.TokenKind != NToken.Kind.Number)
+                            {
+                                Errors = Errors.Add($"{Main.Language[TranslationKeys.ArgMustHaveIndex]}!");
+                                return IsString ? new StringNode("") : new NumberNode(0);
+                            }
+                            var index = (float)Current.Value;
+                            if (index >= args.Count)
+                            {
+                                Errors = Errors.Add($"{Main.Language[TranslationKeys.ArgIndexOutOfRange]}!");
+                                return IsString ? new StringNode("") : new NumberNode(0);
+                            }
+                            NextToken();
+                            return args[(int)index];
+                        }
                         if (Variables.TryGetValue(name, out float num))
                             return IsString ? new StringNode(num.ToString()) : new NumberNode(num);
                         return IsString ? new StringNode("") : new NumberNode(0);
@@ -232,24 +252,45 @@ namespace Overlayer.Core.Tags.Nodes
                             if (Functions.TryGetValue(name, out List<MethodInfo> meths))
                             {
                                 NextToken();
-                                var meth = meths.Find(m => m.GetParameters().All(p => p.HasDefaultValue));
+                                var meth = meths.Find(m => m.GetParameters().All(p => p?.HasDefaultValue ?? false));
                                 var parameters = meth.GetParameters();
                                 Node[] arguments = new Node[0];
-                                if (parameters.Length == 0)
-                                    return new FunctionNode(meth, new Node[0]);
-                                else if (parameters.All(p =>
+                                if (meth is DynamicMethod)
                                 {
-                                    if (p.HasDefaultValue)
+                                    if (parameters.Length == 1)
+                                        return new FunctionNode(meth, new Node[0]);
+                                    else if (parameters.All(p =>
                                     {
-                                        var defvalue = p.DefaultValue;
-                                        if (defvalue is string s)
-                                            arguments = arguments.Add(new StringNode(s));
-                                        else arguments = arguments.Add(new NumberNode((float)p.DefaultValue));
-                                        return true;
-                                    }
-                                    return false;
-                                }))
-                                    return new FunctionNode(meth, arguments);
+                                        if (p?.HasDefaultValue ?? false)
+                                        {
+                                            var defvalue = p.DefaultValue;
+                                            if (defvalue is string s)
+                                                arguments = arguments.Add(new StringNode(s));
+                                            else arguments = arguments.Add(new NumberNode((float)p?.DefaultValue));
+                                            return true;
+                                        }
+                                        return false;
+                                    }))
+                                        return new FunctionNode(meth, arguments);
+                                }
+                                else
+                                {
+                                    if (parameters.Length == 0)
+                                        return new FunctionNode(meth, new Node[0]);
+                                    else if (parameters.All(p =>
+                                    {
+                                        if (p.HasDefaultValue)
+                                        {
+                                            var defvalue = p.DefaultValue;
+                                            if (defvalue is string s)
+                                                arguments = arguments.Add(new StringNode(s));
+                                            else arguments = arguments.Add(new NumberNode((float)p.DefaultValue));
+                                            return true;
+                                        }
+                                        return false;
+                                    }))
+                                        return new FunctionNode(meth, arguments);
+                                }
                             }
                             else
                             {
@@ -276,9 +317,14 @@ namespace Overlayer.Core.Tags.Nodes
                             var m = ms.Find(m =>
                             {
                                 var @params = m.GetParameters();
-                                return @params.Length == argsLength && 
-                                    (m.ReturnType == typeof(float) || m.ReturnType == typeof(string)) &&
-                                    @params.Select(p => p.ParameterType).SequenceEqual(args.Select(n => n.ResultType));
+                                if (m is DynamicMethod)
+                                    return @params.Length == argsLength + 1 && 
+                                        (m.ReturnType == typeof(float) || m.ReturnType == typeof(string)) &&
+                                        @params.Select(p => p.ParameterType).Where(t => t != typeof(Tag[])).SequenceEqual(args.Select(n => n.ResultType));
+                                else
+                                    return @params.Length == argsLength &&
+                                        (m.ReturnType == typeof(float) || m.ReturnType == typeof(string)) &&
+                                        @params.Select(p => p.ParameterType).SequenceEqual(args.Select(n => n.ResultType));
                             });
                             if (m == null)
                                 goto notfound;

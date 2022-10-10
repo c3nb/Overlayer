@@ -17,6 +17,8 @@ using System.IO;
 using Overlayer.Tags.Global;
 using System.Text;
 using Overlayer.Core.Translation;
+using Overlayer.Core.Tags;
+using Overlayer.Core.Tags.Nodes;
 
 namespace Overlayer
 {
@@ -102,6 +104,7 @@ namespace Overlayer
                     Settings.Load(modEntry);
                     Variables.Reset();
                     CustomTag.Load();
+                    Function.Load();
                     foreach (CustomTag cTag in CustomTag.Tags)
                     {
                         try
@@ -114,6 +117,18 @@ namespace Overlayer
                                 Logger.Log($"{Language[TranslationKeys.CustomTag]} {cTag.name} {Language[TranslationKeys.IsErrorOccured]} ({err}). {Language[TranslationKeys.PlzChkYourExpr]}");
                         }
                         catch (Exception e) { Logger.Log($"{Language[TranslationKeys.ExceptionAt]} {TranslationKeys.CustomTag} {cTag.name}.\n{e}"); }
+                    }
+                    foreach (Function func in Function.Functions)
+                    {
+                        try
+                        {
+                            func.Compile(func.name, func.expression, Recompile);
+                            func.name_ = func.name;
+                            func.expression_ = func.expression;
+                            if (func.error != null)
+                                Logger.Log($"{Language[TranslationKeys.Function]} {func.name} {Language[TranslationKeys.IsErrorOccured]} ({func.error}). {Language[TranslationKeys.PlzChkYourExpr]}");
+                        }
+                        catch (Exception e) { Logger.Log($"{Language[TranslationKeys.ExceptionAt]} {TranslationKeys.Function} {func.name}.\n{e}"); }
                     }
                     OText.Load();
                     if (!OText.Texts.Any())
@@ -190,7 +205,7 @@ namespace Overlayer
                     for (int i = 0; i < cTags.Count; i++)
                     {
                         CustomTag cTag = cTags[i];
-                        if (cTag.collapsed = GUILayout.Toggle(cTag.collapsed, $"{cTag.name}"))
+                        if (cTag.editing = GUILayout.Toggle(cTag.editing, $"{cTag.name}"))
                         {
                             GUIUtils.IndentGUI(() =>
                             {
@@ -220,7 +235,7 @@ namespace Overlayer
                                 GUILayout.EndHorizontal();
 
                                 GUILayout.Label($"{Language[TranslationKeys.ThisTag]} {(cTag.canUsedByNotPlaying ? Language[TranslationKeys.CanBeUsedNotPlayingText] : Language[TranslationKeys.CannotBeUsedNotPlayingText])}.");
-                                GUILayout.Label((cTag.isStringTag ? Language[TranslationKeys.ThisTagIsStringTag] : Language[TranslationKeys.ThisTagIsNumberTag]) + '.');
+                                GUILayout.Label((cTag.isStringTag ? Language[TranslationKeys.ThisTagIsStringTag] : Language[TranslationKeys.ThisFuncIsNumberFunc]) + '.');
 
                                 GUILayout.BeginHorizontal();
                                 if (changed == true)
@@ -249,6 +264,89 @@ namespace Overlayer
                 });
                 CustomTag.ConstantsGUI();
                 CustomTag.FunctionGUI();
+            }
+            var funcs = Function.Functions;
+            if (settings.EditingFunctions = GUILayout.Toggle(settings.EditingFunctions, Language[TranslationKeys.EditFunction]))
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button(Language[TranslationKeys.NewFunction]))
+                    funcs.Add(new Function(""));
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+                GUIUtils.IndentGUI(() =>
+                {
+                    for (int i = 0; i < funcs.Count; i++)
+                    {
+                        Function func = funcs[i];
+                        if (func.editing = GUILayout.Toggle(func.editing, $"{func.name}"))
+                        {
+                            GUIUtils.IndentGUI(() =>
+                            {
+                                var changed = false;
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label($"{Language[TranslationKeys.Name]}:");
+                                func.name_ = GUILayout.TextField(func.name_);
+                                if (func.name_ != func.name)
+                                    changed = true;
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label($"{Language[TranslationKeys.Expression]}:");
+                                func.expression_ = GUILayout.TextField(func.expression_);
+                                if (func.expression_ != func.expression)
+                                    changed = true;
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+
+                                GUILayout.BeginHorizontal();
+                                if (GUILayout.Button(Language[TranslationKeys.NewArgument]))
+                                    func.AddArgument(false);
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+                                for (int j = 0; j < func.args.Count; j++)
+                                {
+                                    var arg = func.args[j];
+                                    GUILayout.BeginHorizontal();
+                                    GUILayout.Label($"{Language[TranslationKeys.Index]} {j} {Language[TranslationKeys.Argument]}:");
+                                    if (GUILayout.Button(arg.IsString ? Language[TranslationKeys.String] : Language[TranslationKeys.Number]))
+                                        arg.IsString = !arg.IsString;
+                                    if (j == func.args.Count - 1)
+                                    {
+                                        if (GUILayout.Button(Language[TranslationKeys.Remove]))
+                                            func.RemoveArgument();
+                                    }
+                                    GUILayout.FlexibleSpace();
+                                    GUILayout.EndHorizontal();
+                                }
+
+                                GUILayout.Label($"{Language[TranslationKeys.ThisFunc]} {(func.canUsedByNotPlaying ? Language[TranslationKeys.CanBeUsedNotPlayingText] : Language[TranslationKeys.CannotBeUsedNotPlayingText])}.");
+                                GUILayout.Label((func.isStringFunc ? Language[TranslationKeys.ThisFuncIsStringFunc] : Language[TranslationKeys.ThisFuncIsNumberFunc]) + '.');
+
+                                GUILayout.BeginHorizontal();
+                                if (changed == true)
+                                {
+                                    if (GUILayout.Button(Language[TranslationKeys.Compile]))
+                                    {
+                                        func.Compile(func.name_, func.expression_, Recompile);
+                                        changed = false;
+                                    }
+                                }
+                                if (GUILayout.Button(Language[TranslationKeys.Remove]))
+                                {
+                                    func.Remove();
+                                    Recompile();
+                                    funcs.RemoveAt(i);
+                                }
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+                                if (func.error != null)
+                                    GUILayout.Label($"{Language[TranslationKeys.CompilationError]}: {func.error}");
+                            });
+                        }
+                        GUILayout.Space(3);
+                    }
+                });
             }
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(Language[TranslationKeys.AddText]))
@@ -280,9 +378,15 @@ namespace Overlayer
             Variables.Reset();
             OText.Save();
             CustomTag.Save();
+            Function.Save();
         }
         public static void Recompile()
         {
+            foreach (CustomTag tag in CustomTag.Tags)
+            {
+                try { tag.Compile(TagManager.AllTags, tag.name, tag.description, tag.expression); }
+                catch { }
+            }
             foreach (OText text in OText.Texts)
             {
                 text.PlayingCompiler.Compile(text.TSetting.PlayingText);

@@ -343,6 +343,8 @@
     <Compile Include="AdofaiggApi\Types\PlayLog.cs" />
     <Compile Include="AdofaiggApi\Types\Ranking.cs" />
     <Compile Include="AdofaiggApi\User.cs" />
+    <Compile Include="Core\Tags\Function.cs" />
+    <Compile Include="Core\Tags\Nodes\ArgumentNode.cs" />
     <Compile Include="Core\Translation\GID.cs" />
     <Compile Include="Core\Translation\Language.cs" />
     <Compile Include="Core\NativeLibrary.cs" />
@@ -369,6 +371,7 @@
     <Compile Include="Core\Tags\Token.cs" />
     <Compile Include="Core\Translation\TranslationKeys.cs" />
     <Compile Include="Core\Utils\ArrayUtils.cs" />
+    <Compile Include="Core\Utils\EmitUtils.cs" />
     <Compile Include="Core\Utils\EnumerableExtensions.cs" />
     <Compile Include="Core\Utils\Extensions.cs" />
     <Compile Include="Core\Utils\GUIUtils.cs" />

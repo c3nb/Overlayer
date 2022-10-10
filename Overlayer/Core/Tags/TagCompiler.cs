@@ -24,7 +24,7 @@ namespace Overlayer.Core
             => this.tagsReference = tagsReference;
         public TagCompiler Compile(string name, string description, string text, Dictionary<string, float> consts, Dictionary<string, List<MethodInfo>> functions, out string[] errors)
         {
-            parser = new Parser(text, tagsReference, consts, functions);
+            parser = new Parser(text, tagsReference, null, consts, functions);
             Node node = parser.ParseExpression();
             errors = parser.Errors;
             if (errors.Any())

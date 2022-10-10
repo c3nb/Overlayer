@@ -7,6 +7,8 @@ using TinyJson;
 using UnityEngine;
 using Overlayer.Core.Utils;
 using Overlayer.Core.Translation;
+using System.Reflection.Emit;
+using Overlayer.Core.Tags.Nodes;
 
 namespace Overlayer.Core
 {
@@ -25,7 +27,7 @@ namespace Overlayer.Core
         public string name = string.Empty;
         public string description = string.Empty;
         public string expression = string.Empty;
-        public bool collapsed = true;
+        public bool editing = true;
         public bool isStringTag = false;
 
         internal bool canUsedByNotPlaying = false;
@@ -67,7 +69,12 @@ namespace Overlayer.Core
                     GUIUtils.IndentGUI(() =>
                     {
                         foreach (var methodKvp in functions)
-                            GUILayout.Label($"{methodKvp.Key.ToLower()}: {Main.Language[methodKvp.Key.ToLower()]}");
+                        {
+                            if (methodKvp.Value.First() is DynamicMethod)
+                                GUILayout.Label(methodKvp.Key);
+                            else
+                                GUILayout.Label($"{methodKvp.Key.ToLower()}: {Main.Language[methodKvp.Key.ToLower()]}");
+                        }
                     });
                 }
             });
@@ -93,6 +100,7 @@ namespace Overlayer.Core
             { "radDeg", 57.29578049f },
             { "degRad",  0.017453292f },
         };
+        public static readonly System.Random random = new System.Random();
         public static readonly Dictionary<string, List<MethodInfo>> functions = new Dictionary<string, List<MethodInfo>>
         {
             { "cos", new List<MethodInfo> { typeof(CustomTag).GetMethod("Cos", (BindingFlags)15420) } },
@@ -114,6 +122,8 @@ namespace Overlayer.Core
             { "round", new List<MethodInfo> { typeof(CustomTag).GetMethod("Round", (BindingFlags)15420, null, new[] { typeof(float) }, null), 
                 typeof(CustomTag).GetMethod("Round", (BindingFlags)15420, null, new[] { typeof(float), typeof(float) }, null) } },
             { "ceil", new List<MethodInfo> { typeof(CustomTag).GetMethod("Ceil", (BindingFlags)15420) } },
+            { "random", new List<MethodInfo> { typeof(CustomTag).GetMethod("Random", (BindingFlags)15420) } },
+            { "randomRange", new List<MethodInfo> { typeof(CustomTag).GetMethod("RandomRange", (BindingFlags)15420) } },
             { "floor", new List<MethodInfo> { typeof(CustomTag).GetMethod("Floor", (BindingFlags)15420) } },
             { "tostring", new List<MethodInfo> { typeof(CustomTag).GetMethod("ToString", (BindingFlags)15420, null, new[] { typeof(float) }, null),
                 typeof(CustomTag).GetMethod("ToString", (BindingFlags)15420, null, new[] { typeof(bool) }, null)} },
@@ -126,6 +136,8 @@ namespace Overlayer.Core
             => condition ? a : b;
         static float If(bool condition, float a, float b)
             => condition ? a : b;
+        static float Random() => (float)random.NextDouble();
+        static float RandomRange(float min, float max) => random.Next((int)min, (int)max);
         static string ToString(float t)
             => t.ToString();
         static string ToString(bool t)

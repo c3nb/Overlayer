@@ -1,14 +1,34 @@
 ﻿using TMPro;
 using UnityEngine;
-using HarmonyLib;
 using UnityEngine.UI;
 using System.Reflection;
 using System;
+using System.Linq;
 
 namespace Overlayer.Core.Utils
 {
     public static class Extensions
     {
+        public static Delegate CreateDelegateAuto(this MethodInfo method)
+        {
+            var parameters = method.GetParameters().Select(p => p.ParameterType).ToList();
+            if (method.ReturnType != typeof(void))
+            {
+                parameters.Add(method.ReturnType);
+                return method.CreateDelegate(Type.GetType($"System.Func`{parameters.Count}").MakeGenericType(parameters.ToArray()));
+            }
+            return method.CreateDelegate(Type.GetType($"System.Action`{parameters.Count}").MakeGenericType(parameters.ToArray()));
+        }
+        public static Type GetDelegateType(this Type retType, params Type[] paramTypes)
+        {
+            var parameters = paramTypes.ToList();
+            if (retType != typeof(void))
+            {
+                parameters.Add(retType);
+                return Type.GetType($"System.Func`{parameters.Count}").MakeGenericType(parameters.ToArray());
+            }
+            return Type.GetType($"System.Action`{parameters.Count}").MakeGenericType(parameters.ToArray());
+        }
         public static T CheckNull<T>(this T obj, string identifier = null)
         {
             if (ReferenceEquals(obj, null))

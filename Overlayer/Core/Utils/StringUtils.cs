@@ -112,6 +112,24 @@ namespace Overlayer.Core.Utils
                 return -result;
             return result;
         }
+        public static long ToLong(this string s)
+        {
+            long result = 0;
+            bool unary = s[0] == 45;
+            fixed (char* v = s)
+            {
+                char* c = v;
+                if (unary) c++;
+                while (*c != '\0')
+                {
+                    result = 10 * result + (*c - 48);
+                    c++;
+                }
+            }
+            if (unary)
+                return -result;
+            return result;
+        }
         public static double ToDouble(this string s)
         {
             double result = 0;

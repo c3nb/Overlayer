@@ -18,7 +18,7 @@ namespace Overlayer.Core.Translation
         public static readonly Language Korean = new Language(GID.KOREAN);
         public static readonly Language English = new Language(GID.ENGLISH);
         public readonly string url;
-        public readonly Dictionary<string, string> dict;
+        public Dictionary<string, string> dict { get; private set; }
         public readonly string path;
         public bool Initialized { get; private set; }
         public Language(GID gid)
@@ -33,24 +33,21 @@ namespace Overlayer.Core.Translation
             get
             {
                 if (dict.TryGetValue(key, out string value))
-                {
-                    if (key.StartsWith("*") && value.StartsWith("*") && key.EndsWith(key.Substring(1)))
-                        value = key.Substring(0, key.Length - key.Length + 1) + value.Substring(1);
-                }
-                return value;
+                    return value;
+                return key;
             }
         }
         IEnumerator Download()
         {
             if (Initialized)
                 yield break;
+            LoadFromFile();
             UnityWebRequest request = UnityWebRequest.Get(url);
             yield return request.SendWebRequest();
-            dict.Clear();
+            var dict = new Dictionary<string, string>();
             byte[] bytes = request.downloadHandler.data;
             if (bytes == null)
             {
-                LoadFromFile();
                 Initialized = true;
                 yield break;
             }
@@ -67,11 +64,18 @@ namespace Overlayer.Core.Translation
                 dict.Add(key, value);
                 sb.AppendLine(key.Escape() + ":" + value.Escape());
             }
+            if (!this.dict.SequenceEqual(dict))
+                this.dict = dict;
+            else
+            {
+                Initialized = true;
+                yield break;
+            }
             File.WriteAllText(path, sb.ToString());
             Main.Logger.Log($"Loaded {dict.Count} Localizations from Sheet");
             Initialized = true;
         }
-        void LoadFromFile()
+        bool LoadFromFile()
         {
             if (File.Exists(path))
             {
@@ -99,9 +103,10 @@ namespace Overlayer.Core.Translation
                     dict.Add(key, value);
                 }
                 Main.Logger.Log($"Loaded {dict.Count} Localizations from Local File");
-                return;
+                return true;
             }
             Main.Logger.Log($"Couldn't Load Localizations!");
+            return false;
         }
     }
 }
