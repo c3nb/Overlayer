@@ -7,7 +7,7 @@ namespace Overlayer.Core.Tags.Nodes
 {
     public class OperatorNode : Node
     {
-        public override Type ResultType { get => rt; }
+        public override Type ResultType => rt;
         internal Type rt;
         bool _(char c, bool isString)
         {

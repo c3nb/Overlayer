@@ -140,6 +140,8 @@ namespace Overlayer
                     DeathMessagePatch.compiler = new TextCompiler(TagManager.AllTags);
                     if (!string.IsNullOrEmpty(settings.DeathMessage))
                         DeathMessagePatch.compiler.Compile(settings.DeathMessage);
+                    if (!string.IsNullOrEmpty(settings.ClearMessage))
+                        ClearMessagePatch.compiler.Compile(settings.ClearMessage);
                 }
                 else
                 {
@@ -178,6 +180,11 @@ namespace Overlayer
                 settings.lang = SystemLanguage.English;
                 UpdateLanguage();
             }
+            if (GUILayout.Button("中國語"))
+            {
+                settings.lang = SystemLanguage.Chinese;
+                UpdateLanguage();
+            }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             settings.DrawManual();
@@ -189,6 +196,17 @@ namespace Overlayer
                 settings.DeathMessage = dm;
                 if (!string.IsNullOrEmpty(settings.DeathMessage))
                     DeathMessagePatch.compiler.Compile(settings.DeathMessage);
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(Language[TranslationKeys.ClearMessage]);
+            var cm = GUILayout.TextField(settings.ClearMessage);
+            if (cm != settings.ClearMessage)
+            {
+                settings.ClearMessage = cm;
+                if (!string.IsNullOrEmpty(settings.ClearMessage))
+                    ClearMessagePatch.compiler.Compile(settings.ClearMessage);
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
@@ -369,6 +387,9 @@ namespace Overlayer
                     break;
                 case SystemLanguage.English:
                     Language = Language.English;
+                    break;
+                case SystemLanguage.Chinese:
+                    Language = Language.Chinese;
                     break;
             }
         }

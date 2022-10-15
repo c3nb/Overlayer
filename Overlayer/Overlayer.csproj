@@ -343,6 +343,12 @@
     <Compile Include="AdofaiggApi\Types\PlayLog.cs" />
     <Compile Include="AdofaiggApi\Types\Ranking.cs" />
     <Compile Include="AdofaiggApi\User.cs" />
+    <Compile Include="Core\OScript\Nodes\Node.cs" />
+    <Compile Include="Core\OScript\Nodes\OperatorNode.cs" />
+    <Compile Include="Core\OScript\OScriptBinding.cs" />
+    <Compile Include="Core\OScript\Parser.cs" />
+    <Compile Include="Core\OScript\Script.cs" />
+    <Compile Include="Core\OScript\Token.cs" />
     <Compile Include="Core\Tags\Function.cs" />
     <Compile Include="Core\Tags\Nodes\ArgumentNode.cs" />
     <Compile Include="Core\Translation\GID.cs" />
@@ -377,6 +383,7 @@
     <Compile Include="Core\Utils\GUIUtils.cs" />
     <Compile Include="Core\Utils\InteropUtils.cs" />
     <Compile Include="Core\Utils\MapExtensions.cs" />
+    <Compile Include="Core\Utils\PatchUtils.cs" />
     <Compile Include="Core\Utils\StringUtils.cs" />
     <Compile Include="DT.cs" />
     <Compile Include="KeyCombo.cs" />
@@ -509,6 +516,7 @@
     <Compile Include="Newtonsoft.Json.cs" />
     <Compile Include="Patches\AttemptsCounter.cs" />
     <Compile Include="Patches\BpmUpdater.cs" />
+    <Compile Include="Patches\ClearMessagePatch.cs" />
     <Compile Include="Patches\DataInit.cs" />
     <Compile Include="Patches\DeathMessagePatch.cs" />
     <Compile Include="Patches\ErrorMeterPatch.cs" />

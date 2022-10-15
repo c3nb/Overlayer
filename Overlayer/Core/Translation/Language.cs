@@ -17,12 +17,15 @@ namespace Overlayer.Core.Translation
             $"https://docs.google.com/spreadsheets/d/1CzaJzpqnVT_Ku3QdH0mPwyOkEbpa4e0BpcrC5mc_mjk/gviz/tq?tqx=out:json&tq&gid={gid}";
         public static readonly Language Korean = new Language(GID.KOREAN);
         public static readonly Language English = new Language(GID.ENGLISH);
+        public static readonly Language Chinese = new Language(GID.CHINESE);
         public readonly string url;
         public Dictionary<string, string> dict { get; private set; }
         public readonly string path;
+        public GID gid;
         public bool Initialized { get; private set; }
         public Language(GID gid)
         {
+            this.gid = gid;
             url = GetUrl((int)gid);
             dict = new Dictionary<string, string>();
             path = Path.Combine("Mods", "Overlayer", $"Translations_{gid}.txt");

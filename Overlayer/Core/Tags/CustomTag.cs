@@ -131,7 +131,17 @@ namespace Overlayer.Core
                 typeof(CustomTag).GetMethod("Truncate", (BindingFlags)15420, null, new[] { typeof(float), typeof(float) }, null) } },
             { "if", new List<MethodInfo> { typeof(CustomTag).GetMethod("If", (BindingFlags)15420, null, new[] { typeof(bool), typeof(float), typeof(float) }, null),
                 typeof(CustomTag).GetMethod("If", (BindingFlags)15420, null, new[] { typeof(bool), typeof(string), typeof(string) }, null),} },
+            { "getString", new List<MethodInfo> { typeof(CustomTag).GetMethod("GetString", (BindingFlags)15420) } },
+            { "setString", new List<MethodInfo> { typeof(CustomTag).GetMethod("SetString", (BindingFlags)15420) } },
+            { "getNumber", new List<MethodInfo> { typeof(CustomTag).GetMethod("GetNumber", (BindingFlags)15420) } },
+            { "setNumber", new List<MethodInfo> { typeof(CustomTag).GetMethod("SetNumber", (BindingFlags)15420) } },
         };
+        static readonly Dictionary<string, string> VariablesStr = new Dictionary<string, string>();
+        static readonly Dictionary<string, float> VariablesNum = new Dictionary<string, float>();
+        static string GetString(string name) => VariablesStr.TryGetValue(name, out string value) ? value : string.Empty;
+        static string SetString(string name, string value) => VariablesStr[name] = value;
+        static float GetNumber(string name) => VariablesNum.TryGetValue(name, out float value) ? value : 0;
+        static float SetNumber(string name, float value) => VariablesNum[name] = value;
         static string If(bool condition, string a, string b)
             => condition ? a : b;
         static float If(bool condition, float a, float b)

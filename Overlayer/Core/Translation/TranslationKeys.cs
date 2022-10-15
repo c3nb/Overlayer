@@ -66,5 +66,6 @@
         public static readonly string NewArgument = nameof(NewArgument);
         public static readonly string Index = nameof(Index);
         public static readonly string Argument = nameof(Argument);
+        public static readonly string ClearMessage = nameof(ClearMessage);
     }
 }
