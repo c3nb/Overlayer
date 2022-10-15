@@ -343,14 +343,11 @@
     <Compile Include="AdofaiggApi\Types\PlayLog.cs" />
     <Compile Include="AdofaiggApi\Types\Ranking.cs" />
     <Compile Include="AdofaiggApi\User.cs" />
-    <Compile Include="Core\OScript\Nodes\Node.cs" />
-    <Compile Include="Core\OScript\Nodes\OperatorNode.cs" />
-    <Compile Include="Core\OScript\OScriptBinding.cs" />
-    <Compile Include="Core\OScript\Parser.cs" />
-    <Compile Include="Core\OScript\Script.cs" />
-    <Compile Include="Core\OScript\Token.cs" />
+    <Compile Include="Core\Tags\BuiltInFunctions.cs" />
     <Compile Include="Core\Tags\Function.cs" />
+    <Compile Include="Core\Tags\Nodes\AccessorNode.cs" />
     <Compile Include="Core\Tags\Nodes\ArgumentNode.cs" />
+    <Compile Include="Core\Tags\Nodes\CustomNode.cs" />
     <Compile Include="Core\Translation\GID.cs" />
     <Compile Include="Core\Translation\Language.cs" />
     <Compile Include="Core\NativeLibrary.cs" />

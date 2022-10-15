@@ -36,6 +36,8 @@ namespace Overlayer.Core.Tags.Nodes
             Tag,
             Number,
             End,
+
+            Accessor,
         }
         internal NToken(NToken prev)
         {
@@ -74,6 +76,9 @@ namespace Overlayer.Core.Tags.Nodes
                     return;
                 case ",":
                     TokenKind = Kind.Comma;
+                    return;
+                case ".":
+                    TokenKind = Kind.Accessor;
                     return;
                 default:
                     {
@@ -251,6 +256,7 @@ namespace Overlayer.Core.Tags.Nodes
                         case '(':
                         case ')':
                         case ',':
+                        case '.':
                             tokens.Add(current);
                             current = new NToken(current);
                             current.text.Append(c);

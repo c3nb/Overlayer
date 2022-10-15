@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Overlayer.Core.Utils;
 using Overlayer.Core.Translation;
 using System.Xml.XPath;
+using JetBrains.Annotations;
 
 namespace Overlayer.Core.Tags.Nodes
 {
@@ -21,6 +22,7 @@ namespace Overlayer.Core.Tags.Nodes
         public bool CanUsedByNotPlaying = true;
         public bool IsString = false;
         public List<ArgumentNode> args;
+        public Dictionary<string, Type> types;
         public NToken Current => Peek(0);
         public NToken NextToken()
         {
@@ -37,9 +39,10 @@ namespace Overlayer.Core.Tags.Nodes
                 return null;
             return tokens[index];
         }
-        public Parser(string text, TagCollection tagsReference, List<ArgumentNode> args, Dictionary<string, float> variables = null, Dictionary<string, List<MethodInfo>> functions = null)
+        public Parser(string text, TagCollection tagsReference, List<ArgumentNode> args, Dictionary<string, float> variables = null, Dictionary<string, List<MethodInfo>> functions = null, Dictionary<string, Type> toBindTypes = null)
         {
             Errors = new string[0];
+            types = toBindTypes ?? new Dictionary<string, Type>();
             tokens = NToken.Tokenize(text)
                 .Where(t => !string.IsNullOrWhiteSpace(t.Text))
                 .Select(t =>
@@ -239,8 +242,30 @@ namespace Overlayer.Core.Tags.Nodes
                             NextToken();
                             return args[(int)index];
                         }
+                        if (Current?.TokenKind == NToken.Kind.Accessor)
+                        {
+                            if (types.TryGetValue(name, out var t))
+                            {
+                                NextToken();
+                                Node final = new CustomNode(t);
+                                while (true)
+                                {
+                                    final = new AccessorNode(final, name);
+                                    if (Current.TokenKind == NToken.Kind.Accessor)
+                                    {
+                                        NextToken();
+                                        continue;
+                                    }
+                                    break;
+                                }
+                            }
+                            else return IsString ? new StringNode("") : new NumberNode(0);
+                        }
                         if (Variables.TryGetValue(name, out float num))
                             return IsString ? new StringNode(num.ToString()) : new NumberNode(num);
+                        if (name.Equals("none", StringComparison.OrdinalIgnoreCase) ||
+                            name.Equals("null", StringComparison.OrdinalIgnoreCase))
+                            return IsString ? new StringNode("") : new NumberNode(0);
                         return IsString ? new StringNode("") : new NumberNode(0);
                     }
                     else
