@@ -150,6 +150,7 @@ namespace Overlayer
                     {
                         OText.Clear();
                         DeathMessagePatch.compiler = null;
+                        ClearMessagePatch.compiler = null;
                         GC.Collect();
                     }
                     finally
@@ -169,24 +170,7 @@ namespace Overlayer
         public static void OnGUI(ModEntry modEntry)
         {
             var settings = Settings.Instance;
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("한국어"))
-            {
-                settings.lang = SystemLanguage.Korean;
-                UpdateLanguage();
-            }
-            if (GUILayout.Button("English"))
-            {
-                settings.lang = SystemLanguage.English;
-                UpdateLanguage();
-            }
-            if (GUILayout.Button("中國語"))
-            {
-                settings.lang = SystemLanguage.Chinese;
-                UpdateLanguage();
-            }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
+            LangGUI(settings);
             settings.DrawManual();
             GUILayout.BeginHorizontal();
             GUILayout.Label(Language[TranslationKeys.DeathMessage]);
@@ -378,6 +362,32 @@ namespace Overlayer
                 OText.Texts[i].GUI();
             TagManager.AllTags.DescGUI();
         }
+        public static void LangGUI(Settings settings)
+        {
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("한국어"))
+            {
+                settings.lang = SystemLanguage.Korean;
+                UpdateLanguage();
+            }
+            if (GUILayout.Button("English"))
+            {
+                settings.lang = SystemLanguage.English;
+                UpdateLanguage();
+            }
+            if (GUILayout.Button("中國語"))
+            {
+                settings.lang = SystemLanguage.Chinese;
+                UpdateLanguage();
+            }
+            if (GUILayout.Button("日本語"))
+            {
+                settings.lang = SystemLanguage.Japanese;
+                UpdateLanguage();
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
         public static void UpdateLanguage()
         {
             switch (Settings.Instance.lang)
@@ -390,6 +400,9 @@ namespace Overlayer
                     break;
                 case SystemLanguage.Chinese:
                     Language = Language.Chinese;
+                    break;
+                case SystemLanguage.Japanese:
+                    Language = Language.Japanese;
                     break;
             }
         }
