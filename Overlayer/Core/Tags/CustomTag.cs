@@ -8,7 +8,7 @@ using UnityEngine;
 using Overlayer.Core.Utils;
 using Overlayer.Core.Translation;
 using System.Reflection.Emit;
-using Overlayer.Core.Tags.Nodes;
+using Overlayer.Core.JavaScript;
 
 namespace Overlayer.Core
 {
@@ -49,7 +49,10 @@ namespace Overlayer.Core
             expression = expr;
             if (js)
             {
-
+                try
+                {
+                    reference.AddTag(new Tag(name, expr.Compile()));
+                }
             }
             compiler = new TagCompiler(reference);
             compiler.Compile(name, description, expression, constants, functions, out string[] err);
