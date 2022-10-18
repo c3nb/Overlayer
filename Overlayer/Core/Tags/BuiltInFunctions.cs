@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Overlayer.Core
 {
-    internal static class BuiltInFunctions
+    public static class BuiltInFunctions
     {
         public static readonly Random random = new Random();
         static readonly Dictionary<string, string> VariablesStr = new Dictionary<string, string>();

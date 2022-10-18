@@ -31,7 +31,7 @@ namespace Overlayer.Core
         public void Compile(string source)
         {
             this.source = source;
-            IEnumerable<Token> tokens = Token.Tokenize(source);
+            IEnumerable<TToken> tokens = TToken.Tokenize(source);
             int objsLength = tokens.Count();
             if (objsLength <= 0)
             {
@@ -49,7 +49,7 @@ namespace Overlayer.Core
             il.Emit(OpCodes.Newarr, typeof(string));
             il.Emit(OpCodes.Dup); 
             int idx = 0;
-            foreach (Token token in tokens)
+            foreach (TToken token in tokens)
             {
                 il.Emit(OpCodes.Ldc_I4, idx);
                 var tag = tagsReference[token.Text];
@@ -88,7 +88,7 @@ namespace Overlayer.Core
             ReferencingTags.AddRange(tags);
             UpdateReferences();
             getter = (ValueGetter)value.CreateDelegate(typeof(ValueGetter));
-            LocalBuilder Push(Tag tag, Token token)
+            LocalBuilder Push(Tag tag, TToken token)
             {
                 if (tag.IsOpt)
                 {
@@ -149,7 +149,7 @@ namespace Overlayer.Core
                     }
                 }
             }
-            void Format(Tag tag, Token token, LocalBuilder loc)
+            void Format(Tag tag, TToken token, LocalBuilder loc)
             {
                 if (token.HasFormat)
                 {

@@ -230,7 +230,7 @@ namespace Overlayer
 
                                 GUILayout.BeginHorizontal();
                                 GUILayout.Label($"{Language[TranslationKeys.Expression]}:");
-                                cTag.expression_ = GUILayout.TextField(cTag.expression_);
+                                cTag.expression_ = GUILayout.TextArea(cTag.expression_);
                                 if (cTag.expression_ != cTag.expression)
                                     changed = true;
                                 GUILayout.FlexibleSpace();

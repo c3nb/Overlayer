@@ -28,6 +28,7 @@ namespace Overlayer.Core
         public string description = string.Empty;
         public string expression = string.Empty;
         public bool editing = true;
+        public bool js = false;
         public bool isStringTag = false;
 
         internal bool canUsedByNotPlaying = false;
@@ -46,6 +47,10 @@ namespace Overlayer.Core
             this.name = name;
             description = desc;
             expression = expr;
+            if (js)
+            {
+
+            }
             compiler = new TagCompiler(reference);
             compiler.Compile(name, description, expression, constants, functions, out string[] err);
             isStringTag = compiler.IsStringTag;

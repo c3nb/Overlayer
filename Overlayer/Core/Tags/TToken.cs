@@ -6,7 +6,7 @@ using System;
 
 namespace Overlayer.Core
 {
-    public class Token
+    public class TToken
     {
         public enum Kind
         {
@@ -24,7 +24,7 @@ namespace Overlayer.Core
             Number,
             End,
         }
-        internal Token(Token prev)
+        internal TToken(TToken prev)
         {
             Previous = prev;
             if (prev != null)
@@ -80,30 +80,30 @@ namespace Overlayer.Core
         public string Format => format.ToString();
         public bool HasOption => option.Length > 0;
         public bool HasFormat => format.Length > 0;
-        public Token Previous { get; private set; }
-        public Token Next { get; private set; }
+        public TToken Previous { get; private set; }
+        public TToken Next { get; private set; }
         public bool Closed { get; private set; }
         public string[] Split { get; private set; }
         public object Value { get; private set; }
         public Kind TokenKind { get; private set; }
         public bool IsOperator => TokenKind == Kind.Add || TokenKind == Kind.Sub || TokenKind == Kind.Mul || TokenKind == Kind.Div || TokenKind == Kind.Rem;
         public override string ToString() => Text.ToString();
-        public Token NextToken(Action<Token> callback = null)
+        public TToken NextToken(Action<TToken> callback = null)
         {
-            Token newToken = new Token(this);
+            TToken newToken = new TToken(this);
             callback?.Invoke(newToken);
             return newToken;
         }
-        public static IEnumerable<Token> Tokenize(string text, bool ignoreWhitespace = false)
+        public static IEnumerable<TToken> Tokenize(string text, bool ignoreWhitespace = false)
         {
             text += ' ';
-            List<Token> tokens = new List<Token>();
+            List<TToken> tokens = new List<TToken>();
             bool tag = false;
             bool option = false;
             bool format = false;
             int formatBracesStack = 0;
-            Token current = new Token(null);
-            Stack<Token> unresolvedTok = new Stack<Token>();
+            TToken current = new TToken(null);
+            Stack<TToken> unresolvedTok = new Stack<TToken>();
             for (int i = 0; i < text.Length; i++)
             {
                 char c = text[i];
@@ -160,7 +160,7 @@ namespace Overlayer.Core
                             current.TokenKind = Kind.Tag;
                             unresolvedTok.Pop();
                             current.raw.Append(c);
-                            current = new Token(current);
+                            current = new TToken(current);
                             continue;
                         }
                         else current.format.Append(c);
@@ -176,7 +176,7 @@ namespace Overlayer.Core
                             current.TokenKind = Kind.Tag;
                             unresolvedTok.Pop();
                             current.raw.Append(c);
-                            current = new Token(current);
+                            current = new TToken(current);
                             continue;
                         }
                         else current.option.Append(c);
@@ -191,7 +191,7 @@ namespace Overlayer.Core
                         current.TokenKind = Kind.Tag;
                         unresolvedTok.Pop();
                         current.raw.Append(c);
-                        current = new Token(current);
+                        current = new TToken(current);
                         continue;
                     }
                     else current.text.Append(c);
@@ -205,7 +205,7 @@ namespace Overlayer.Core
                                 tag = true;
                                 unresolvedTok.Push(current);
                                 tokens.Add(current);
-                                current = new Token(current);
+                                current = new TToken(current);
                                 current.raw.Append(c);
                                 continue;
                             }
@@ -218,19 +218,19 @@ namespace Overlayer.Core
                         case ')':
                         case ',':
                             tokens.Add(current);
-                            current = new Token(current);
+                            current = new TToken(current);
                             current.text.Append(c);
                             current.raw.Append(c);
                             current.SetKind(current.Text);
 
                             tokens.Add(current);
-                            current = new Token(current);
+                            current = new TToken(current);
                             continue;
                         default:
                             if (char.IsDigit(c))
                             {
                                 tokens.Add(current);
-                                current = new Token(current);
+                                current = new TToken(current);
                                 int start = i;
                                 bool hasDecimalPoint = false;
                                 while (char.IsDigit(c) || (!hasDecimalPoint && c == '.'))
@@ -245,7 +245,7 @@ namespace Overlayer.Core
                                 current.raw.Append(digits);
                                 current.SetKind(current.Text);
                                 tokens.Add(current);
-                                current = new Token(current);
+                                current = new TToken(current);
                                 goto First;
                             }
                             current.text.Append(c);
@@ -257,14 +257,14 @@ namespace Overlayer.Core
             //if (braceStack != 0)
             //    Main.Logger.Log("Warning! Braces Is Not Fully Closed! Text Compiler May Not Compile This Normally!");
             //else Main.Logger.Log("Compiled Successful.");
-            foreach (Token tok in unresolvedTok)
+            foreach (TToken tok in unresolvedTok)
                 tok.text = new StringBuilder(tok.Raw);
             if (ignoreWhitespace)
                 tokens.RemoveAll(t => string.IsNullOrWhiteSpace(t.Text));
             else tokens.RemoveAll(t => string.IsNullOrEmpty(t.Text));
             if (!string.IsNullOrWhiteSpace(current.Raw))
                 tokens.Add(current);
-            Token end = new Token(current);
+            TToken end = new TToken(current);
             end.TokenKind = Kind.End;
             tokens.Add(end);
             return tokens;
