@@ -51,8 +51,18 @@ namespace Overlayer.Core
             {
                 try
                 {
-                    reference.AddTag(new Tag(name, expr.Compile()));
+                    var del = expression.Compile();
+                    reference.AddTag(new Tag(name, description, del));
+                    isStringTag = del.Method.ReturnType == typeof(string);
+                    canUsedByNotPlaying = false;
+                    error = null;
+                    callbackAfterCompile?.Invoke();
                 }
+                catch (Exception ex)
+                {
+                    error = ex.ToString();
+                }
+                return error;
             }
             compiler = new TagCompiler(reference);
             compiler.Compile(name, description, expression, constants, functions, out string[] err);

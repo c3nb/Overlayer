@@ -87,7 +87,8 @@ namespace Overlayer.Core.JavaScript.Compiler
                 this.BaseScope = parser.BaseScope;
             }
         }
-
+        internal Type rt;
+        internal override Type ReturnType => rt;
         /// <summary>
         /// Generates IL for the script.
         /// </summary>
@@ -108,11 +109,13 @@ namespace Overlayer.Core.JavaScript.Compiler
             {
                 // Make the return value from the method the eval result.
                 generator.LoadVariable(optimizationInfo.EvalResult);
+                rt = optimizationInfo.EvalResult.Type;
             }
             else
             {
                 // Code in the global context always returns null.
                 generator.LoadNull();
+                rt = null;
             }
         }
 

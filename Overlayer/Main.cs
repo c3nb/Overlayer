@@ -236,9 +236,12 @@ namespace Overlayer
                                 GUILayout.FlexibleSpace();
                                 GUILayout.EndHorizontal();
 
-                                GUILayout.Label($"{Language[TranslationKeys.ThisTag]} {(cTag.canUsedByNotPlaying ? Language[TranslationKeys.CanBeUsedNotPlayingText] : Language[TranslationKeys.CannotBeUsedNotPlayingText])}.");
-                                GUILayout.Label((cTag.isStringTag ? Language[TranslationKeys.ThisTagIsStringTag] : Language[TranslationKeys.ThisFuncIsNumberFunc]) + '.');
-
+                                if (!cTag.js)
+                                {
+                                    GUILayout.Label($"{Language[TranslationKeys.ThisTag]} {(cTag.canUsedByNotPlaying ? Language[TranslationKeys.CanBeUsedNotPlayingText] : Language[TranslationKeys.CannotBeUsedNotPlayingText])}.");
+                                    GUILayout.Label((cTag.isStringTag ? Language[TranslationKeys.ThisTagIsStringTag] : Language[TranslationKeys.ThisFuncIsNumberFunc]) + '.');
+                                }
+                                
                                 GUILayout.BeginHorizontal();
                                 if (changed == true)
                                 {

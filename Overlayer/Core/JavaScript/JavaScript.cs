@@ -7,6 +7,7 @@ using System.Reflection;
 using Overlayer.Core.Utils;
 using System.IO;
 using Overlayer.Core.JavaScript.Compiler;
+using Overlayer.Core.JavaScript.Library;
 
 namespace Overlayer.Core.JavaScript
 {
@@ -37,17 +38,22 @@ namespace Overlayer.Core.JavaScript
                 engine.SetGlobalValue(kvp.Key, kvp.Value);
             return engine;
         }
-        public static readonly ScriptEngine Engine = PrepareEngine();
+        public static ScriptEngine Engine;
         public static readonly CompilerOptions Option = new CompilerOptions()
         {
             ForceStrictMode = false,
             EnableILAnalysis = true,
             CompatibilityMode = CompatibilityMode.Latest
         };
-        public static Func<object> Compile(this string js)
+        public static Delegate Compile(this string js)
         {
+            Engine = PrepareEngine();
             var scr = CompiledEval.Compile(new TextSource(js), Option);
-            return () => scr.EvaluateFastInternal(Engine);
+            if (scr.ReturnType == typeof(double) || scr.ReturnType == typeof(uint))
+                return () => (double)scr.EvaluateFastInternal(Engine);
+            else if (scr.ReturnType == typeof(ConcatenatedString))
+                return () => (string)scr.EvaluateFastInternal(Engine);
+            else return null;
         }
         class TextSource : ScriptSource
         {

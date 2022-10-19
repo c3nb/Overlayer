@@ -85,6 +85,25 @@ namespace Overlayer.Core
             }
             Hidden = hidden;
         }
+        internal Tag(string name, string description, Delegate del)
+        {
+            Name = name;
+            this.description = description;
+            IsOpt = false;
+            if (del.Method.ReturnType == typeof(string))
+            {
+                IsString = true;
+                Str = (Func<string>)del;
+                DefOptStr = "";
+            }
+            else
+            {
+                IsString = false;
+                var n = (Func<double>)del;
+                Num = () => (float)n();
+                DefOptNum = -1;
+            }
+        }
         internal Tag(string name, string description, Func<float, float> raw, Func<string> rawStr)
         {
             Name = name;

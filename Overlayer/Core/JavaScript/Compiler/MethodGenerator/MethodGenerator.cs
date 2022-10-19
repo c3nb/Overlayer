@@ -7,6 +7,7 @@ namespace Overlayer.Core.JavaScript.Compiler
     /// </summary>
     internal abstract class MethodGenerator
     {
+        internal abstract Type ReturnType { get; }
         /// <summary>
         /// Creates a new MethodGenerator instance.
         /// </summary>

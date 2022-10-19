@@ -78,6 +78,9 @@ namespace Overlayer.Core.JavaScript.Compiler
             Validate(span.StartLine, scriptPath);
         }
 
+        internal Type rt;
+        internal override Type ReturnType => rt;
+
         /// <summary>
         /// Dummy implementation of ScriptSource.
         /// </summary>
@@ -426,11 +429,13 @@ namespace Overlayer.Core.JavaScript.Compiler
                 // Return the value stored in the variable.  Will be null if execution hits the end
                 // of the function without encountering any return statements.
                 generator.LoadVariable(optimizationInfo.ReturnVariable);
+                rt = optimizationInfo.ReturnVariable.Type;
             }
             else
             {
                 // There were no return statements - return null.
                 generator.LoadNull();
+                rt = null;
             }
         }
 

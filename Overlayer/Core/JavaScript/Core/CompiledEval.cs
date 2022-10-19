@@ -43,7 +43,7 @@ namespace Overlayer.Core.JavaScript
 
             return new CompiledEval(methodGen);
         }
-
+        public Type ReturnType { get; private set; }
         /// <summary>
         /// Gets the body of the generated method in the form of disassembled IL code.  Will be
         /// <c>null</c> unless <see cref="CompilerOptions.EnableILAnalysis"/> was set to
@@ -81,39 +81,30 @@ namespace Overlayer.Core.JavaScript
         internal ExecutionContext context;
         internal object EvaluateFastInternal(ScriptEngine engine)
         {
+        Run:
             if (context != null)
             {
-                object obj = del(context);
-                if (obj == null)
-                    return null;
-                else if (obj is double or uint)
-                    return (double)obj;
-                else if (obj is ConcatenatedString)
-                    obj = ((ConcatenatedString)obj).ToString();
-                else if (obj is ClrInstanceWrapper)
-                    obj = ((ClrInstanceWrapper)obj).WrappedInstance;
-                else if (obj is ClrStaticTypeWrapper)
-                    obj = ((ClrStaticTypeWrapper)obj).WrappedType;
-                return obj;
+                try
+                {
+                    object obj = del(context);
+                    engine.ExecutePostExecuteSteps();
+                    if (obj == null)
+                        return null;
+                    else if (obj is double or uint)
+                        return (double)obj;
+                    else if (obj is ConcatenatedString)
+                        obj = ((ConcatenatedString)obj).ToString();
+                    else if (obj is ClrInstanceWrapper)
+                        obj = ((ClrInstanceWrapper)obj).WrappedInstance;
+                    else if (obj is ClrStaticTypeWrapper)
+                        obj = ((ClrStaticTypeWrapper)obj).WrappedType;
+                    return obj;
+                }
+                finally { engine.ClearPostExecuteSteps(); }
             }
             del = (GlobalOrEvalMethodGenerator.GlobalCodeDelegate)methodGen.GeneratedMethod.GeneratedDelegate;
             context = ExecutionContext.CreateGlobalOrEvalContext(engine, RuntimeScope.CreateGlobalScope(engine), engine.Global);
-            try
-            {
-                object obj = methodGen.Execute(engine, RuntimeScope.CreateGlobalScope(engine), engine.Global);
-                if (obj == null)
-                    return null;
-                else if (obj is double or uint)
-                    return (double)obj;
-                else if (obj is ConcatenatedString)
-                    obj = ((ConcatenatedString)obj).ToString();
-                else if (obj is ClrInstanceWrapper)
-                    obj = ((ClrInstanceWrapper)obj).WrappedInstance;
-                else if (obj is ClrStaticTypeWrapper)
-                    obj = ((ClrStaticTypeWrapper)obj).WrappedType;
-                return obj;
-            }
-            finally { }
+            goto Run;
         }
     }
 }
