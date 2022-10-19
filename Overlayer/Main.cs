@@ -211,6 +211,7 @@ namespace Overlayer
                         {
                             GUIUtils.IndentGUI(() =>
                             {
+                                cTag.js = GUILayout.Toggle(cTag.js, "JavaScript");
                                 var changed = false;
                                 GUILayout.BeginHorizontal();
                                 GUILayout.Label($"{Language[TranslationKeys.Name]}:");
