@@ -16,24 +16,32 @@ namespace Overlayer.Core.JavaScript
     /// </summary>
     public static class JavaScript
     {
+        public static List<KeyValuePair<string, Delegate>> funcs { get; private set; }
         private static ScriptEngine PrepareEngine()
         {
             ScriptEngine engine = new ScriptEngine();
+            engine.EnableExposedClrTypes = true;
             foreach (Tag tag in TagManager.AllTags)
                 engine.SetGlobalFunction(tag.Name,
                     tag.IsOpt ?
                     tag.IsStringOpt ?
                     tag.IsString ?
                     new Func<string, string>(tag.OptValue) :
-                    new Func<string, float>(tag.OptValueFloat) :
+                    new Func<string, double>(tag.OptValueFloat) :
                     tag.IsString ?
-                    new Func<float, string>(tag.OptValue) :
-                    new Func<float, float>(tag.OptValueFloat) :
+                    new Func<double, string>(tag.OptValue) :
+                    new Func<double, double>(tag.OptValueFloat) :
                     tag.IsString ?
                     new Func<string>(() => tag.Value) :
-                    new Func<float>(() => tag.ValueFloat));
-            foreach (var kvp in CustomTag.functions)
-                kvp.Value.ForEach(m => engine.SetGlobalFunction(kvp.Key, m.CreateDelegateAuto()));
+                    new Func<double>(() => tag.ValueFloat));
+            if (funcs == null)
+            {
+                funcs = new List<KeyValuePair<string, Delegate>>();
+                foreach (var kvp in CustomTag.functions)
+                    foreach (var func in kvp.Value)
+                        funcs.Add(new(kvp.Key, func.CreateDelegateAuto()));
+            }
+            funcs.ForEach(kvp => engine.SetGlobalFunction(kvp.Key, kvp.Value));
             foreach (var kvp in CustomTag.constants)
                 engine.SetGlobalValue(kvp.Key, kvp.Value);
             return engine;
@@ -59,7 +67,7 @@ namespace Overlayer.Core.JavaScript
         {
             public string str;
             public TextSource(string str) => this.str = str;
-            public override string Path => throw new NotImplementedException();
+            public override string Path => "";
             public override TextReader GetReader() => new StringReader(str);
         }
     }

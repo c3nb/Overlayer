@@ -6,11 +6,11 @@ namespace Overlayer.Tags.Global
     public static class Misc
     {
         [Tag("Radius")]
-        public static float Radius(float digits = -1) => scrController.instance.chosenplanet.cosmeticRadius.Round(digits);
+        public static double Radius(double digits = -1) => scrController.instance.chosenplanet.cosmeticRadius.Round(digits);
         [Tag("Pitch")]
-        public static float Pitch(float digits = -1) => GCS.currentSpeedTrial.Round(digits);
+        public static double Pitch(double digits = -1) => GCS.currentSpeedTrial.Round(digits);
         [Tag("EditorPitch")]
-        public static float EditorPitch(float digits = -1) => (scnEditor.instance.levelData.pitch / 100.0).Round(digits);
+        public static double EditorPitch(double digits = -1) => (scnEditor.instance.levelData.pitch / 100.0).Round(digits);
         [Tag("TEHex")]
         public static string TEHex() => "FF0000FF";
         [Tag("VEHex")]
@@ -38,80 +38,80 @@ namespace Overlayer.Tags.Global
         [Tag("Artist")]
         public static string Artist() => scnEditor.instance?.levelData?.artist.BreakRichTagWithoutSize();
         [Tag("StartTile")]
-        public static float StartTile() => Variables.StartTile;
+        public static double StartTile() => Variables.StartTile;
         [Tag("Difficulty")]
-        public static float Difficulty(float digits = -1) => PlayPoint.CurrentDifficulty.Round(digits);
+        public static double Difficulty(double digits = -1) => PlayPoint.CurrentDifficulty.Round(digits);
         [Tag("Accuracy")]
-        public static float Accuracy(float digits = -1) => (scrController.instance.mistakesManager.percentAcc * 100).Round(digits);
+        public static double Accuracy(double digits = -1) => (scrController.instance.mistakesManager.percentAcc * 100).Round(digits);
         [Tag("Progress")]
-        public static float Progress(float digits = -1) => ((!scrLevelMaker.instance ? 0 : scrController.instance.percentComplete) * 100f).Round(digits);
+        public static double Progress(double digits = -1) => ((!scrLevelMaker.instance ? 0 : scrController.instance.percentComplete) * 100f).Round(digits);
         [Tag("CheckPoint")]
-        public static float CheckPoint() => scrController.checkpointsUsed;
+        public static double CheckPoint() => scrController.checkpointsUsed;
         [Tag("CurCheckPoint")]
-        public static float CurCheckPoint() => Variables.CurrentCheckPoint;
+        public static double CurCheckPoint() => Variables.CurrentCheckPoint;
         [Tag("TotalCheckPoint")]
-        public static float TotalCheckPoints() => Variables.AllCheckPoints.Count;
+        public static double TotalCheckPoints() => Variables.AllCheckPoints.Count;
         [Tag("XAccuracy")]
-        public static float XAccuracy(float digits = -1) => (scrController.instance.mistakesManager.percentXAcc * 100).Round(digits);
+        public static double XAccuracy(double digits = -1) => (scrController.instance.mistakesManager.percentXAcc * 100).Round(digits);
         [Tag("FailCount")]
-        public static float FailCount() => Variables.FailCount;
+        public static double FailCount() => Variables.FailCount;
         [Tag("MissCount")]
-        public static float MissCount() => scrMistakesManager.hitMarginsCount[8];
+        public static double MissCount() => scrMistakesManager.hitMarginsCount[8];
         [Tag("Overloads")]
-        public static float Overloads() => scrMistakesManager.hitMarginsCount[9];
+        public static double Overloads() => scrMistakesManager.hitMarginsCount[9];
         [Tag("CurBpm")]
-        public static float CurBpm(float digits = -1) => Variables.CurBpm.Round(digits);
+        public static double CurBpm(double digits = -1) => Variables.CurBpm.Round(digits);
         [Tag("TileBpm")]
-        public static float TileBpm(float digits = -1) => Variables.TileBpm.Round(digits);
+        public static double TileBpm(double digits = -1) => Variables.TileBpm.Round(digits);
         [Tag("RecKps")]
-        public static float RecKps(float digits = -1) => Variables.RecKPS.Round(digits);
+        public static double RecKps(double digits = -1) => Variables.RecKPS.Round(digits);
         [Tag("BestProgress")]
-        public static float BestProgress(float digits = -1) => Variables.BestProg.Round(digits);
+        public static double BestProgress(double digits = -1) => Variables.BestProg.Round(digits);
         [Tag("LeastCheckPoint")]
-        public static float LeastCheckPoint() => Variables.LeastChkPt;
+        public static double LeastCheckPoint() => Variables.LeastChkPt;
         [Tag("StartProgress")]
-        public static float StartProgress(float digits = -1) => Variables.StartProg.Round(digits);
+        public static double StartProgress(double digits = -1) => Variables.StartProg.Round(digits);
         [Tag("CurMinute")]
-        public static float CurMinute() => Variables.CurMinute;
+        public static double CurMinute() => Variables.CurMinute;
         [Tag("CurSecond")]
-        public static float CurSecond() => Variables.CurSecond;
+        public static double CurSecond() => Variables.CurSecond;
         [Tag("CurMilliSecond")]
-        public static float CurMilliSecond() => Variables.CurMilliSecond;
+        public static double CurMilliSecond() => Variables.CurMilliSecond;
         [Tag("TotalMinute")]
-        public static float TotalMinute() => Variables.TotalMinute;
+        public static double TotalMinute() => Variables.TotalMinute;
         [Tag("TotalSecond")]
-        public static float TotalSecond() => Variables.TotalSecond;
+        public static double TotalSecond() => Variables.TotalSecond;
         [Tag("TotalMilliSecond")]
-        public static float TotalMilliSecond() => Variables.TotalMilliSecond;
+        public static double TotalMilliSecond() => Variables.TotalMilliSecond;
         [Tag("LeftTile")]
-        public static float LeftTile() => Variables.LeftTile;
+        public static double LeftTile() => Variables.LeftTile;
         [Tag("TotalTile")]
-        public static float TotalTile() => Variables.TotalTile;
+        public static double TotalTile() => Variables.TotalTile;
         [Tag("CurTile")]
-        public static float CurTile() => Variables.CurrentTile;
+        public static double CurTile() => Variables.CurrentTile;
         [Tag("Attempts")]
-        public static float Attempts() => Variables.Attempts;
+        public static double Attempts() => Variables.Attempts;
         [Tag("Year")]
-        public static float Year() => DT.Now.Year;
+        public static double Year() => DT.Now.Year;
         [Tag("Month")]
-        public static float Month() => DT.Now.Month;
+        public static double Month() => DT.Now.Month;
         [Tag("Day")]
-        public static float Day() => DT.Now.Day;
+        public static double Day() => DT.Now.Day;
         [Tag("Hour")]
-        public static float Hour() => DT.Now.Hour;
+        public static double Hour() => DT.Now.Hour;
         [Tag("Minute")]
-        public static float Minute() => DT.Now.Minute;
+        public static double Minute() => DT.Now.Minute;
         [Tag("Second")]
-        public static float Second() => DT.Now.Second;
+        public static double Second() => DT.Now.Second;
         [Tag("MilliSecond")]
-        public static float MilliSecond() => DT.Now.Millisecond;
+        public static double MilliSecond() => DT.Now.Millisecond;
         [Tag("Multipress")]
-        public static float Multipress() => Variables.MultipressCount;
+        public static double Multipress() => Variables.MultipressCount;
         [Tag("Combo")]
-        public static float Combo() => Variables.Combo;
+        public static double Combo() => Variables.Combo;
         [Tag("Fps")]
-        public static float Fps(float digits = -1) => Variables.Fps.Round(digits);
+        public static double Fps(double digits = -1) => Variables.Fps.Round(digits);
         [Tag("FrameTime")]
-        public static float FrameTime(float digits = -1) => Variables.FrameTime.Round(digits);
+        public static double FrameTime(double digits = -1) => Variables.FrameTime.Round(digits);
     }
 }

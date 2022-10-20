@@ -18,13 +18,13 @@ namespace Overlayer.Tags.Global
     {
         public static double CurrentDifficulty = 0;
         [Tag]
-        public static float PlayPointValue(float digits = -1)
+        public static double PlayPointValue(double digits = -1)
         {
-            float result;
+            double result;
             var edit = scnEditor.instance;
             if (edit)
-                result = (float)CalculatePlayPoint(CurrentDifficulty, edit.levelData.pitch, Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
-            else result = (float)CalculatePlayPoint(CurrentDifficulty, (int)Math.Round(Misc.Pitch() * 100), Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
+                result = (double)CalculatePlayPoint(CurrentDifficulty, edit.levelData.pitch, Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
+            else result = (double)CalculatePlayPoint(CurrentDifficulty, (int)Math.Round(Misc.Pitch() * 100), Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
             return result.Round(digits);
         }
         public static double CalculatePlayPoint(double difficulty, int speed, double accuracy, int tile)
@@ -57,7 +57,7 @@ namespace Overlayer.Tags.Global
                         var levelPath = instance.customLevel.levelPath;
                         Main.Logger.Log($"Error On Predicting Difficulty:\n{e}");
                         Main.Logger.Log($"Level Path: {levelPath}");
-                        Main.Logger.Log($"Adjusting Difficulty To Editor Difficulty {CurrentDifficulty = ((float)instance.levelData.difficulty).Map(1, 10, 1, 21)}");
+                        Main.Logger.Log($"Adjusting Difficulty To Editor Difficulty {CurrentDifficulty = ((double)instance.levelData.difficulty).Map(1, 10, 1, 21)}");
                     }
                 }
                 else CurrentDifficulty = result.difficulty;

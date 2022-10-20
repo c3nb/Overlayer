@@ -105,7 +105,7 @@ namespace Overlayer.Core
                         else
                         {
                             var result = token.HasOption ? token.Option.ToFloat() : tag.DefOptNum == null ? 0 : tag.DefOptNum.Value;
-                            il.Emit(OpCodes.Ldc_R4, result);
+                            il.Emit(OpCodes.Ldc_R8, result);
                             il.Emit(OpCodes.Callvirt, tag_optValue_Float);
                             il.Emit(OpCodes.Stloc, str);
                         }
@@ -113,7 +113,7 @@ namespace Overlayer.Core
                     }
                     else
                     {
-                        LocalBuilder num = il.DeclareLocal(typeof(float));
+                        LocalBuilder num = il.DeclareLocal(typeof(double));
                         if (tag.IsStringOpt)
                         {
                             var result = token.HasOption ? token.Option : tag.DefOptStr == null ? "" : tag.DefOptStr;
@@ -124,7 +124,7 @@ namespace Overlayer.Core
                         else
                         {
                             var result = token.HasOption ? token.Option.ToFloat() : tag.DefOptNum == null ? 0 : tag.DefOptNum.Value;
-                            il.Emit(OpCodes.Ldc_R4, result);
+                            il.Emit(OpCodes.Ldc_R8, result);
                             il.Emit(OpCodes.Callvirt, tag_optValueFloat_Float);
                             il.Emit(OpCodes.Stloc, num);
                         }
@@ -142,8 +142,8 @@ namespace Overlayer.Core
                     }
                     else
                     {
-                        LocalBuilder num = il.DeclareLocal(typeof(float));
-                        il.Emit(OpCodes.Callvirt, tag_float_Value);
+                        LocalBuilder num = il.DeclareLocal(typeof(double));
+                        il.Emit(OpCodes.Callvirt, tag_double_Value);
                         il.Emit(OpCodes.Stloc, num);
                         return num;
                     }
@@ -172,7 +172,7 @@ namespace Overlayer.Core
                     {
                         il.Emit(OpCodes.Ldloca, loc);
                         il.Emit(OpCodes.Ldstr, token.Format);
-                        il.Emit(OpCodes.Call, float_ToString);
+                        il.Emit(OpCodes.Call, double_ToString);
                     }
                     return;
                 }
@@ -181,8 +181,8 @@ namespace Overlayer.Core
                 else
                 {
                     il.Emit(OpCodes.Ldloca, loc);
-                    il.Emit(OpCodes.Call, float_ToString_Empty);
-                    float s = 3;
+                    il.Emit(OpCodes.Call, double_ToString_Empty);
+                    double s = 3;
                     s.ToString();
                 }
             }
@@ -191,12 +191,12 @@ namespace Overlayer.Core
         internal static readonly Random random = new Random(DateTime.Now.Millisecond);
         private static readonly FieldInfo tagsFld = typeof(TextCompiler).GetField("tags");
         public static readonly MethodInfo tag_string_Value = typeof(Tag).GetMethod("StringValue");
-        public static readonly MethodInfo tag_float_Value = typeof(Tag).GetMethod("FloatValue");
+        public static readonly MethodInfo tag_double_Value = typeof(Tag).GetMethod("FloatValue");
         public static readonly MethodInfo string_Format = typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object[]) });
-        public static readonly MethodInfo float_ToString = typeof(float).GetMethod("ToString", new[] { typeof(string) });
-        public static readonly MethodInfo float_ToString_Empty = typeof(float).GetMethod("ToString", Type.EmptyTypes);
-        public static readonly MethodInfo tag_optValue_Float = typeof(Tag).GetMethod("OptValue", new[] { typeof(float) });
-        public static readonly MethodInfo tag_optValueFloat_Float = typeof(Tag).GetMethod("OptValueFloat", new[] { typeof(float) });
+        public static readonly MethodInfo double_ToString = typeof(double).GetMethod("ToString", new[] { typeof(string) });
+        public static readonly MethodInfo double_ToString_Empty = typeof(double).GetMethod("ToString", Type.EmptyTypes);
+        public static readonly MethodInfo tag_optValue_Float = typeof(Tag).GetMethod("OptValue", new[] { typeof(double) });
+        public static readonly MethodInfo tag_optValueFloat_Float = typeof(Tag).GetMethod("OptValueFloat", new[] { typeof(double) });
         public static readonly MethodInfo tag_optValue_String = typeof(Tag).GetMethod("OptValue", new[] { typeof(string) });
         public static readonly MethodInfo tag_optValueFloat_String = typeof(Tag).GetMethod("OptValueFloat", new[] { typeof(string) });
         public static readonly MethodInfo string_Concats = typeof(string).GetMethod("Concat", AccessTools.all, null, new[] { typeof(string[]) }, null);

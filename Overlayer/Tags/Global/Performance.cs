@@ -60,21 +60,21 @@ namespace Overlayer.Tags.Global
         }
 
         [Tag("ProcessorCount")]
-        public static float ProcessorCount_() => ProcessorCount;
+        public static double ProcessorCount_() => ProcessorCount;
         [Tag("MemoryGBytes")]
-        public static float MemoryGBytes_(float digits = -1) => (MemoryMBytes / (1024f * 1024f * 1024f)).Round(digits);
+        public static double MemoryGBytes_(double digits = -1) => (MemoryMBytes / (1024f * 1024f * 1024f)).Round(digits);
         [Tag("CpuUsage")]
-        public static float CpuUsage_(float digits = -1) => CpuUsage.Round(digits);
+        public static double CpuUsage_(double digits = -1) => CpuUsage.Round(digits);
         [Tag("TotalCpuUsage")]
-        public static float TotalCpuUsage_(float digits = -1) => TotalCpuUsage.Round(digits);
+        public static double TotalCpuUsage_(double digits = -1) => TotalCpuUsage.Round(digits);
         [Tag("MemoryUsage")]
-        public static float MemoryUsage_(float digits = -1) => MemoryUsage.Round(digits);
+        public static double MemoryUsage_(double digits = -1) => MemoryUsage.Round(digits);
         [Tag("TotalMemoryUsage")]
-        public static float TotalMemoryUsage_(float digits = -1) => TotalMemoryUsage.Round(digits);
+        public static double TotalMemoryUsage_(double digits = -1) => TotalMemoryUsage.Round(digits);
         [Tag("MemoryUsageGBytes")]
-        public static float MemoryUsageGBytes_(float digits = -1) => (MemoryUsageMBytes / 1024f).Round(digits);
+        public static double MemoryUsageGBytes_(double digits = -1) => (MemoryUsageMBytes / 1024f).Round(digits);
         [Tag("TotalMemoryUsageGBytes")]
-        public static float TotalMemoryUsageGBytes_(float digits = -1) => (TotalMemoryUsageMBytes / 1024f).Round(digits);
+        public static double TotalMemoryUsageGBytes_(double digits = -1) => (TotalMemoryUsageMBytes / 1024f).Round(digits);
         [StructLayout(LayoutKind.Sequential)]
         public class MemoryStatus
         {

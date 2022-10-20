@@ -8,15 +8,15 @@ namespace Overlayer.Tags.Global
     public static class Timings
     {
         [Tag("Timing")]
-        public static float Timing(float digits = -1) => Variables.Timing.Round(digits);
+        public static double Timing(double digits = -1) => Variables.Timing.Round(digits);
         [Tag("TimingAvg")]
-        public static float TimingAvg(float digits = -1)
+        public static double TimingAvg(double digits = -1)
         {
             if (TimingList.Any())
             {
-                var avg = (float)TimingList.Average();
+                var avg = (double)TimingList.Average();
                 if (digits != -1)
-                    return (float)Math.Round(avg, (int)digits);
+                    return (double)Math.Round(avg, (int)digits);
                 return avg;
             }
             return 0;

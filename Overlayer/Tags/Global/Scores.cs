@@ -5,12 +5,12 @@ namespace Overlayer.Tags.Global
     public static class Scores
     {
         [Tag("Score")]
-        public static float Score() => Variables.CurrentScore;
+        public static double Score() => Variables.CurrentScore;
         [Tag("LScore")]
-        public static float LScore() => Variables.LenientScore;
+        public static double LScore() => Variables.LenientScore;
         [Tag("NScore")]
-        public static float NScore() => Variables.NormalScore;
+        public static double NScore() => Variables.NormalScore;
         [Tag("SScore")]
-        public static float SScore() => Variables.StrictScore;
+        public static double SScore() => Variables.StrictScore;
     }
 }

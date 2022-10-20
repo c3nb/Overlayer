@@ -5,12 +5,12 @@ namespace Overlayer.Core.Tags.Nodes
 {
     public class NumberNode : Node
     {
-        public override Type ResultType => typeof(float);
-        public NumberNode(float number)
+        public override Type ResultType => typeof(double);
+        public NumberNode(double number)
             => this.number = number;
-        public float number;
+        public double number;
         public override void Emit(ILGenerator il)
-            => il.Emit(OpCodes.Ldc_R4, number);
+            => il.Emit(OpCodes.Ldc_R8, number);
         public override string ToString() => number.ToString();
     }
 }

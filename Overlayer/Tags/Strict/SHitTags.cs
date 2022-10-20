@@ -7,18 +7,18 @@ namespace Overlayer.Tags.Strict
         [Tag("SHit")]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Strict);
         [Tag("STE")]
-        public static float TE() => Variables.StrictCounts[HitMargin.TooEarly];
+        public static double TE() => Variables.StrictCounts[HitMargin.TooEarly];
         [Tag("SVE")]
-        public static float VE() => Variables.StrictCounts[HitMargin.VeryEarly];
+        public static double VE() => Variables.StrictCounts[HitMargin.VeryEarly];
         [Tag("SEP")]
-        public static float EP() => Variables.StrictCounts[HitMargin.EarlyPerfect];
+        public static double EP() => Variables.StrictCounts[HitMargin.EarlyPerfect];
         [Tag("SP")]
-        public static float P() => Variables.StrictCounts[HitMargin.Perfect];
+        public static double P() => Variables.StrictCounts[HitMargin.Perfect];
         [Tag("SLP")]
-        public static float LP() => Variables.StrictCounts[HitMargin.LatePerfect];
+        public static double LP() => Variables.StrictCounts[HitMargin.LatePerfect];
         [Tag("SVL")]
-        public static float VL() => Variables.StrictCounts[HitMargin.VeryLate];
+        public static double VL() => Variables.StrictCounts[HitMargin.VeryLate];
         [Tag("STL")]
-        public static float TL() => Variables.StrictCounts[HitMargin.TooLate];
+        public static double TL() => Variables.StrictCounts[HitMargin.TooLate];
     }
 }

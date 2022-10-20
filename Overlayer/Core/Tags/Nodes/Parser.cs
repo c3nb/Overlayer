@@ -31,7 +31,7 @@ namespace Overlayer.Core.Tags.Nodes
             return cur;
         }
         public Dictionary<string, List<MethodInfo>> Functions;
-        public Dictionary<string, float> Variables;
+        public Dictionary<string, double> Variables;
         public NToken Peek(int offset)
         {
             int index = offset + position;
@@ -39,7 +39,7 @@ namespace Overlayer.Core.Tags.Nodes
                 return null;
             return tokens[index];
         }
-        public Parser(string text, TagCollection tagsReference, List<ArgumentNode> args, Dictionary<string, float> variables = null, Dictionary<string, List<MethodInfo>> functions = null, Dictionary<string, Type> toBindTypes = null)
+        public Parser(string text, TagCollection tagsReference, List<ArgumentNode> args, Dictionary<string, double> variables = null, Dictionary<string, List<MethodInfo>> functions = null, Dictionary<string, Type> toBindTypes = null)
         {
             Errors = new string[0];
             types = toBindTypes ?? new Dictionary<string, Type>();
@@ -80,7 +80,7 @@ namespace Overlayer.Core.Tags.Nodes
             position = 0;
             length = tokens.Length;
             Functions = functions;
-            Variables = variables ?? new Dictionary<string, float>();
+            Variables = variables ?? new Dictionary<string, double>();
         }
         public Node ParseExpression()
         {
@@ -202,7 +202,7 @@ namespace Overlayer.Core.Tags.Nodes
                     NextToken();
                     return node;
                 case NToken.Kind.Number:
-                    node = new NumberNode((float)Current.Value);
+                    node = new NumberNode((double)Current.Value);
                     NextToken();
                     return node;
                 case NToken.Kind.Tag:
@@ -233,7 +233,7 @@ namespace Overlayer.Core.Tags.Nodes
                                 Errors = Errors.Add($"{Main.Language[TranslationKeys.ArgMustHaveIndex]}!");
                                 return IsString ? new StringNode("") : new NumberNode(0);
                             }
-                            var index = (float)Current.Value;
+                            var index = (double)Current.Value;
                             if (index >= args.Count)
                             {
                                 Errors = Errors.Add($"{Main.Language[TranslationKeys.ArgIndexOutOfRange]}!");
@@ -261,7 +261,7 @@ namespace Overlayer.Core.Tags.Nodes
                             }
                             else return IsString ? new StringNode("") : new NumberNode(0);
                         }
-                        if (Variables.TryGetValue(name, out float num))
+                        if (Variables.TryGetValue(name, out double num))
                             return IsString ? new StringNode(num.ToString()) : new NumberNode(num);
                         if (name.Equals("none", StringComparison.OrdinalIgnoreCase) ||
                             name.Equals("null", StringComparison.OrdinalIgnoreCase))
@@ -291,7 +291,7 @@ namespace Overlayer.Core.Tags.Nodes
                                             var defvalue = p.DefaultValue;
                                             if (defvalue is string s)
                                                 arguments = arguments.Add(new StringNode(s));
-                                            else arguments = arguments.Add(new NumberNode((float)p?.DefaultValue));
+                                            else arguments = arguments.Add(new NumberNode((double)p?.DefaultValue));
                                             return true;
                                         }
                                         return false;
@@ -309,7 +309,7 @@ namespace Overlayer.Core.Tags.Nodes
                                             var defvalue = p.DefaultValue;
                                             if (defvalue is string s)
                                                 arguments = arguments.Add(new StringNode(s));
-                                            else arguments = arguments.Add(new NumberNode((float)p.DefaultValue));
+                                            else arguments = arguments.Add(new NumberNode((double)p.DefaultValue));
                                             return true;
                                         }
                                         return false;
@@ -344,11 +344,11 @@ namespace Overlayer.Core.Tags.Nodes
                                 var @params = m.GetParameters();
                                 if (m is DynamicMethod)
                                     return @params.Length == argsLength + 1 && 
-                                        (m.ReturnType == typeof(float) || m.ReturnType == typeof(string)) &&
+                                        (m.ReturnType == typeof(double) || m.ReturnType == typeof(string)) &&
                                         @params.Select(p => p.ParameterType).Where(t => t != typeof(Tag[])).SequenceEqual(args.Select(n => n.ResultType));
                                 else
                                     return @params.Length == argsLength &&
-                                        (m.ReturnType == typeof(float) || m.ReturnType == typeof(string)) &&
+                                        (m.ReturnType == typeof(double) || m.ReturnType == typeof(string)) &&
                                         @params.Select(p => p.ParameterType).SequenceEqual(args.Select(n => n.ResultType));
                             });
                             if (m == null)

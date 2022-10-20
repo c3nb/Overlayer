@@ -15,15 +15,15 @@ namespace Overlayer.Core
         public bool IsStringOpt;
         public bool IsOpt;
         public string DefOptStr;
-        public float? DefOptNum;
+        public double? DefOptNum;
         public bool Hidden;
         public MethodInfo Raw;
         public Func<string> Str;
-        public Func<float> Num;
+        public Func<double> Num;
         public Func<string, string> StrOptStr;
-        public Func<string, float> StrOptNum;
-        public Func<float, string> NumOptStr;
-        public Func<float, float> NumOptNum;
+        public Func<string, double> StrOptNum;
+        public Func<double, string> NumOptStr;
+        public Func<double, double> NumOptNum;
         public Thread[] Threads;
         internal Tag(string name, MethodInfo raw, bool hidden)
         {
@@ -46,29 +46,29 @@ namespace Overlayer.Core
                         DefOptStr = optParam.DefaultValue as string;
                         StrOptStr = (Func<string, string>)Raw.CreateDelegate(typeof(Func<string, string>));
                     }
-                    else if (optType == typeof(float))
+                    else if (optType == typeof(double))
                     {
-                        DefOptNum = optParam.DefaultValue is float f ? f : null;
-                        NumOptStr = (Func<float, string>)Raw.CreateDelegate(typeof(Func<float, string>));
+                        DefOptNum = optParam.DefaultValue is double f ? f : null;
+                        NumOptStr = (Func<double, string>)Raw.CreateDelegate(typeof(Func<double, string>));
                     }
-                    else throw new InvalidOperationException($"Tag's ValueGetter's Option Type Cannot Be {retType}. Only Supports float(System.Single) Or string(System.String)");
+                    else throw new InvalidOperationException($"Tag's ValueGetter's Option Type Cannot Be {retType}. Only Supports double(System.Single) Or string(System.String)");
                 }
-                else if (retType == typeof(float))
+                else if (retType == typeof(double))
                 {
                     if (optType == typeof(string))
                     {
                         IsStringOpt = true;
                         DefOptStr = optParam.DefaultValue as string;
-                        StrOptNum = (Func<string, float>)Raw.CreateDelegate(typeof(Func<string, float>));
+                        StrOptNum = (Func<string, double>)Raw.CreateDelegate(typeof(Func<string, double>));
                     }
-                    else if (optType == typeof(float))
+                    else if (optType == typeof(double))
                     {
-                        DefOptNum = optParam.DefaultValue is float f ? f : null;
-                        NumOptNum = (Func<float, float>)Raw.CreateDelegate(typeof(Func<float, float>));
+                        DefOptNum = optParam.DefaultValue is double f ? f : null;
+                        NumOptNum = (Func<double, double>)Raw.CreateDelegate(typeof(Func<double, double>));
                     }
-                    else throw new InvalidOperationException($"Tag's ValueGetter's Option Type Cannot Be {retType}. Only Supports float(System.Single) Or string(System.String)");
+                    else throw new InvalidOperationException($"Tag's ValueGetter's Option Type Cannot Be {retType}. Only Supports double(System.Single) Or string(System.String)");
                 }
-                else throw new InvalidOperationException($"Tag's ValueGetter's Return Type Cannot Be {retType}. Only Supports float(System.Single) Or string(System.String)");
+                else throw new InvalidOperationException($"Tag's ValueGetter's Return Type Cannot Be {retType}. Only Supports double(System.Single) Or string(System.String)");
             }
             else if (paramLen >= 2)
                 throw new InvalidOperationException($"Tag's ValueGetter's Parameters Cannot Be Greater Than 1. Only Supports 1 Parameter.");
@@ -79,9 +79,9 @@ namespace Overlayer.Core
                     IsString = true;
                     Str = (Func<string>)Raw.CreateDelegate(typeof(Func<string>));
                 }
-                else if (retType == typeof(float))
-                    Num = (Func<float>)Raw.CreateDelegate(typeof(Func<float>));
-                else throw new InvalidOperationException($"Tag's ValueGetter's Return Type Cannot Be {retType}. Only Supports float(System.Single) Or string(System.String)");
+                else if (retType == typeof(double))
+                    Num = (Func<double>)Raw.CreateDelegate(typeof(Func<double>));
+                else throw new InvalidOperationException($"Tag's ValueGetter's Return Type Cannot Be {retType}. Only Supports double(System.Single) Or string(System.String)");
             }
             Hidden = hidden;
         }
@@ -99,12 +99,11 @@ namespace Overlayer.Core
             else
             {
                 IsString = false;
-                var n = (Func<double>)del;
-                Num = () => (float)n();
+                Num = (Func<double>)del;
                 DefOptNum = -1;
             }
         }
-        internal Tag(string name, string description, Func<float, float> raw, Func<string> rawStr)
+        internal Tag(string name, string description, Func<double, double> raw, Func<string> rawStr)
         {
             Name = name;
             this.description = description;
@@ -158,9 +157,9 @@ namespace Overlayer.Core
                 return Num().ToString();
             }
         }
-        public float FloatValue() => Num();
+        public double FloatValue() => Num();
         public string StringValue() => Str();
-        public string OptValue(float opt)
+        public string OptValue(double opt)
         {
             if (IsString)
                 return NumOptStr(opt);
@@ -173,17 +172,17 @@ namespace Overlayer.Core
             return StrOptNum(opt).ToString();
         }
 
-        public float OptValueFloat(float opt)
+        public double OptValueFloat(double opt)
         {
             if (IsString) return 0;
             else return NumOptNum(opt);
         }
-        public float OptValueFloat(string opt)
+        public double OptValueFloat(string opt)
         {
             if (IsString) return 0;
             else return StrOptNum(opt);
         }
-        public float ValueFloat
+        public double ValueFloat
         {
             get
             {

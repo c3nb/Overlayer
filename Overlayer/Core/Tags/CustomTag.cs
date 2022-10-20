@@ -111,12 +111,12 @@ namespace Overlayer.Core
                 }
             });
         }
-        public static readonly Dictionary<string, float> constants = new Dictionary<string, float>()
+        public static readonly Dictionary<string, double> constants = new Dictionary<string, double>()
         {
-            { "pi", 3.1415926535897931f },
-            { "e", 2.7182818284590451f },
-            { "radDeg", 57.29578049f },
-            { "degRad",  0.017453292f },
+            { "pi", 3.1415926535897931 },
+            { "e", 2.7182818284590451 },
+            { "radDeg", 57.29578049 },
+            { "degRad",  0.017453292 },
         };
         public static readonly Dictionary<string, List<MethodInfo>> functions = new Dictionary<string, List<MethodInfo>>
         {

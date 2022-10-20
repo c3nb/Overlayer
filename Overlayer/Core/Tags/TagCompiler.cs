@@ -12,7 +12,7 @@ namespace Overlayer.Core
 {
     public class TagCompiler
     {
-        public delegate float ValueGetterNum(Tag[] tags);
+        public delegate double ValueGetterNum(Tag[] tags);
         public delegate string ValueGetterStr(Tag[] tags);
         public Parser parser;
         public bool CanUsedByNotPlaying;
@@ -22,7 +22,7 @@ namespace Overlayer.Core
         public Func<Tag[], object> getter;
         public TagCompiler(TagCollection tagsReference)
             => this.tagsReference = tagsReference;
-        public TagCompiler Compile(string name, string description, string text, Dictionary<string, float> consts, Dictionary<string, List<MethodInfo>> functions, out string[] errors)
+        public TagCompiler Compile(string name, string description, string text, Dictionary<string, double> consts, Dictionary<string, List<MethodInfo>> functions, out string[] errors)
         {
             parser = new Parser(text, tagsReference, null, consts, functions);
             Node node = parser.ParseExpression();
@@ -33,7 +33,7 @@ namespace Overlayer.Core
             DynamicMethod dm;
             if (IsStringTag)
                 dm = new DynamicMethod($"CustomTag_{name}_ValueGetter{random.Next()}_String", typeof(string), new[] { typeof(Tag[]) });
-            else dm = new DynamicMethod($"CustomTag_{name}_ValueGetter{random.Next()}_Number", typeof(float), new[] { typeof(Tag[]) });
+            else dm = new DynamicMethod($"CustomTag_{name}_ValueGetter{random.Next()}_Number", typeof(double), new[] { typeof(Tag[]) });
             ILGenerator il = dm.GetILGenerator();
             node.Emit(il);
             il.Emit(OpCodes.Ret);
@@ -57,12 +57,12 @@ namespace Overlayer.Core
                 TagManager.NotPlayingTags[name] = tag;
             return this;
         }
-        float func(float dec = -1)
+        double func(double dec = -1)
         {
-            var value = (float)getter(parser.tags);
+            var value = (double)getter(parser.tags);
             if (dec == -1)
                 return value;
-            return (float)Math.Round(value, (int)dec);
+            return (double)Math.Round(value, (int)dec);
         }
         public object Value => getter(parser.tags);
     }

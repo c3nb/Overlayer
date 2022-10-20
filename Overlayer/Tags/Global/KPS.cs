@@ -9,7 +9,7 @@ namespace Overlayer.Tags.Global
     public static class KPS
     {
         [Tag]
-        public static float GetKps() => Kps;
+        public static double GetKps() => Kps;
         public static int Kps;
         public static double KpsAvg;
         public static int KpsMax;

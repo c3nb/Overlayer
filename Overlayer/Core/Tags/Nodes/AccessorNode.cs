@@ -28,7 +28,7 @@ namespace Overlayer.Core.Tags.Nodes
             {
                 if (ResultType == typeof(string))
                     il.Emit(OpCodes.Ldstr, "");
-                else il.Emit(OpCodes.Ldc_R4, 0);
+                else il.Emit(OpCodes.Ldc_R8, 0);
             }
         }
         public static MethodInfo GetOperator(Type t, string op, params Type[] parameters)

@@ -13,7 +13,7 @@ namespace Overlayer.Tags.Global
     public static class KeyJudgeTag
     {
         [Tag]
-        public static string KJ(float lines = 1)
+        public static string KJ(double lines = 1)
         {
             if (lines <= 0) return $"Invalid Line Count! ({lines})";
             if (lineCount != lines)

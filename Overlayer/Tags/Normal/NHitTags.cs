@@ -7,18 +7,18 @@ namespace Overlayer.Tags.Normal
         [Tag("NHit")]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Normal);
         [Tag("NTE")]
-        public static float TE() => Variables.NormalCounts[HitMargin.TooEarly];
+        public static double TE() => Variables.NormalCounts[HitMargin.TooEarly];
         [Tag("NVE")]
-        public static float VE() => Variables.NormalCounts[HitMargin.VeryEarly];
+        public static double VE() => Variables.NormalCounts[HitMargin.VeryEarly];
         [Tag("NEP")]
-        public static float EP() => Variables.NormalCounts[HitMargin.EarlyPerfect];
+        public static double EP() => Variables.NormalCounts[HitMargin.EarlyPerfect];
         [Tag("NP")]
-        public static float P() => Variables.NormalCounts[HitMargin.Perfect];
+        public static double P() => Variables.NormalCounts[HitMargin.Perfect];
         [Tag("NLP")]
-        public static float LP() => Variables.NormalCounts[HitMargin.LatePerfect];
+        public static double LP() => Variables.NormalCounts[HitMargin.LatePerfect];
         [Tag("NVL")]
-        public static float VL() => Variables.NormalCounts[HitMargin.VeryLate];
+        public static double VL() => Variables.NormalCounts[HitMargin.VeryLate];
         [Tag("NTL")]
-        public static float TL() => Variables.NormalCounts[HitMargin.TooLate];
+        public static double TL() => Variables.NormalCounts[HitMargin.TooLate];
     }
 }

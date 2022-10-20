@@ -10,13 +10,13 @@ namespace Overlayer.Tags.Global
     public static class ProgressDeath
     {
         [Tag]
-        public static float GetDeaths(string opt)
+        public static double GetDeaths(string opt)
         {
             if (!rangeDeaths.TryGetValue(opt, out int count))
                 return rangeDeaths[opt] = 0;
             return count;
         }
-        public static void Increment(float progress)
+        public static void Increment(double progress)
         {
             var keys = rangeDeaths.Keys.Where(key =>
             {

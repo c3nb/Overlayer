@@ -7,18 +7,18 @@ namespace Overlayer.Tags.Lenient
         [Tag("LHit")]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Lenient);
         [Tag("LTE")]
-        public static float TE() => Variables.LenientCounts[HitMargin.TooEarly];
+        public static double TE() => Variables.LenientCounts[HitMargin.TooEarly];
         [Tag("LVE")]
-        public static float VE() => Variables.LenientCounts[HitMargin.VeryEarly];
+        public static double VE() => Variables.LenientCounts[HitMargin.VeryEarly];
         [Tag("LEP")]
-        public static float EP() => Variables.LenientCounts[HitMargin.EarlyPerfect];
+        public static double EP() => Variables.LenientCounts[HitMargin.EarlyPerfect];
         [Tag("LP")]
-        public static float P() => Variables.LenientCounts[HitMargin.Perfect];
+        public static double P() => Variables.LenientCounts[HitMargin.Perfect];
         [Tag("LLP")]
-        public static float LP() => Variables.LenientCounts[HitMargin.LatePerfect];
+        public static double LP() => Variables.LenientCounts[HitMargin.LatePerfect];
         [Tag("LVL")]
-        public static float VL() => Variables.LenientCounts[HitMargin.VeryLate];
+        public static double VL() => Variables.LenientCounts[HitMargin.VeryLate];
         [Tag("LTL")]
-        public static float TL() => Variables.LenientCounts[HitMargin.TooLate];
+        public static double TL() => Variables.LenientCounts[HitMargin.TooLate];
     }
 }

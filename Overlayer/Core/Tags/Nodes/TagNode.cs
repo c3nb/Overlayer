@@ -7,7 +7,7 @@ namespace Overlayer.Core.Tags.Nodes
 {
     public class TagNode : Node
     {
-        public override Type ResultType => tag.Str == null ? typeof(float) : typeof(string);
+        public override Type ResultType => tag.Str == null ? typeof(double) : typeof(string);
         public Tag tag;
         public int index;
         public string option;
@@ -42,7 +42,7 @@ namespace Overlayer.Core.Tags.Nodes
                         else
                         {
                             var result = !string.IsNullOrEmpty(option) ? option.ToFloat() : tag.DefOptNum == null ? 0 : tag.DefOptNum.Value;
-                            il.Emit(OpCodes.Ldc_R4, result);
+                            il.Emit(OpCodes.Ldc_R8, result);
                             il.Emit(OpCodes.Callvirt, tag_optValue_Float);
                             il.Emit(OpCodes.Stloc, str);
                         }
@@ -50,7 +50,7 @@ namespace Overlayer.Core.Tags.Nodes
                     }
                     else
                     {
-                        LocalBuilder num = il.DeclareLocal(typeof(float));
+                        LocalBuilder num = il.DeclareLocal(typeof(double));
                         if (tag.IsStringOpt)
                         {
                             var result = !string.IsNullOrEmpty(option) ? option : tag.DefOptStr == null ? "" : tag.DefOptStr;
@@ -61,7 +61,7 @@ namespace Overlayer.Core.Tags.Nodes
                         else
                         {
                             var result = !string.IsNullOrEmpty(option) ? option.ToFloat() : tag.DefOptNum == null ? 0 : tag.DefOptNum.Value;
-                            il.Emit(OpCodes.Ldc_R4, result);
+                            il.Emit(OpCodes.Ldc_R8, result);
                             il.Emit(OpCodes.Callvirt, tag_optValueFloat_Float);
                             il.Emit(OpCodes.Stloc, num);
                         }
@@ -79,8 +79,8 @@ namespace Overlayer.Core.Tags.Nodes
                     }
                     else
                     {
-                        LocalBuilder num = il.DeclareLocal(typeof(float));
-                        il.Emit(OpCodes.Callvirt, tag_float_Value);
+                        LocalBuilder num = il.DeclareLocal(typeof(double));
+                        il.Emit(OpCodes.Callvirt, tag_double_Value);
                         il.Emit(OpCodes.Stloc, num);
                         return num;
                     }
@@ -88,7 +88,7 @@ namespace Overlayer.Core.Tags.Nodes
             }
         }
         public static MethodInfo tag_string_Value => TextCompiler.tag_string_Value;
-        public static MethodInfo tag_float_Value => TextCompiler.tag_float_Value;
+        public static MethodInfo tag_double_Value => TextCompiler.tag_double_Value;
         public static MethodInfo tag_optValue_Float => TextCompiler.tag_optValue_Float;
         public static MethodInfo tag_optValueFloat_Float => TextCompiler.tag_optValueFloat_Float;
         public static MethodInfo tag_optValue_String => TextCompiler.tag_optValue_String;

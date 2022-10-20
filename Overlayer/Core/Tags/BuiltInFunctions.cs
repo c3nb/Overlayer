@@ -7,67 +7,67 @@ namespace Overlayer.Core
     {
         public static readonly Random random = new Random();
         static readonly Dictionary<string, string> VariablesStr = new Dictionary<string, string>();
-        static readonly Dictionary<string, float> VariablesNum = new Dictionary<string, float>();
-        static float Abs(float f)
-            => (float)Math.Abs(f);
-        static float Acos(float f)
-            => (float)Math.Acos(f);
-        static float Asin(float f)
-            => (float)Math.Asin(f);
-        static float Atan(float f)
-            => (float)Math.Atan(f);
-        static float Ceil(float f)
-            => (float)Math.Ceiling(f);
-        static float Cos(float f)
-            => (float)Math.Cos(f);
-        static float Cosh(float f)
-            => (float)Math.Cosh(f);
-        static float Exp(float f)
-            => (float)Math.Exp(f);
-        static float Floor(float f)
-            => (float)Math.Floor(f);
-        static float GetNumber(string name) => VariablesNum.TryGetValue(name, out float value) ? value : 0;
+        static readonly Dictionary<string, double> VariablesNum = new Dictionary<string, double>();
+        static double Abs(double f)
+            => (double)Math.Abs(f);
+        static double Acos(double f)
+            => (double)Math.Acos(f);
+        static double Asin(double f)
+            => (double)Math.Asin(f);
+        static double Atan(double f)
+            => (double)Math.Atan(f);
+        static double Ceil(double f)
+            => (double)Math.Ceiling(f);
+        static double Cos(double f)
+            => (double)Math.Cos(f);
+        static double Cosh(double f)
+            => (double)Math.Cosh(f);
+        static double Exp(double f)
+            => (double)Math.Exp(f);
+        static double Floor(double f)
+            => (double)Math.Floor(f);
+        static double GetNumber(string name) => VariablesNum.TryGetValue(name, out double value) ? value : 0;
         static string GetString(string name) => VariablesStr.TryGetValue(name, out string value) ? value : string.Empty;
         static string If(bool condition, string a, string b)
             => condition ? a : b;
-        static float If(bool condition, float a, float b)
+        static double If(bool condition, double a, double b)
             => condition ? a : b;
-        static float Log(float f)
-            => (float)Math.Log(f);
-        static float Max(float a, float b)
-            => (float)Math.Max(a, b);
-        static float Min(float a, float b)
-            => (float)Math.Min(a, b);
-        static float Pow(float a, float b)
-            => (float)Math.Pow(a, b);
-        static float Random() => (float)random.NextDouble();
-        static float RandomRange(float min, float max) => random.Next((int)min, (int)max);
-        static float Round(float f)
-            => (float)Math.Round(f);
-        static float Round(float f, float digits)
-            => (float)Math.Round(f, (int)digits);
-        static float SetNumber(string name, float value) => VariablesNum[name] = value;
+        static double Log(double f)
+            => (double)Math.Log(f);
+        static double Max(double a, double b)
+            => (double)Math.Max(a, b);
+        static double Min(double a, double b)
+            => (double)Math.Min(a, b);
+        static double Pow(double a, double b)
+            => (double)Math.Pow(a, b);
+        static double Random() => (double)random.NextDouble();
+        static double RandomRange(double min, double max) => random.Next((int)min, (int)max);
+        static double Round(double f)
+            => (double)Math.Round(f);
+        static double Round(double f, double digits)
+            => (double)Math.Round(f, (int)digits);
+        static double SetNumber(string name, double value) => VariablesNum[name] = value;
         static string SetString(string name, string value) => VariablesStr[name] = value;
-        static float Sin(float f)
-            => (float)Math.Sin(f);
-        static float Sinh(float f)
-            => (float)Math.Sinh(f);
-        static float Sqrt(float f)
-            => (float)Math.Sqrt(f);
-        static float Tan(float f)
-            => (float)Math.Tan(f);
-        static float Tanh(float f)
-            => (float)Math.Tanh(f);
-        static string ToString(float t)
+        static double Sin(double f)
+            => (double)Math.Sin(f);
+        static double Sinh(double f)
+            => (double)Math.Sinh(f);
+        static double Sqrt(double f)
+            => (double)Math.Sqrt(f);
+        static double Tan(double f)
+            => (double)Math.Tan(f);
+        static double Tanh(double f)
+            => (double)Math.Tanh(f);
+        static string ToString(double t)
             => t.ToString();
         static string ToString(bool t)
             => t.ToString();
-        static float Truncate(float f)
-            => (float)Math.Truncate(f);
-        static float Truncate(float f, float digits)
+        static double Truncate(double f)
+            => (double)Math.Truncate(f);
+        static double Truncate(double f, double digits)
         {
             var number = Math.Pow(10, digits);
-            return (float)(Math.Truncate(f * number) / number);
+            return (double)(Math.Truncate(f * number) / number);
         }
     }
 }
