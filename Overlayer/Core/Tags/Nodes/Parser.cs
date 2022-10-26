@@ -208,7 +208,7 @@ namespace Overlayer.Core.Tags.Nodes
                 case NToken.Kind.Tag:
                     if (tagDict.TryGetValue(Current.Text, out var tuple))
                     {
-                        node = new TagNode(tuple.Item2, Current.Option, tuple.Item1, il => il.Emit(OpCodes.Ldarg_0));
+                        node = new TagNode(tuple.Item2, Current.Option, tuple.Item1, il => il.Emit(OpCodes.Ldarg_0), this);
                         NextToken();
                         return node;
                     }

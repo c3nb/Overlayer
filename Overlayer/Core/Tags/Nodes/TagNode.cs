@@ -12,12 +12,14 @@ namespace Overlayer.Core.Tags.Nodes
         public int index;
         public string option;
         public Action<ILGenerator> getTags;
-        public TagNode(Tag tag, string option, int index, Action<ILGenerator> getTagsArray)
+        public Parser parser;
+        public TagNode(Tag tag, string option, int index, Action<ILGenerator> getTagsArray, Parser parser)
         {
             this.tag = tag;
             this.index = index;
             this.option = string.IsNullOrWhiteSpace(option) ? null : option;
             getTags = getTagsArray;
+            this.parser = parser;
         }
         public override void Emit(ILGenerator il)
         {
@@ -27,6 +29,13 @@ namespace Overlayer.Core.Tags.Nodes
             il.Emit(OpCodes.Ldloc, Push(tag));
             LocalBuilder Push(Tag tag)
             {
+                if (tag.IsDynamic)
+                {
+                    LocalBuilder loc = il.DeclareLocal(parser.IsString ? typeof(string) : typeof(double));
+                    il.Emit(OpCodes.Callvirt, parser.IsString ? tag_string_Value : tag_double_Value);
+                    il.Emit(OpCodes.Stloc, loc);
+                    return loc;
+                }
                 if (tag.IsOpt)
                 {
                     if (tag.IsString)
@@ -93,6 +102,7 @@ namespace Overlayer.Core.Tags.Nodes
         public static MethodInfo tag_optValueFloat_Float => TextCompiler.tag_optValueFloat_Float;
         public static MethodInfo tag_optValue_String => TextCompiler.tag_optValue_String;
         public static MethodInfo tag_optValueFloat_String => TextCompiler.tag_optValueFloat_String;
+        public static MethodInfo object_ToString = typeof(object).GetMethod("ToString");
         public override string ToString() => tag.ToString();
     }
 }

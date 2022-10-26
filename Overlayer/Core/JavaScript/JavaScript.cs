@@ -17,12 +17,12 @@ namespace Overlayer.Core.JavaScript
     public static class JavaScript
     {
         public static List<KeyValuePair<string, Delegate>> funcs { get; private set; }
-        private static ScriptEngine PrepareEngine()
+        private static void PrepareEngine()
         {
-            ScriptEngine engine = new ScriptEngine();
-            engine.EnableExposedClrTypes = true;
+            Engine = new ScriptEngine();
+            Engine.EnableExposedClrTypes = true;
             foreach (Tag tag in TagManager.AllTags)
-                engine.SetGlobalFunction(tag.Name,
+                Engine.SetGlobalFunction(tag.Name,
                     tag.IsOpt ?
                     tag.IsStringOpt ?
                     tag.IsString ?
@@ -41,10 +41,9 @@ namespace Overlayer.Core.JavaScript
                     foreach (var func in kvp.Value)
                         funcs.Add(new(kvp.Key, func.CreateDelegateAuto()));
             }
-            funcs.ForEach(kvp => engine.SetGlobalFunction(kvp.Key, kvp.Value));
+            funcs.ForEach(kvp => Engine.SetGlobalFunction(kvp.Key, kvp.Value));
             foreach (var kvp in CustomTag.constants)
-                engine.SetGlobalValue(kvp.Key, kvp.Value);
-            return engine;
+                Engine.SetGlobalValue(kvp.Key, kvp.Value);
         }
         public static ScriptEngine Engine;
         public static readonly CompilerOptions Option = new CompilerOptions()
@@ -53,15 +52,11 @@ namespace Overlayer.Core.JavaScript
             EnableILAnalysis = true,
             CompatibilityMode = CompatibilityMode.Latest
         };
-        public static Delegate Compile(this string js)
+        public static Func<object> Compile(this string js)
         {
-            Engine = PrepareEngine();
+            PrepareEngine();
             var scr = CompiledEval.Compile(new TextSource(js), Option);
-            if (scr.ReturnType == typeof(double) || scr.ReturnType == typeof(uint))
-                return () => (double)scr.EvaluateFastInternal(Engine);
-            else if (scr.ReturnType == typeof(ConcatenatedString))
-                return () => (string)scr.EvaluateFastInternal(Engine);
-            else return null;
+            return () => (string)scr.EvaluateFastInternal(Engine);
         }
         class TextSource : ScriptSource
         {

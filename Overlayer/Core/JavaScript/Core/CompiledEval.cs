@@ -84,23 +84,18 @@ namespace Overlayer.Core.JavaScript
         Run:
             if (context != null)
             {
-                try
-                {
-                    object obj = del(context);
-                    engine.ExecutePostExecuteSteps();
-                    if (obj == null)
-                        return null;
-                    else if (obj is double or uint)
-                        return (double)obj;
-                    else if (obj is ConcatenatedString)
-                        obj = ((ConcatenatedString)obj).ToString();
-                    else if (obj is ClrInstanceWrapper)
-                        obj = ((ClrInstanceWrapper)obj).WrappedInstance;
-                    else if (obj is ClrStaticTypeWrapper)
-                        obj = ((ClrStaticTypeWrapper)obj).WrappedType;
-                    return obj;
-                }
-                finally { engine.ClearPostExecuteSteps(); }
+                object obj = del(context);
+                if (obj == null)
+                    return null;
+                else if (obj is double or uint)
+                    return (double)obj;
+                else if (obj is ConcatenatedString)
+                    obj = ((ConcatenatedString)obj).ToString();
+                else if (obj is ClrInstanceWrapper)
+                    obj = ((ClrInstanceWrapper)obj).WrappedInstance;
+                else if (obj is ClrStaticTypeWrapper)
+                    obj = ((ClrStaticTypeWrapper)obj).WrappedType;
+                return obj;
             }
             del = (GlobalOrEvalMethodGenerator.GlobalCodeDelegate)methodGen.GeneratedMethod.GeneratedDelegate;
             context = ExecutionContext.CreateGlobalOrEvalContext(engine, RuntimeScope.CreateGlobalScope(engine), engine.Global);

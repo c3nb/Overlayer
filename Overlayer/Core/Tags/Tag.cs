@@ -85,23 +85,15 @@ namespace Overlayer.Core
             }
             Hidden = hidden;
         }
-        internal Tag(string name, string description, Delegate del)
+        public bool IsDynamic = false;
+        public Func<object> Dyn;
+        internal Tag(string name, string description, Func<object> del)
         {
             Name = name;
             this.description = description;
             IsOpt = false;
-            if (del.Method.ReturnType == typeof(string))
-            {
-                IsString = true;
-                Str = (Func<string>)del;
-                DefOptStr = "";
-            }
-            else
-            {
-                IsString = false;
-                Num = (Func<double>)del;
-                DefOptNum = -1;
-            }
+            IsDynamic = true;
+            Dyn = del;
         }
         internal Tag(string name, string description, Func<double, double> raw, Func<string> rawStr)
         {
@@ -152,13 +144,15 @@ namespace Overlayer.Core
         {
             get
             {
+                if (IsDynamic)
+                    return (string)Dyn();
                 if (IsString)
                     return Str();
                 return Num().ToString();
             }
         }
-        public double FloatValue() => Num();
-        public string StringValue() => Str();
+        public double FloatValue() => ValueFloat;
+        public string StringValue() => Value;
         public string OptValue(double opt)
         {
             if (IsString)
@@ -186,6 +180,8 @@ namespace Overlayer.Core
         {
             get
             {
+                if (IsDynamic)
+                    return (double)Dyn();
                 if (IsString) return 0;
                 else return Num();
             }

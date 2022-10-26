@@ -53,7 +53,7 @@ namespace Overlayer.Core
                 {
                     var del = expression.Compile();
                     reference.AddTag(new Tag(name, description, del));
-                    isStringTag = del.Method.ReturnType == typeof(string);
+                    isStringTag = false;
                     canUsedByNotPlaying = false;
                     error = null;
                     callbackAfterCompile?.Invoke();
