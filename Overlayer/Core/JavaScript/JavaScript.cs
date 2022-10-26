@@ -56,7 +56,7 @@ namespace Overlayer.Core.JavaScript
         {
             PrepareEngine();
             var scr = CompiledEval.Compile(new TextSource(js), Option);
-            return () => (string)scr.EvaluateFastInternal(Engine);
+            return () => scr.EvaluateFastInternal(Engine);
         }
         class TextSource : ScriptSource
         {
