@@ -90,7 +90,14 @@ namespace Overlayer.Core
             getter = (ValueGetter)value.CreateDelegate(typeof(ValueGetter));
             LocalBuilder Push(Tag tag, TToken token)
             {
-                if (tag.IsOpt)
+                if (tag.IsDynamic)
+                {
+                    LocalBuilder str = il.DeclareLocal(typeof(string));
+                    il.Emit(OpCodes.Callvirt, tag_dynamicString);
+                    il.Emit(OpCodes.Stloc, str);
+                    return str;
+                }
+                else if (tag.IsOpt)
                 {
                     if (tag.IsString)
                     {
@@ -153,7 +160,7 @@ namespace Overlayer.Core
             {
                 if (token.HasFormat)
                 {
-                    if (tag.IsString)
+                    if (tag.IsString || tag.IsDynamic)
                     {
                         LocalBuilder arr = il.DeclareLocal(typeof(object[]));
                         il.Emit(OpCodes.Ldc_I4, 1);
@@ -176,20 +183,19 @@ namespace Overlayer.Core
                     }
                     return;
                 }
-                if (tag.IsString) 
+                if (tag.IsString || tag.IsDynamic) 
                     il.Emit(OpCodes.Ldloc, loc);
                 else
                 {
                     il.Emit(OpCodes.Ldloca, loc);
                     il.Emit(OpCodes.Call, double_ToString_Empty);
-                    double s = 3;
-                    s.ToString();
                 }
             }
         }
         public string Result => getter(this);
         internal static readonly Random random = new Random(DateTime.Now.Millisecond);
         private static readonly FieldInfo tagsFld = typeof(TextCompiler).GetField("tags");
+        public static readonly MethodInfo tag_dynamicString = typeof(Tag).GetMethod("DynamicString");
         public static readonly MethodInfo tag_string_Value = typeof(Tag).GetMethod("StringValue");
         public static readonly MethodInfo tag_double_Value = typeof(Tag).GetMethod("FloatValue");
         public static readonly MethodInfo string_Format = typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object[]) });

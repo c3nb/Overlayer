@@ -584,32 +584,15 @@
     <Compile Include="Core\JavaScript\Library\WeakSet\WeakSetConstructor.g.cs" />
     <Compile Include="Core\JavaScript\Library\WeakSet\WeakSetInstance.cs" />
     <Compile Include="Core\JavaScript\Library\WeakSet\WeakSetInstance.g.cs" />
-    <Compile Include="Core\Tags\BuiltInFunctions.cs" />
-    <Compile Include="Core\Tags\Function.cs" />
-    <Compile Include="Core\Tags\Nodes\AccessorNode.cs" />
-    <Compile Include="Core\Tags\Nodes\ArgumentNode.cs" />
-    <Compile Include="Core\Tags\Nodes\CustomNode.cs" />
     <Compile Include="Core\Translation\GID.cs" />
     <Compile Include="Core\Translation\Language.cs" />
     <Compile Include="Core\NativeLibrary.cs" />
     <Compile Include="Core\StaticCoroutine.cs" />
     <Compile Include="Core\TagManager.cs" />
     <Compile Include="Core\Tags\ClassTagAttribute.cs" />
-    <Compile Include="Core\Tags\CustomTag.cs" />
-    <Compile Include="Core\Tags\Nodes\BinaryNode.cs" />
-    <Compile Include="Core\Tags\Nodes\FunctionNode.cs" />
-    <Compile Include="Core\Tags\Nodes\Node.cs" />
-    <Compile Include="Core\Tags\Nodes\NToken.cs" />
-    <Compile Include="Core\Tags\Nodes\NumberNode.cs" />
-    <Compile Include="Core\Tags\Nodes\OperatorNode.cs" />
-    <Compile Include="Core\Tags\Nodes\Parser.cs" />
-    <Compile Include="Core\Tags\Nodes\StringNode.cs" />
-    <Compile Include="Core\Tags\Nodes\TagNode.cs" />
-    <Compile Include="Core\Tags\Nodes\UnaryNode.cs" />
     <Compile Include="Core\Tags\Tag.cs" />
     <Compile Include="Core\Tags\TagAttribute.cs" />
     <Compile Include="Core\Tags\TagCollection.cs" />
-    <Compile Include="Core\Tags\TagCompiler.cs" />
     <Compile Include="Core\Tags\TagExtensions.cs" />
     <Compile Include="Core\Tags\TextCompiler.cs" />
     <Compile Include="Core\Tags\TToken.cs" />
@@ -624,6 +607,8 @@
     <Compile Include="Core\Utils\PatchUtils.cs" />
     <Compile Include="Core\Utils\StringUtils.cs" />
     <Compile Include="DT.cs" />
+    <Compile Include="Input.cs" />
+    <Compile Include="KeyCode.cs" />
     <Compile Include="KeyCombo.cs" />
     <Compile Include="LevelMeta.cs" />
     <Compile Include="Main.cs" />
@@ -752,6 +737,7 @@
     <Compile Include="MapParser\Types\Vector2.cs" />
     <Compile Include="MapParser\Utils.cs" />
     <Compile Include="Newtonsoft.Json.cs" />
+    <Compile Include="Overlayer.cs" />
     <Compile Include="Patches\AttemptsCounter.cs" />
     <Compile Include="Patches\BpmUpdater.cs" />
     <Compile Include="Patches\ClearMessagePatch.cs" />
@@ -1064,6 +1050,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Core\JavaScript\Compiler\Emit\Optimizations.txt" />
+    <EmbeddedResource Include="Impl.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

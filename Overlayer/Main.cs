@@ -17,8 +17,8 @@ using System.IO;
 using Overlayer.Tags.Global;
 using System.Text;
 using Overlayer.Core.Translation;
-using Overlayer.Core.Tags;
-using Overlayer.Core.Tags.Nodes;
+using Rewired.UI.ControlMapper;
+using Overlayer.Core.JavaScript;
 
 namespace Overlayer
 {
@@ -31,8 +31,10 @@ namespace Overlayer
         public static float fpsTimer = 0;
         public static float fpsTimeTimer = 0;
         public static float lastDeltaTime;
+        public static byte[] Impljs;
         public static void Load(ModEntry modEntry)
         {
+            CustomTagsPath = Path.Combine(modEntry.Path, "CustomTags");
             Mod = modEntry;
             Logger = modEntry.Logger;
             var asm = Assembly.GetExecutingAssembly();
@@ -40,6 +42,31 @@ namespace Overlayer
             UpdateLanguage();
             Performance.Init();
             TagManager.AllTags.LoadTags(asm);
+            using var impljs = asm.GetManifestResourceStream("Overlayer.Impl.js");
+            Impljs = new byte[impljs.Length];
+            impljs.Read(Impljs, 0, Impljs.Length);
+
+            //StringBuilder sb = new StringBuilder();
+            //foreach (Tag tag in TagManager.AllTags)
+            //{
+            //    sb.AppendLine("/**");
+            //    if (tag.IsOpt)
+            //    {
+            //        if (tag.IsStringOpt)
+            //            sb.AppendLine(" * @param {string} opt");
+            //        else sb.AppendLine(" * @param {number} opt");
+            //    }
+            //    if (tag.IsString)
+            //        sb.AppendLine($" * @returns {{string}} {tag.Description}");
+            //    else sb.AppendLine($" * @returns {{number}} {tag.Description}");
+            //    sb.AppendLine(" */");
+            //    sb.Append($"function {tag.Name}(");
+            //    if (tag.IsOpt)
+            //        sb.Append("opt");
+            //    sb.AppendLine(");");
+            //}
+            //File.WriteAllText("Mods/Overlayer/Tags.js", sb.ToString());
+
             TagManager.NotPlayingTags.AddTags(new[]
             {
                 TagManager.AllTags["Year"],
@@ -95,6 +122,72 @@ namespace Overlayer
                 fpsTimeTimer += deltaTime;
             };
         }
+        public static bool LoadJSTag(string source, string name, out Tag tag)
+        {
+            tag = null;
+            string desc = "";
+            using (StringReader sr = new StringReader(source))
+            {
+                string first = sr.ReadLine();
+                if (first.StartsWith("//"))
+                    desc = first.Remove(0, 2).Trim();
+            }
+            try
+            {
+                var del = source.Compile();
+                tag = new Tag(name, desc, del);
+                Logger.Log($"Loaded '{name}' Tag.");
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Log($"Exception At Loading {name} Tag..\n({e})");
+                return false;
+            }
+        }
+        public static readonly List<string> JSTagCache = new List<string>();
+        public static void LoadAllJSTags(string folderPath)
+        {
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+                var impljsPath = Path.Combine(folderPath, "Impl.js");
+                File.WriteAllBytes(impljsPath, Impljs);
+                File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
+                return;
+            }
+            int success = 0, fail = 0;
+            foreach (string path in Directory.GetFiles(folderPath, "*.js"))
+            {
+                var name = Path.GetFileNameWithoutExtension(path);
+                if (name == "Impl") continue;
+                if (LoadJSTag(File.ReadAllText(path), name, out Tag tag))
+                {
+                    TagManager.AllTags[tag.Name] = tag;
+                    TagManager.NotPlayingTags[tag.Name] = tag;
+                    JSTagCache.Add(tag.Name);
+                    success++;
+                }
+                else fail++;
+            }
+            Logger.Log($"Loaded {success} Scripts Successfully. (Failed: {fail})");
+        }
+        public static void ReloadAllJSTags(string folderPath)
+        {
+            Logger.Log($"Reloading {JSTagCache.Count} Scripts..");
+            UnloadAllJSTags();
+            LoadAllJSTags(folderPath);
+        }
+        public static void UnloadAllJSTags()
+        {
+            foreach (string tagName in JSTagCache)
+            {
+                TagManager.AllTags.RemoveTag(tagName);
+                TagManager.NotPlayingTags.RemoveTag(tagName);
+            }
+            JSTagCache.Clear();
+        }
+        public static string CustomTagsPath;
         public static bool OnToggle(ModEntry modEntry, bool value)
         {
             try
@@ -103,33 +196,7 @@ namespace Overlayer
                 {
                     Settings.Load(modEntry);
                     Variables.Reset();
-                    CustomTag.Load();
-                    Function.Load();
-                    foreach (CustomTag cTag in CustomTag.Tags)
-                    {
-                        try
-                        {
-                            string err = cTag.Compile(TagManager.AllTags, cTag.name, cTag.description, cTag.expression, Recompile);
-                            cTag.name_ = cTag.name;
-                            cTag.description_ = cTag.description;
-                            cTag.expression_ = cTag.expression;
-                            if (err != null)
-                                Logger.Log($"{Language[TranslationKeys.CustomTag]} {cTag.name} {Language[TranslationKeys.IsErrorOccured]} ({err}). {Language[TranslationKeys.PlzChkYourExpr]}");
-                        }
-                        catch (Exception e) { Logger.Log($"{Language[TranslationKeys.ExceptionAt]} {TranslationKeys.CustomTag} {cTag.name}.\n{e}"); }
-                    }
-                    foreach (Function func in Function.Functions)
-                    {
-                        try
-                        {
-                            func.Compile(func.name, func.expression, Recompile);
-                            func.name_ = func.name;
-                            func.expression_ = func.expression;
-                            if (func.error != null)
-                                Logger.Log($"{Language[TranslationKeys.Function]} {func.name} {Language[TranslationKeys.IsErrorOccured]} ({func.error}). {Language[TranslationKeys.PlzChkYourExpr]}");
-                        }
-                        catch (Exception e) { Logger.Log($"{Language[TranslationKeys.ExceptionAt]} {TranslationKeys.Function} {func.name}.\n{e}"); }
-                    }
+                    LoadAllJSTags(CustomTagsPath);
                     OText.Load();
                     if (!OText.Texts.Any())
                         new OText().Apply();
@@ -149,6 +216,7 @@ namespace Overlayer
                     try
                     {
                         OText.Clear();
+                        UnloadAllJSTags();
                         DeathMessagePatch.compiler = null;
                         ClearMessagePatch.compiler = null;
                         GC.Collect();
@@ -194,166 +262,16 @@ namespace Overlayer
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-            var cTags = CustomTag.Tags;
-            if (settings.EditingCustomTags = GUILayout.Toggle(settings.EditingCustomTags, Language[TranslationKeys.EditCustomTag]))
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(Language[TranslationKeys.ReloadCustomTags]))
             {
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button(Language[TranslationKeys.NewCustomTag]))
-                    cTags.Add(new CustomTag());
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-                GUIUtils.IndentGUI(() =>
-                {
-                    for (int i = 0; i < cTags.Count; i++)
-                    {
-                        CustomTag cTag = cTags[i];
-                        if (cTag.editing = GUILayout.Toggle(cTag.editing, $"{cTag.name}"))
-                        {
-                            GUIUtils.IndentGUI(() =>
-                            {
-                                cTag.js = GUILayout.Toggle(cTag.js, "JavaScript");
-                                var changed = false;
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label($"{Language[TranslationKeys.Name]}:");
-                                cTag.name_ = GUILayout.TextField(cTag.name_);
-                                if (cTag.name_ != cTag.name)
-                                    changed = true;
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
-
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label($"{Language[TranslationKeys.Description]}:");
-                                cTag.description_ = GUILayout.TextField(cTag.description_);
-                                if (cTag.description_ != cTag.description)
-                                    changed = true;
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
-
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label($"{Language[TranslationKeys.Expression]}:");
-                                cTag.expression_ = GUILayout.TextArea(cTag.expression_);
-                                if (cTag.expression_ != cTag.expression)
-                                    changed = true;
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
-
-                                if (!cTag.js)
-                                {
-                                    GUILayout.Label($"{Language[TranslationKeys.ThisTag]} {(cTag.canUsedByNotPlaying ? Language[TranslationKeys.CanBeUsedNotPlayingText] : Language[TranslationKeys.CannotBeUsedNotPlayingText])}.");
-                                    GUILayout.Label((cTag.isStringTag ? Language[TranslationKeys.ThisTagIsStringTag] : Language[TranslationKeys.ThisFuncIsNumberFunc]) + '.');
-                                }
-                                
-                                GUILayout.BeginHorizontal();
-                                if (changed == true)
-                                {
-                                    if (GUILayout.Button(Language[TranslationKeys.Compile]))
-                                    {
-                                        cTag.Compile(TagManager.AllTags, cTag.name_, cTag.description_, cTag.expression_, Recompile);
-                                        changed = false;
-                                    }
-                                }
-                                if (GUILayout.Button(Language[TranslationKeys.Remove]))
-                                {
-                                    TagManager.AllTags.RemoveTag(cTag.name);
-                                    TagManager.NotPlayingTags.RemoveTag(cTag.name);
-                                    Recompile();
-                                    cTags.RemoveAt(i);
-                                }
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
-                                if (cTag.error != null)
-                                    GUILayout.Label($"{Language[TranslationKeys.CompilationError]}: {cTag.error}");
-                            });
-                        }
-                        GUILayout.Space(3);
-                    }
-                });
-                CustomTag.ConstantsGUI();
-                CustomTag.FunctionGUI();
+                ReloadAllJSTags(CustomTagsPath);
+                Recompile();
             }
-            var funcs = Function.Functions;
-            if (settings.EditingFunctions = GUILayout.Toggle(settings.EditingFunctions, Language[TranslationKeys.EditFunction]))
-            {
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button(Language[TranslationKeys.NewFunction]))
-                    funcs.Add(new Function(""));
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-                GUIUtils.IndentGUI(() =>
-                {
-                    for (int i = 0; i < funcs.Count; i++)
-                    {
-                        Function func = funcs[i];
-                        if (func.editing = GUILayout.Toggle(func.editing, $"{func.name}"))
-                        {
-                            GUIUtils.IndentGUI(() =>
-                            {
-                                var changed = false;
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label($"{Language[TranslationKeys.Name]}:");
-                                func.name_ = GUILayout.TextField(func.name_);
-                                if (func.name_ != func.name)
-                                    changed = true;
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
 
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label($"{Language[TranslationKeys.Expression]}:");
-                                func.expression_ = GUILayout.TextField(func.expression_);
-                                if (func.expression_ != func.expression)
-                                    changed = true;
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
-
-                                GUILayout.BeginHorizontal();
-                                if (GUILayout.Button(Language[TranslationKeys.NewArgument]))
-                                    func.AddArgument(false);
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
-                                for (int j = 0; j < func.args.Count; j++)
-                                {
-                                    var arg = func.args[j];
-                                    GUILayout.BeginHorizontal();
-                                    GUILayout.Label($"{Language[TranslationKeys.Index]} {j} {Language[TranslationKeys.Argument]}:");
-                                    if (GUILayout.Button(arg.IsString ? Language[TranslationKeys.String] : Language[TranslationKeys.Number]))
-                                        arg.IsString = !arg.IsString;
-                                    if (j == func.args.Count - 1)
-                                    {
-                                        if (GUILayout.Button(Language[TranslationKeys.Remove]))
-                                            func.RemoveArgument();
-                                    }
-                                    GUILayout.FlexibleSpace();
-                                    GUILayout.EndHorizontal();
-                                }
-
-                                GUILayout.Label($"{Language[TranslationKeys.ThisFunc]} {(func.canUsedByNotPlaying ? Language[TranslationKeys.CanBeUsedNotPlayingText] : Language[TranslationKeys.CannotBeUsedNotPlayingText])}.");
-                                GUILayout.Label((func.isStringFunc ? Language[TranslationKeys.ThisFuncIsStringFunc] : Language[TranslationKeys.ThisFuncIsNumberFunc]) + '.');
-
-                                GUILayout.BeginHorizontal();
-                                if (changed == true)
-                                {
-                                    if (GUILayout.Button(Language[TranslationKeys.Compile]))
-                                    {
-                                        func.Compile(func.name_, func.expression_, Recompile);
-                                        changed = false;
-                                    }
-                                }
-                                if (GUILayout.Button(Language[TranslationKeys.Remove]))
-                                {
-                                    func.Remove();
-                                    Recompile();
-                                    funcs.RemoveAt(i);
-                                }
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
-                                if (func.error != null)
-                                    GUILayout.Label($"{Language[TranslationKeys.CompilationError]}: {func.error}");
-                            });
-                        }
-                        GUILayout.Space(3);
-                    }
-                });
-            }
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(Language[TranslationKeys.AddText]))
             {
@@ -415,16 +333,9 @@ namespace Overlayer
             Settings.Save(modEntry);
             Variables.Reset();
             OText.Save();
-            CustomTag.Save();
-            Function.Save();
         }
         public static void Recompile()
         {
-            foreach (CustomTag tag in CustomTag.Tags)
-            {
-                try { tag.Compile(TagManager.AllTags, tag.name, tag.description, tag.expression); }
-                catch { }
-            }
             foreach (OText text in OText.Texts)
             {
                 text.PlayingCompiler.Compile(text.TSetting.PlayingText);

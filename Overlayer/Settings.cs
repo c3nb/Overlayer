@@ -37,7 +37,5 @@ namespace Overlayer
         public SystemLanguage lang = SystemLanguage.English;
         public string DeathMessage = "";
         public string ClearMessage = "";
-        public bool EditingCustomTags = false;
-        public bool EditingFunctions = false;
     }
 }

@@ -1025,7 +1025,7 @@ namespace Overlayer.Core.JavaScript
                     case TypeCode.Object:
                         if (value is Type)
                             value = ClrStaticTypeWrapper.FromCache(this, (Type)value);
-                        else if ((value is ObjectInstance) == false)
+                        else if (!(value is ObjectInstance))
                             value = new ClrInstanceWrapper(this, value);
                         break;
                     case TypeCode.SByte:

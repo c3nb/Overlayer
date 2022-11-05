@@ -95,6 +95,7 @@ namespace Overlayer.Core
             IsDynamic = true;
             Dyn = del;
         }
+        public string DynamicString() => Dyn().ToString();
         internal Tag(string name, string description, Func<double, double> raw, Func<string> rawStr)
         {
             Name = name;
@@ -139,6 +140,14 @@ namespace Overlayer.Core
                         thread.Abort();
                 }
             }
+        }
+        public string StrValue()
+        {
+            if (IsDynamic)
+                return Dyn().ToString();
+            if (IsString)
+                return Str();
+            return Num().ToString();
         }
         public string Value
         {

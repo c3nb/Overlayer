@@ -79,24 +79,13 @@ namespace Overlayer.Core.JavaScript
         }
         internal GlobalOrEvalMethodGenerator.GlobalCodeDelegate del;
         internal ExecutionContext context;
+        internal object EvaluateInternal(ScriptEngine engine)
+            => TypeUtilities.NormalizeValue(methodGen.Execute(engine, RuntimeScope.CreateGlobalScope(engine), engine.Global));
         internal object EvaluateFastInternal(ScriptEngine engine)
         {
         Run:
             if (context != null)
-            {
-                object obj = del(context);
-                if (obj == null)
-                    return null;
-                else if (obj is double or uint)
-                    return (double)obj;
-                else if (obj is ConcatenatedString)
-                    obj = ((ConcatenatedString)obj).ToString();
-                else if (obj is ClrInstanceWrapper)
-                    obj = ((ClrInstanceWrapper)obj).WrappedInstance;
-                else if (obj is ClrStaticTypeWrapper)
-                    obj = ((ClrStaticTypeWrapper)obj).WrappedType;
-                return obj;
-            }
+                return TypeUtilities.NormalizeValue(del(context));
             del = (GlobalOrEvalMethodGenerator.GlobalCodeDelegate)methodGen.GeneratedMethod.GeneratedDelegate;
             context = ExecutionContext.CreateGlobalOrEvalContext(engine, RuntimeScope.CreateGlobalScope(engine), engine.Global);
             goto Run;

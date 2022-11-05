@@ -16,13 +16,14 @@ namespace Overlayer.Core.JavaScript
     /// </summary>
     public static class JavaScript
     {
-        public static List<KeyValuePair<string, Delegate>> funcs { get; private set; }
-        private static void PrepareEngine()
+        static ScriptEngine PrepareEngine()
         {
-            Engine = new ScriptEngine();
-            Engine.EnableExposedClrTypes = true;
+            var engine = new ScriptEngine();
+            engine.EnableExposedClrTypes = true;
             foreach (Tag tag in TagManager.AllTags)
-                Engine.SetGlobalFunction(tag.Name,
+                engine.SetGlobalFunction(tag.Name,
+                    tag.IsDynamic ?
+                    tag.Dyn :
                     tag.IsOpt ?
                     tag.IsStringOpt ?
                     tag.IsString ?
@@ -34,18 +35,11 @@ namespace Overlayer.Core.JavaScript
                     tag.IsString ?
                     new Func<string>(() => tag.Value) :
                     new Func<double>(() => tag.ValueFloat));
-            if (funcs == null)
-            {
-                funcs = new List<KeyValuePair<string, Delegate>>();
-                foreach (var kvp in CustomTag.functions)
-                    foreach (var func in kvp.Value)
-                        funcs.Add(new(kvp.Key, func.CreateDelegateAuto()));
-            }
-            funcs.ForEach(kvp => Engine.SetGlobalFunction(kvp.Key, kvp.Value));
-            foreach (var kvp in CustomTag.constants)
-                Engine.SetGlobalValue(kvp.Key, kvp.Value);
+            engine.SetGlobalValue("KeyCode", new Kcde(engine));
+            engine.SetGlobalValue("Input", new Ipt(engine));
+            engine.SetGlobalValue("Overlayer", new Ovlr(engine));
+            return engine;
         }
-        public static ScriptEngine Engine;
         public static readonly CompilerOptions Option = new CompilerOptions()
         {
             ForceStrictMode = false,
@@ -54,15 +48,16 @@ namespace Overlayer.Core.JavaScript
         };
         public static Func<object> Compile(this string js)
         {
-            PrepareEngine();
+            var engine = PrepareEngine();
             var scr = CompiledEval.Compile(new TextSource(js), Option);
-            return () => scr.EvaluateFastInternal(Engine);
+            return () => scr.EvaluateFastInternal(engine);
         }
+        public static ScriptSource ToSource(this string s) => new TextSource(s);
         class TextSource : ScriptSource
         {
             public string str;
             public TextSource(string str) => this.str = str;
-            public override string Path => "";
+            public override string Path => null;
             public override TextReader GetReader() => new StringReader(str);
         }
     }

@@ -10,29 +10,16 @@ using Overlayer.Core;
 
 namespace Overlayer.Core
 {
-    public class TagCollection : IEnumerable<Tag>, IEnumerator<Tag>
+    public class TagCollection : IEnumerable<Tag>
     {
         internal TagCollection(IEnumerable<Tag> tags = null)
-        {
-            if (tags == null)
-            {
-                this.tags = new Tag[0];
-                length = 0;
-                nTags = new Dictionary<string, Tag>();
-            }
-            else
-            {
-                this.tags = tags.ToArray();
-                length = this.tags.Length;
-                nTags = tags.ToDictionary(t => t.Name);
-            }
-            position = -1;
-        }
+            => nTags = tags?.ToDictionary(t => t.Name) ?? new Dictionary<string, Tag>();
         public void LoadTags(Assembly assembly = null)
         {
             foreach (Type type in (assembly ?? Assembly.GetCallingAssembly()).GetTypes())
                 LoadTags(type);
         }
+        public event Action OnChange = delegate { };
         public void LoadTags(Type type)
         {
             ClassTagAttribute cTagAttr = type.GetCustomAttribute<ClassTagAttribute>();
@@ -53,8 +40,7 @@ namespace Overlayer.Core
                 Tag tag = new Tag(cTagAttr.Name, valueGetter, cTagAttr.Hidden);
                 IEnumerable<MethodInfo> threads = cTagAttr.Threads?.Select(st => type.GetMethod(st, (BindingFlags)15420));
                 tag.Threads = threads?.Select(m => new Thread((ThreadStart)m.CreateDelegate(typeof(ThreadStart)))).ToArray();
-                Array.Resize(ref tags, length + 1);
-                tags[length++] = tag;
+                AddTag(tag);
                 if (!cTagAttr.HasOtherTags)
                     goto Final;
             }
@@ -64,44 +50,32 @@ namespace Overlayer.Core
                 if (tagAttr == null) continue;
                 if (tagAttr.IsDefault) continue;
                 Tag tag = new Tag(tagAttr.Name, method, tagAttr.Hidden);
-                Array.Resize(ref tags, length + 1);
-                tags[length++] = tag;
+                AddTag(tag);
             }
         Final:
-            nTags = tags.ToDictionary(t =>
-            {
-                t.Start();
-                return t.Name;
-            });
+            foreach (var tag in this)
+                tag.Start();
+            OnChange();
         }
         public void AddTag(Tag tag)
         {
-            tags = tags.Add(tag);
-            nTags = tags.ToDictionary(t => t.Name);
+            nTags.Add(tag.Name, tag);
             tag.Start();
-            length++;
+            OnChange();
         }
         public void AddTags(IEnumerable<Tag> tags)
         {
-            this.tags = this.tags.AddRange(tags);
-            nTags = this.tags.ToDictionary(t => t.Name);
+            foreach (Tag tag in tags)
+                AddTag(tag);
             tags.ForEach(t => t.Start());
-            length += tags.Count();
+            OnChange();
         }
         public void RemoveTag(string name)
         {
-            if (!nTags.TryGetValue(name, out _)) return;
-            int index = Array.FindIndex(tags, t => t.Name == name);
-            length--;
-            for (int a = index; a < length; a++)
-                tags[a] = tags[a + 1];
-            Array.Resize(ref tags, length);
-            nTags.Remove(name);
+            if (nTags.Remove(name))
+                OnChange();
         }
         private Dictionary<string, Tag> nTags;
-        private Tag[] tags;
-        private int length;
-        private int position;
         public Tag this[string name]
         {
             get
@@ -112,53 +86,16 @@ namespace Overlayer.Core
             }
             set
             {
-                int index = Array.FindIndex(tags, t => t.Name == name);
-                if (index != -1)
-                    tags[index] = value;
-                else
-                {
-                    tags = tags.Add(value);
-                    length++;
-                }
                 nTags[name] = value;
+                OnChange();
             }
         }
-        public Tag this[int index]
-        {
-            get
-            {
-                if (index >= length || index < 0)
-                    return null;
-                return tags[index];
-            }
-            set
-            {
-                if (index != -1)
-                    tags[index] = value;
-                nTags = tags.ToDictionary(t => t.Name);
-            }
-        }
-        public void Clear()
-        {
-            for (int i = 0; i < length; i++)
-                tags[i].Stop();
-            Array.Clear(tags, 0, length);
-            nTags.Clear();
-            tags = null;
-            nTags = null;
-            position = -1;
-            length = 0;
-        }
+        public void Clear() => nTags.Clear();
         public bool Contains(Tag tag)
-            => Array.FindIndex(tags, t => t.Name == tag.Name) != -1;
-        public int Count => length;
-        IEnumerator IEnumerable.GetEnumerator() => this;
-        IEnumerator<Tag> IEnumerable<Tag>.GetEnumerator() => this;
-        object IEnumerator.Current => tags[position];
-        Tag IEnumerator<Tag>.Current => tags[position];
-        void IDisposable.Dispose() { }
-        bool IEnumerator.MoveNext() => length > ++position;
-        void IEnumerator.Reset() => position = -1;
+            => nTags.TryGetValue(tag.Name, out _);
+        public int Count => nTags.Count;
+        IEnumerator IEnumerable.GetEnumerator() => nTags.Values.GetEnumerator();
+        IEnumerator<Tag> IEnumerable<Tag>.GetEnumerator() => nTags.Values.GetEnumerator();
         bool TagDesc = false;
         public void DescGUI()
         {
@@ -167,11 +104,12 @@ namespace Overlayer.Core
             {
                 GUIUtils.IndentGUI(() =>
                 {
-                    for (int i = 0; i < length; i++)
+                    foreach (Tag tag in nTags.Values)
                     {
-                        var tag = tags[i];
                         if (tag.Hidden) continue;
-                        GUILayout.Label($"{tag} ({(tag.IsString ? "String" : "Number")})");
+                        if (tag.IsDynamic)
+                            GUILayout.Label($"{tag} (Dynamic)");
+                        else GUILayout.Label($"{tag} ({(tag.IsString ? "String" : "Number")})");
                         GUILayout.Space(1);
                     }
                 }, 25f, 10f);
@@ -180,6 +118,6 @@ namespace Overlayer.Core
             GUILayout.EndHorizontal();
         }
         public TagCollection Copy()
-            => new TagCollection(tags);
+            => new TagCollection(nTags.Values);
     }
 }

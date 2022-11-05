@@ -12,7 +12,7 @@ namespace Overlayer.Core.Utils
     {
         public static IntPtr EmitObject<T>(this ILGenerator il, ref T obj)
         {
-            IntPtr ptr = Address<T>.Get(ref obj);
+            IntPtr ptr = Type<T>.GetAddress(ref obj);
             if (IntPtr.Size == 4)
                 il.Emit(OpCodes.Ldc_I4, ptr.ToInt32());
             else
@@ -31,20 +31,37 @@ namespace Overlayer.Core.Utils
             il.Emit(OpCodes.Ldobj, obj.GetType());
             return handle;
         }
-        public static class Address<T>
+    }
+    public static class Type<T>
+    {
+        delegate IntPtr AddrGetter(ref T obj);
+        static readonly AddrGetter addrGetter;
+        delegate int SizeGetter();
+        static readonly SizeGetter sizeGetter;
+        static Type()
         {
-            delegate IntPtr AddrGetter(ref T obj);
-            static readonly AddrGetter getter;
-            static Address()
-            {
-                DynamicMethod dm = new DynamicMethod($"{typeof(T).FullName}_Address", typeof(IntPtr), new[] { typeof(T).MakeByRefType() });
-                ILGenerator il = dm.GetILGenerator();
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Conv_U);
-                il.Emit(OpCodes.Ret);
-                getter = (AddrGetter)dm.CreateDelegate(typeof(AddrGetter));
-            }
-            public static IntPtr Get(ref T obj) => getter(ref obj);
+            addrGetter = CreateAddrGetter();
+            sizeGetter = CreateSizeGetter();
         }
+        static AddrGetter CreateAddrGetter()
+        {
+            DynamicMethod dm = new DynamicMethod($"{typeof(T).FullName}_Address", typeof(IntPtr), new[] { typeof(T).MakeByRefType() });
+            ILGenerator il = dm.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Conv_U);
+            il.Emit(OpCodes.Ret);
+            return (AddrGetter)dm.CreateDelegate(typeof(AddrGetter));
+        }
+        static SizeGetter CreateSizeGetter()
+        {
+            DynamicMethod dm = new DynamicMethod($"{typeof(T).FullName}_Size", typeof(int), Type.EmptyTypes);
+            ILGenerator il = dm.GetILGenerator();
+            il.Emit(OpCodes.Sizeof, typeof(T));
+            il.Emit(OpCodes.Ret);
+            return (SizeGetter)dm.CreateDelegate(typeof(SizeGetter));
+        }
+        public static readonly Type Base = typeof(T);
+        public static int Size => sizeGetter();
+        public static IntPtr GetAddress(ref T obj) => addrGetter(ref obj);
     }
 }
