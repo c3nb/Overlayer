@@ -19,6 +19,8 @@ using System.Text;
 using Overlayer.Core.Translation;
 using Rewired.UI.ControlMapper;
 using Overlayer.Core.JavaScript;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace Overlayer
 {
@@ -35,6 +37,7 @@ namespace Overlayer
         public static void Load(ModEntry modEntry)
         {
             CustomTagsPath = Path.Combine(modEntry.Path, "CustomTags");
+            InitJSPath = Path.Combine(modEntry.Path, "Inits");
             Mod = modEntry;
             Logger = modEntry.Logger;
             var asm = Assembly.GetExecutingAssembly();
@@ -156,6 +159,12 @@ namespace Overlayer
                 File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
                 return;
             }
+            if (!File.Exists(Path.Combine(folderPath, "Impl.js")))
+            {
+                var impljsPath = Path.Combine(folderPath, "Impl.js");
+                File.WriteAllBytes(impljsPath, Impljs);
+                File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
+            }
             int success = 0, fail = 0;
             foreach (string path in Directory.GetFiles(folderPath, "*.js"))
             {
@@ -188,14 +197,39 @@ namespace Overlayer
             JSTagCache.Clear();
         }
         public static string CustomTagsPath;
+        public static string InitJSPath;
+        public static UnityAction<Scene, LoadSceneMode> evt = (s, m) => JSEventPatches.SceneLoads();
         public static bool OnToggle(ModEntry modEntry, bool value)
         {
             try
             {
                 if (value)
                 {
+                    SceneManager.sceneLoaded += evt;
                     Settings.Load(modEntry);
                     Variables.Reset();
+                    if (!Directory.Exists(InitJSPath))
+                    {
+                        Directory.CreateDirectory(InitJSPath);
+                        var impljsPath = Path.Combine(InitJSPath, "Impl.js");
+                        File.WriteAllBytes(impljsPath, Impljs);
+                        File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
+                    }
+                    else
+                    {
+                        if (!File.Exists(Path.Combine(InitJSPath, "Impl.js")))
+                        {
+                            var impljsPath = Path.Combine(InitJSPath, "Impl.js");
+                            File.WriteAllBytes(impljsPath, Impljs);
+                            File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
+                        }
+                        foreach (string file in Directory.GetFiles(InitJSPath, "*.js"))
+                        {
+                            if (Path.GetFileNameWithoutExtension(file) == "Impl")
+                                continue;
+                            File.ReadAllText(file).Compile()();
+                        }
+                    }
                     LoadAllJSTags(CustomTagsPath);
                     OText.Load();
                     if (!OText.Texts.Any())
@@ -205,6 +239,7 @@ namespace Overlayer
                     UpdateLanguage();
                     var settings = Settings.Instance;
                     DeathMessagePatch.compiler = new TextCompiler(TagManager.AllTags);
+                    ClearMessagePatch.compiler = new TextCompiler(TagManager.AllTags);
                     if (!string.IsNullOrEmpty(settings.DeathMessage))
                         DeathMessagePatch.compiler.Compile(settings.DeathMessage);
                     if (!string.IsNullOrEmpty(settings.ClearMessage))
@@ -212,6 +247,7 @@ namespace Overlayer
                 }
                 else
                 {
+                    SceneManager.sceneLoaded -= evt;
                     OnSaveGUI(modEntry);
                     try
                     {

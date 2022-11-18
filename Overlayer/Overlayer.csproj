@@ -455,6 +455,13 @@
     <Compile Include="Core\JavaScript\Core\TypeConverter.cs" />
     <Compile Include="Core\JavaScript\Core\TypeUtilities.cs" />
     <Compile Include="Core\JavaScript\Core\Undefined.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\Color.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\GameObject.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\Planet.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\PlanetType.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\Sprite.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\Vector2.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\Vector3.cs" />
     <Compile Include="Core\JavaScript\JavaScript.cs" />
     <Compile Include="Core\JavaScript\Library\Array\ArrayAdapter.cs" />
     <Compile Include="Core\JavaScript\Library\Array\ArrayConstructor.cs" />
@@ -607,8 +614,8 @@
     <Compile Include="Core\Utils\PatchUtils.cs" />
     <Compile Include="Core\Utils\StringUtils.cs" />
     <Compile Include="DT.cs" />
-    <Compile Include="Input.cs" />
-    <Compile Include="KeyCode.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\Input.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\KeyCode.cs" />
     <Compile Include="KeyCombo.cs" />
     <Compile Include="LevelMeta.cs" />
     <Compile Include="Main.cs" />
@@ -737,7 +744,7 @@
     <Compile Include="MapParser\Types\Vector2.cs" />
     <Compile Include="MapParser\Utils.cs" />
     <Compile Include="Newtonsoft.Json.cs" />
-    <Compile Include="Overlayer.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\Overlayer.cs" />
     <Compile Include="Patches\AttemptsCounter.cs" />
     <Compile Include="Patches\BpmUpdater.cs" />
     <Compile Include="Patches\ClearMessagePatch.cs" />
@@ -745,6 +752,7 @@
     <Compile Include="Patches\DeathMessagePatch.cs" />
     <Compile Include="Patches\ErrorMeterPatch.cs" />
     <Compile Include="Patches\GetHitMarginFixer.cs" />
+    <Compile Include="Patches\JSEventPatches.cs" />
     <Compile Include="Patches\KeyJudgePatch.cs" />
     <Compile Include="Patches\LeastChkPtLogger.cs" />
     <Compile Include="Patches\Resetter.cs" />
@@ -1052,6 +1060,7 @@
     <Content Include="Core\JavaScript\Compiler\Emit\Optimizations.txt" />
     <EmbeddedResource Include="Impl.js" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

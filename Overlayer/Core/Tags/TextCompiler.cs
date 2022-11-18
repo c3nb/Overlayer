@@ -10,16 +10,6 @@ namespace Overlayer.Core
 {
     public class TextCompiler
     {
-        public static bool IsReferencing(string name)
-        {
-            for (int i = 0; i < ReferencingTags.Count; i++)
-                if (ReferencingTags[i].Name == name)
-                    return true;
-            return false;
-        }
-        public static List<Tag> ReferencingTags { get; private set; } = new List<Tag>();
-        public static void UpdateReferences()
-            => ReferencingTags = ReferencingTags.Distinct().ToList();
         public delegate string ValueGetter(TextCompiler compiler);
         public string source;
         public ValueGetter getter;
@@ -84,9 +74,13 @@ namespace Overlayer.Core
             }
             il.Emit(OpCodes.Call, string_Concats); 
             il.Emit(OpCodes.Ret);
+            tags.ForEach(t => t.ReferencedCount++);
+            if (this.tags != null)
+            {
+                for (int i = 0; i < this.tags.Length; i++)
+                    this.tags[i].ReferencedCount--;
+            }
             this.tags = tags.ToArray();
-            ReferencingTags.AddRange(tags);
-            UpdateReferences();
             getter = (ValueGetter)value.CreateDelegate(typeof(ValueGetter));
             LocalBuilder Push(Tag tag, TToken token)
             {
@@ -97,7 +91,7 @@ namespace Overlayer.Core
                     il.Emit(OpCodes.Stloc, str);
                     return str;
                 }
-                else if (tag.IsOpt)
+                if (tag.IsOpt)
                 {
                     if (tag.IsString)
                     {

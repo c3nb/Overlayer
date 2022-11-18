@@ -11,6 +11,8 @@ namespace Overlayer.Core
         public string Name;
         public string Description => description == null ? Main.Language[Name] : description;
         private string description;
+        public bool Referenced => ReferencedCount > 0;
+        public int ReferencedCount;
         public bool IsString;
         public bool IsStringOpt;
         public bool IsOpt;

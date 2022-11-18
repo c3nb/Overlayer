@@ -775,6 +775,19 @@ const KeyCode =
     Joystick8Button18: 508,
     Joystick8Button19: 509
 }
+const PlanetType =
+{
+    Red: 0,
+    Blue: 1,
+    Green: 2,
+    Yellow: 3,
+    Purple: 4,
+    Pink: 5,
+    Orange: 6,
+    Cyan: 7,
+    Current: 8,
+    Other: 9
+};
 class Input {
     /**
     * @param {number} key KeyCode
@@ -794,8 +807,143 @@ class Input {
 }
 class Overlayer {
     /**
-    * @param {any} obj Anything
+    * @param {Function} obj Anything
     * @returns {number} 0
     */
     static log(obj);
+    /**
+    * @param {Function} obj Anything
+    * @returns {number} 0
+    */
+    static hit(obj);
+    /**
+    * @param {Function} obj Anything
+    * @returns {number} 0
+    */
+    static openLevel(obj);
+    /**
+    * @param {Function} obj Anything
+    * @returns {number} 0
+    */
+    static sceneLoad(obj);
+    /**
+    * @param {number} planetType PlanetType
+    * @returns {Planet} Planet
+    */
+    static getPlanet(planetType);
+    /**
+    * @param {string} name Variable Name
+    * @returns {any} Variable
+    */
+    static getGlobalVariable(name);
+    /**
+    * @param {string} name VariableName
+    * @param {any} obj Any Value
+    */
+    static setGlobalVariable(name, obj);
+}
+class Vector2 {
+    /**
+    * @param {number} x x
+    * @param {number} y y
+    */
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    /**
+    * Normalize This Vector
+    */
+    normalize();
+}
+class Vector3 {
+    /**
+    * @param {number} x x
+    * @param {number} y y
+    * @param {number} z z
+    */
+    constructor(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    /**
+    * Normalize This Vector
+    */
+    normalize();
+}
+class Sprite {
+    /**
+    * @param {string} path Image Path
+    * @returns {Sprite} Image
+    */
+    static load(path);
+}
+class GameObject {
+    /**
+    * @param {Sprite} spr Sprite
+    */
+    constructor(spr) {
+    }
+    /**
+    * @returns {Vector3} Position
+    */
+    getPosition();
+    /**
+    * @param {Vector3} vec3 Position
+    */
+    setPosition(vec3);
+    /**
+    * @returns {Color} Color
+    */
+    getColor();
+    /**
+    * @param {Color} col Color
+    */
+    setColor(col);
+    /**
+    * @returns {Sprite} Sprite
+    */
+    getSprite();
+    /**
+    * @param {Sprite} spr Sprite
+    */
+    setSprite(spr);
+}
+class Color {
+    /**
+    * @param {number} r Red
+    * @param {number} g Green
+    * @param {number} b Blue
+    * @param {number} a Alpha
+    */
+    constructor(r, g, b, a = 1) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+}
+class Planet {
+    /**
+    * @param {number} planetType PlanetType
+    */
+    constructor(planetType) {
+    }
+    /**
+    * @returns {Color} Color
+    */
+    getColor();
+    /**
+    * @param {Color} col Color
+    */
+    setColor(col);
+    /**
+    * @returns {Sprite} Sprite
+    */
+    getSprite();
+    /**
+    * @param {Sprite} spr Sprite
+    */
+    setSprite(spr);
 }

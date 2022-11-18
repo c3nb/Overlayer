@@ -8,17 +8,17 @@ namespace Overlayer.Core
 {
     public static class TagExtensions
     {
-        public static float Round(this float value, double digits)
+        public static double Round(this float value, double digits)
         {
             if (digits == -1)
                 return value;
-            return (float)Math.Round(value, (int)digits);
+            return Math.Round(value, (int)digits);
         }
-        public static float Round(this double value, double digits)
+        public static double Round(this double value, double digits)
         {
             if (digits == -1)
-                return (float)value;
-            return (float)Math.Round(value, (int)digits);
+                return value;
+            return Math.Round(value, (int)digits);
         }
     }
 }

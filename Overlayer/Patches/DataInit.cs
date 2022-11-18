@@ -9,7 +9,7 @@ namespace Overlayer.Patches
     {
         public static void Postfix(LevelData __instance)
         {
-            if (!TextCompiler.IsReferencing("Attempts"))
+            if (!TagManager.AllTags["Attempts"].Referenced)
                 return;
             string hash = MakeHash(__instance.author, __instance.artist, __instance.song);
             int attempts = Persistence.GetCustomWorldAttempts(hash);

@@ -7,7 +7,7 @@ using System.Reflection;
 using Overlayer.Core.Utils;
 using System.IO;
 using Overlayer.Core.JavaScript.Compiler;
-using Overlayer.Core.JavaScript.Library;
+using Overlayer.Core.JavaScript.CustomLibrary;
 
 namespace Overlayer.Core.JavaScript
 {
@@ -38,6 +38,13 @@ namespace Overlayer.Core.JavaScript
             engine.SetGlobalValue("KeyCode", new Kcde(engine));
             engine.SetGlobalValue("Input", new Ipt(engine));
             engine.SetGlobalValue("Overlayer", new Ovlr(engine));
+            engine.SetGlobalValue("Sprite", new Sprite(engine));
+            engine.SetGlobalValue("Vector3", new Vector3Constructor(engine));
+            engine.SetGlobalValue("Vector2", new Vector2Constructor(engine));
+            engine.SetGlobalValue("GameObject", new GameObjectConstructor(engine));
+            engine.SetGlobalValue("Color", new ColorConstructor(engine));
+            engine.SetGlobalValue("Planet", new PlanetConstructor(engine));
+            engine.SetGlobalValue("PlanetType", new PT(engine));
             return engine;
         }
         public static readonly CompilerOptions Option = new CompilerOptions()

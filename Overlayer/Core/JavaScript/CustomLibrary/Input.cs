@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
-using Overlayer.Core.JavaScript;
 using Overlayer.Core.JavaScript.Library;
 
-namespace Overlayer
+namespace Overlayer.Core.JavaScript.CustomLibrary
 {
     public class Ipt : ObjectInstance
     {
