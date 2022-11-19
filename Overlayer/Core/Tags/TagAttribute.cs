@@ -9,7 +9,6 @@ namespace Overlayer.Core
         public TagAttribute(string name) => Name = name;
         public string Name { get; }
         public bool Hidden = false;
-        public bool AllowAtNotPlaying = false;
         public bool IsDefault => Name == null;
     }
 }

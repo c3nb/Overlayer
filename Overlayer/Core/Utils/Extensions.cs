@@ -108,5 +108,6 @@ namespace Overlayer.Core.Utils
                 default: return TextAlignmentOptions.Midline;
             }
         }
+        public static string RemoveLast(this string s, int count) => s.Remove(s.Length - count - 1);
     }
 }

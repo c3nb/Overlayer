@@ -127,9 +127,17 @@ function CurVL();
  */
 function CurTL();
 /**
- * @returns {string} Current Difficulty
+ * @returns {number} Integrated Difficulty
  */
-function CurDifficulty();
+function IntegratedDifficulty();
+/**
+ * @returns {number} Forum Difficulty
+ */
+function ForumDifficulty();
+/**
+ * @returns {number} Predicted Difficulty
+ */
+function PredictedDifficulty();
 /**
  * @param {number} opt
  * @returns {string} KeyCode:Judgement
@@ -827,10 +835,23 @@ class Overlayer {
     */
     static sceneLoad(obj);
     /**
+    * @param {Function} obj Anything
+    * @returns {number} 0
+    */
+    static update(obj);
+    /**
     * @param {number} planetType PlanetType
     * @returns {Planet} Planet
     */
     static getPlanet(planetType);
+    /**
+    * @param {number} difficulty Difficulty
+    * @param {number} pitch Pitch
+    * @param {number} accuracy Accuracy
+    * @param {number} totalTiles Total Tiles
+    * @returns {number} PlayPoint
+    */
+    static calculatePP(difficulty, pitch, accuracy, totalTiles);
     /**
     * @param {string} name Variable Name
     * @returns {any} Variable
@@ -946,4 +967,26 @@ class Planet {
     * @param {Sprite} spr Sprite
     */
     setSprite(spr);
+}
+class Time {
+    /**
+    * @returns {number} UnityEngine.Time.deltaTime
+    */
+    static getDeltaTime();
+    /**
+    * @returns {number} UnityEngine.Time.fixedTime
+    */
+    static getFixedTime();
+    /**
+    * @returns {number} UnityEngine.Time.fixedUnscaledDeltaTime
+    */
+    static getFixedUnscaledDeltaTime();
+    /**
+    * @returns {number} UnityEngine.Time.fixedUnscaledTime
+    */
+    static getFixedUnscaledTime();
+    /**
+    * @returns {number} UnityEngine.Time.frameCount
+    */
+    static getFrameCount();
 }

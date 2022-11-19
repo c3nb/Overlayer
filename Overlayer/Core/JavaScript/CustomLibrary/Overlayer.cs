@@ -2,6 +2,7 @@
 using Overlayer.Core.JavaScript.Library;
 using System.Collections.Generic;
 using System;
+using Overlayer.Tags.Global;
 
 namespace Overlayer.Core.JavaScript.CustomLibrary
 {
@@ -17,6 +18,7 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         public static List<Action> Hits = new List<Action>();
         public static List<Action> OpenLevels = new List<Action>();
         public static List<Action> SceneLoads = new List<Action>();
+        public static List<Action> Updates = new List<Action>();
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();
         [JSFunction(Name = "hit")]
         public static int OnHit(FunctionInstance func)
@@ -36,10 +38,21 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
             SceneLoads.Add(() => func.Call(func.Prototype == null ? Undefined.Value : func.Prototype));
             return 0;
         }
+        [JSFunction(Name = "update")]
+        public static int Update(FunctionInstance func)
+        {
+            Updates.Add(() => func.Call(func.Prototype == null ? Undefined.Value : func.Prototype));
+            return 0;
+        }
         [JSFunction(Name = "getPlanet", Flags = JSFunctionFlags.HasEngineParameter)]
         public static Planet GetPlanet(ScriptEngine engine, int pt)
         {
             return new PlanetConstructor(engine).Construct(pt);
+        }
+        [JSFunction(Name = "calculatePP")]
+        public static double CalculatePP(double difficulty, int speed, double accuracy, int totalTiles)
+        {
+            return PlayPoint.CalculatePlayPoint(difficulty, speed, accuracy, totalTiles);
         }
         [JSFunction(Name = "getGlobalVariable")]
         public static object GetGlobalVariable(string name)

@@ -19,6 +19,12 @@ namespace Overlayer.Patches
             public static void Postfix()
                 => Ovlr.Hits.ForEach(a => a());
         }
+        [HarmonyPatch(typeof(scrController), "Update")]
+        public static class UpdateEvent
+        {
+            public static void Postfix()
+                => Ovlr.Updates.ForEach(a => a());
+        }
         [HarmonyPatch(typeof(scnEditor), "OpenLevelCo")]
         public static class OpenLevelEvent
         {

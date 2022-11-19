@@ -16,15 +16,17 @@ namespace Overlayer.Tags.Global
     [ClassTag("PlayPoint")]
     public static class PlayPoint
     {
-        public static double CurrentDifficulty = 0;
+        public static double IntegratedDifficulty = 0;
+        public static double ForumDifficulty = 0;
+        public static double PredictedDifficulty = 0;
         [Tag]
         public static double PlayPointValue(double digits = -1)
         {
             double result;
             var edit = scnEditor.instance;
             if (edit)
-                result = (double)CalculatePlayPoint(CurrentDifficulty, edit.levelData.pitch, Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
-            else result = (double)CalculatePlayPoint(CurrentDifficulty, (int)Math.Round(Misc.Pitch() * 100), Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
+                result = (double)CalculatePlayPoint(IntegratedDifficulty, edit.levelData.pitch, Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
+            else result = (double)CalculatePlayPoint(IntegratedDifficulty, (int)Math.Round(Misc.Pitch() * 100), Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
             return result.Round(digits);
         }
         public static double CalculatePlayPoint(double difficulty, int speed, double accuracy, int tile)
@@ -40,27 +42,26 @@ namespace Overlayer.Tags.Global
         }
         public static void Setup(scnEditor instance)
         {
-            if (!instance) CurrentDifficulty = 0;
-            else
+            IntegratedDifficulty = 0;
+            PredictedDifficulty = 0;
+            ForumDifficulty = 0;
+            if (instance)
             {
                 var levelData = instance.levelData;
                 string artist = levelData.artist.BreakRichTag(), author = levelData.author.BreakRichTag(), title = levelData.song.BreakRichTag();
                 var result = Request(artist, title, author, string.IsNullOrWhiteSpace(levelData.pathData) ? levelData.angleData.Count : levelData.pathData.Length, (int)Math.Round(levelData.bpm));
-                if (result == null)
+                try
                 {
-                    try
-                    {
-                        Main.Logger.Log($"Adjusting Difficulty To Predicted Difficulty {CurrentDifficulty = PredictDifficulty(instance)}..");
-                    }
-                    catch (Exception e)
-                    {
-                        var levelPath = instance.customLevel.levelPath;
-                        Main.Logger.Log($"Error On Predicting Difficulty:\n{e}");
-                        Main.Logger.Log($"Level Path: {levelPath}");
-                        Main.Logger.Log($"Adjusting Difficulty To Editor Difficulty {CurrentDifficulty = ((double)instance.levelData.difficulty).Map(1, 10, 1, 21)}");
-                    }
+                    IntegratedDifficulty = PredictedDifficulty = PredictDifficulty(instance);
                 }
-                else CurrentDifficulty = result.difficulty;
+                catch (Exception e)
+                {
+                    var levelPath = instance.customLevel.levelPath;
+                    Main.Logger.Log($"Error On Predicting Difficulty:\n{e}");
+                    Main.Logger.Log($"Level Path: {levelPath}");
+                    Main.Logger.Log($"Adjusting PredictedDifficulty To Editor Difficulty {IntegratedDifficulty = ForumDifficulty = ((double)instance.levelData.difficulty).Map(1, 10, 1, 21)}");
+                }
+                IntegratedDifficulty = (result?.difficulty).HasValue ? result.difficulty : 0;
             }
         }
         public static AgLevel Request(string artist, string title, string author, int tiles, int bpm)
@@ -205,7 +206,7 @@ namespace Overlayer.Tags.Global
             var hash = DataInit.MakeHash(levelData.author, levelData.artist, levelData.song);
             if (PredictedDiffCache.TryGetValue(hash, out var diff)) return diff;
             var meta = GetMeta(editor.customLevel.levelPath);
-            var predicted = meta.Difficulty.ToFloat();
+            var predicted = meta.Difficulty.ToDouble();
             return PredictedDiffCache[hash] = Clamp(Math.Round(predicted, 1), 1, 21);
         }
         public static LevelMeta GetMeta(string levelPath)

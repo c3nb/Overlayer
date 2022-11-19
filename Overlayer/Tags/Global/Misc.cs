@@ -11,6 +11,8 @@ namespace Overlayer.Tags.Global
         public static double Pitch(double digits = -1) => GCS.currentSpeedTrial.Round(digits);
         [Tag("EditorPitch")]
         public static double EditorPitch(double digits = -1) => (scnEditor.instance.levelData.pitch / 100.0).Round(digits);
+        [Tag("ShortcutPitch")]
+        public static double ShortcutPitch(double digits = -1) => scnEditor.instance.speedIndicator.percent.text.RemoveLast(1).ToDouble().Round(digits);
         [Tag("TEHex")]
         public static string TEHex() => "FF0000FF";
         [Tag("VEHex")]
@@ -39,8 +41,12 @@ namespace Overlayer.Tags.Global
         public static string Artist() => scnEditor.instance?.levelData?.artist.BreakRichTagWithoutSize();
         [Tag("StartTile")]
         public static double StartTile() => Variables.StartTile;
-        [Tag("Difficulty")]
-        public static double Difficulty(double digits = -1) => PlayPoint.CurrentDifficulty.Round(digits);
+        [Tag("IntegratedDifficulty")]
+        public static double IntegratedDifficulty(double digits = -1) => PlayPoint.IntegratedDifficulty.Round(digits);
+        [Tag("PredictedDifficulty")]
+        public static double PredictedDifficulty(double digits = -1) => PlayPoint.PredictedDifficulty.Round(digits);
+        [Tag("ForumDifficulty")]
+        public static double ForumDifficulty(double digits = -1) => PlayPoint.ForumDifficulty.Round(digits);
         [Tag("Accuracy")]
         public static double Accuracy(double digits = -1) => (scrController.instance.mistakesManager.percentAcc * 100).Round(digits);
         [Tag("Progress")]

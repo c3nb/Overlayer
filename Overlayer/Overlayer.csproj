@@ -460,6 +460,7 @@
     <Compile Include="Core\JavaScript\CustomLibrary\Planet.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\PlanetType.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\Sprite.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\Time.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\Vector2.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\Vector3.cs" />
     <Compile Include="Core\JavaScript\JavaScript.cs" />
@@ -593,7 +594,6 @@
     <Compile Include="Core\JavaScript\Library\WeakSet\WeakSetInstance.g.cs" />
     <Compile Include="Core\Translation\GID.cs" />
     <Compile Include="Core\Translation\Language.cs" />
-    <Compile Include="Core\NativeLibrary.cs" />
     <Compile Include="Core\StaticCoroutine.cs" />
     <Compile Include="Core\TagManager.cs" />
     <Compile Include="Core\Tags\ClassTagAttribute.cs" />
@@ -609,7 +609,6 @@
     <Compile Include="Core\Utils\EnumerableExtensions.cs" />
     <Compile Include="Core\Utils\Extensions.cs" />
     <Compile Include="Core\Utils\GUIUtils.cs" />
-    <Compile Include="Core\Utils\InteropUtils.cs" />
     <Compile Include="Core\Utils\MapExtensions.cs" />
     <Compile Include="Core\Utils\PatchUtils.cs" />
     <Compile Include="Core\Utils\StringUtils.cs" />

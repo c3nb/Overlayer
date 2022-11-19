@@ -12,7 +12,6 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         public PT(ScriptEngine engine) : base(engine)
         {
             PopulateFields();
-            PopulateFunctions();
         }
         [JSField]
         public static int Red = 0;

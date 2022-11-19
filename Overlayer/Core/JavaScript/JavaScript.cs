@@ -45,12 +45,13 @@ namespace Overlayer.Core.JavaScript
             engine.SetGlobalValue("Color", new ColorConstructor(engine));
             engine.SetGlobalValue("Planet", new PlanetConstructor(engine));
             engine.SetGlobalValue("PlanetType", new PT(engine));
+            engine.SetGlobalValue("Time", new Time(engine));
             return engine;
         }
         public static readonly CompilerOptions Option = new CompilerOptions()
         {
             ForceStrictMode = false,
-            EnableILAnalysis = true,
+            EnableILAnalysis = false,
             CompatibilityMode = CompatibilityMode.Latest
         };
         public static Func<object> Compile(this string js)
