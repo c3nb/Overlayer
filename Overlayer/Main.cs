@@ -137,7 +137,7 @@ namespace Overlayer
             }
             try
             {
-                var del = source.Compile();
+                var del = source.CompileEval();
                 tag = new Tag(name, desc, del);
                 Logger.Log($"Loaded '{name}' Tag.");
                 return true;
@@ -187,6 +187,31 @@ namespace Overlayer
             UnloadAllJSTags();
             LoadAllJSTags(folderPath);
         }
+        public static void RunInits()
+        {
+            if (!Directory.Exists(InitJSPath))
+            {
+                Directory.CreateDirectory(InitJSPath);
+                var impljsPath = Path.Combine(InitJSPath, "Impl.js");
+                File.WriteAllBytes(impljsPath, Impljs);
+                File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
+            }
+            else
+            {
+                if (!File.Exists(Path.Combine(InitJSPath, "Impl.js")))
+                {
+                    var impljsPath = Path.Combine(InitJSPath, "Impl.js");
+                    File.WriteAllBytes(impljsPath, Impljs);
+                    File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
+                }
+                foreach (string file in Directory.GetFiles(InitJSPath, "*.js"))
+                {
+                    if (Path.GetFileNameWithoutExtension(file) == "Impl")
+                        continue;
+                    File.ReadAllText(file).CompileExec()();
+                }
+            }
+        }
         public static void UnloadAllJSTags()
         {
             foreach (string tagName in JSTagCache)
@@ -198,7 +223,7 @@ namespace Overlayer
         }
         public static string CustomTagsPath;
         public static string InitJSPath;
-        public static UnityAction<Scene, LoadSceneMode> evt = (s, m) => JSEventPatches.SceneLoads();
+        public static UnityAction<Scene, LoadSceneMode> evt = (s, m) => JSPatches.SceneLoads();
         public static bool OnToggle(ModEntry modEntry, bool value)
         {
             try
@@ -208,32 +233,11 @@ namespace Overlayer
                     SceneManager.sceneLoaded += evt;
                     Settings.Load(modEntry);
                     Variables.Reset();
-                    if (!Directory.Exists(InitJSPath))
-                    {
-                        Directory.CreateDirectory(InitJSPath);
-                        var impljsPath = Path.Combine(InitJSPath, "Impl.js");
-                        File.WriteAllBytes(impljsPath, Impljs);
-                        File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
-                    }
-                    else
-                    {
-                        if (!File.Exists(Path.Combine(InitJSPath, "Impl.js")))
-                        {
-                            var impljsPath = Path.Combine(InitJSPath, "Impl.js");
-                            File.WriteAllBytes(impljsPath, Impljs);
-                            File.SetAttributes(impljsPath, FileAttributes.ReadOnly);
-                        }
-                        foreach (string file in Directory.GetFiles(InitJSPath, "*.js"))
-                        {
-                            if (Path.GetFileNameWithoutExtension(file) == "Impl")
-                                continue;
-                            File.ReadAllText(file).Compile()();
-                        }
-                    }
                     LoadAllJSTags(CustomTagsPath);
                     OText.Load();
                     if (!OText.Texts.Any())
                         new OText().Apply();
+                    RunInits();
                     Harmony = new Harmony(modEntry.Info.Id);
                     Harmony.PatchAll(Assembly.GetExecutingAssembly());
                     UpdateLanguage();

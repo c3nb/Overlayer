@@ -1,11 +1,6 @@
 ﻿using Overlayer.Core.JavaScript.Library;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using GO = UnityEngine.GameObject;
 
 namespace Overlayer.Core.JavaScript.CustomLibrary
@@ -16,8 +11,6 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         [JSConstructorFunction]
         public GameObject Construct(Sprite sprite)
             => new GameObject(InstancePrototype, sprite);
-        public GameObject Wrap(SpriteRenderer sr)
-            => new GameObject(InstancePrototype, sr);
     }
     public class GameObject : ObjectInstance
     {
@@ -27,44 +20,51 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         }
         public GameObject(ObjectInstance obj, Sprite spr) : base(obj)
         {
-            go = new GO();
-            UnityEngine.Object.DontDestroyOnLoad(go);
-            sr = go.AddComponent<SpriteRenderer>();
+            var go = new GO();
+            go.transform.SetParent(ShadowText.PublicCanvas.transform);
+            img = go.AddComponent<Image>();
             this.spr = spr;
-            sr.sprite = spr.orig;
-        }
-        public GameObject(ObjectInstance obj, SpriteRenderer sr) : base(obj)
-        {
-            go = sr.gameObject;
-            this.sr = sr;
-            spr = new Sprite(Engine);
-            spr.orig = sr.sprite;
+            img.sprite = spr.orig;
+            img.rectTransform.sizeDelta = new UnityEngine.Vector2(spr.orig.texture.width, spr.orig.texture.height);
         }
         public Sprite spr;
-        public GO go;
-        public SpriteRenderer sr;
-
+        public Image img;
         [JSFunction(Name = "getPosition")]
-        public Vector3 GetPosition()
+        public Vector2 GetPosition()
         {
-            var vec3 = go.transform.position;
-            return new Vector3Constructor(Engine).Construct(vec3.x, vec3.y, vec3.z);
+            var vec3 = img.rectTransform.position;
+            return new Vector2Constructor(Engine).Construct(vec3.x, vec3.y);
         }
         [JSFunction(Name = "setPosition")]
-        public void SetPosition(Vector3 vec3)
+        public void SetPosition(Vector2 vec2)
         {
-            go.transform.position = vec3;
+            var value = (UnityEngine.Vector2)vec2;
+            img.rectTransform.anchorMin = value;
+            img.rectTransform.anchorMax = value;
+            img.rectTransform.pivot = value;
+            img.rectTransform.anchoredPosition = value;
         }
         [JSFunction(Name = "getColor")]
         public Color GetColor()
         {
-            var col = sr.color;
+            var col = img.color;
             return new ColorConstructor(Engine).Construct(col.r, col.g, col.b, col.a);
         }
         [JSFunction(Name = "setColor")]
         public void SetColor(Color col)
         {
-            sr.color = new UnityEngine.Color((float)col.r, (float)col.g, (float)col.b, (float)col.a);
+            img.color = new UnityEngine.Color((float)col.r, (float)col.g, (float)col.b, (float)col.a);
+        }
+        [JSFunction(Name = "getSize")]
+        public Vector2 GetSize()
+        {
+            var vec2 = img.rectTransform.sizeDelta;
+            return new Vector2Constructor(Engine).Construct(vec2.x, vec2.y);
+        }
+        [JSFunction(Name = "setSize")]
+        public void SetSize(Vector2 vec2)
+        {
+            img.rectTransform.sizeDelta = vec2;
         }
         [JSFunction(Name = "getSprite")]
         public Sprite GetSprite() => spr;
@@ -72,7 +72,7 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         public void SetSprite(Sprite spr)
         {
             this.spr = spr;
-            sr.sprite = spr.orig;
+            img.sprite = spr.orig;
         }
     }
 }

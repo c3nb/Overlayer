@@ -79,8 +79,6 @@ namespace Overlayer.Core.JavaScript
         }
         internal GlobalOrEvalMethodGenerator.GlobalCodeDelegate del;
         internal ExecutionContext context;
-        internal object EvaluateInternal(ScriptEngine engine)
-            => TypeUtilities.NormalizeValue(methodGen.Execute(engine, RuntimeScope.CreateGlobalScope(engine), engine.Global));
         internal object EvaluateFastInternal(ScriptEngine engine)
         {
         Run:

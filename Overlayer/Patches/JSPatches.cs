@@ -5,14 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Overlayer.Core.JavaScript.CustomLibrary;
+using UnityEngine;
 
 namespace Overlayer.Patches
 {
     [HarmonyPatch]
-    public static class JSEventPatches
+    public static class JSPatches
     {
         public static void SceneLoads()
             => Ovlr.SceneLoads.ForEach(a => a());
+        [HarmonyPatch(typeof(scrController), "Awake")]
+        public static class InitEvent
+        {
+            public static void Postfix()
+                => Ovlr.Inits.ForEach(a => a());
+        }
         [HarmonyPatch(typeof(scrController), "Hit")]
         public static class HitEvent
         {
@@ -30,6 +37,25 @@ namespace Overlayer.Patches
         {
             public static void Postfix()
                 => Ovlr.OpenLevels.ForEach(a => a());
+        }
+        // From PlanetTweaks
+        [HarmonyPatch(typeof(scrPlanet), "Destroy")]
+        public static class PlanetDestroyPatch
+        {
+            public static void Postfix(scrPlanet __instance)
+            {
+                var holder = __instance.GetComponent<SRHolder>();
+                if (holder != null) holder.enabled = false;
+            }
+        }
+        [HarmonyPatch(typeof(scrPlanet), "Die")]
+        public static class PlanetDiePatch
+        {
+            public static void Postfix(scrPlanet __instance)
+            {
+                var holder = __instance.GetComponent<SRHolder>();
+                if (holder != null) holder.enabled = false;
+            }
         }
     }
 }

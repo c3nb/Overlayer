@@ -457,6 +457,7 @@
     <Compile Include="Core\JavaScript\Core\Undefined.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\Color.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\GameObject.cs" />
+    <Compile Include="Core\JavaScript\CustomLibrary\HSV.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\Planet.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\PlanetType.cs" />
     <Compile Include="Core\JavaScript\CustomLibrary\Sprite.cs" />
@@ -751,7 +752,7 @@
     <Compile Include="Patches\DeathMessagePatch.cs" />
     <Compile Include="Patches\ErrorMeterPatch.cs" />
     <Compile Include="Patches\GetHitMarginFixer.cs" />
-    <Compile Include="Patches\JSEventPatches.cs" />
+    <Compile Include="Patches\JSPatches.cs" />
     <Compile Include="Patches\KeyJudgePatch.cs" />
     <Compile Include="Patches\LeastChkPtLogger.cs" />
     <Compile Include="Patches\Resetter.cs" />

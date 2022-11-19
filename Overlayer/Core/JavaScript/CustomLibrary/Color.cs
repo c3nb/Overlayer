@@ -19,6 +19,7 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
     {
         public Color(ObjectInstance engine) : base(engine)
         {
+            PopulateFunctions();
             PopulateFields();
         }
         public Color(ObjectInstance obj, double r, double g, double b, double a = 1) : base(obj)
@@ -36,5 +37,6 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         public double b;
         [JSField]
         public double a;
+        public static implicit operator UnityEngine.Color(Color col) => new UnityEngine.Color((float)col.r, (float)col.g, (float)col.b, (float)col.a);
     }
 }

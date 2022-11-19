@@ -43,6 +43,7 @@ namespace Overlayer.Core.JavaScript
             engine.SetGlobalValue("Vector2", new Vector2Constructor(engine));
             engine.SetGlobalValue("GameObject", new GameObjectConstructor(engine));
             engine.SetGlobalValue("Color", new ColorConstructor(engine));
+            engine.SetGlobalValue("HSV", new HSVConstructor(engine));
             engine.SetGlobalValue("Planet", new PlanetConstructor(engine));
             engine.SetGlobalValue("PlanetType", new PT(engine));
             engine.SetGlobalValue("Time", new Time(engine));
@@ -54,11 +55,17 @@ namespace Overlayer.Core.JavaScript
             EnableILAnalysis = false,
             CompatibilityMode = CompatibilityMode.Latest
         };
-        public static Func<object> Compile(this string js)
+        public static Func<object> CompileEval(this string js)
         {
             var engine = PrepareEngine();
             var scr = CompiledEval.Compile(new TextSource(js), Option);
             return () => scr.EvaluateFastInternal(engine);
+        }
+        public static Action CompileExec(this string js)
+        {
+            var engine = PrepareEngine();
+            var scr = CompiledScript.Compile(new TextSource(js), Option);
+            return () => scr.ExecuteFastInternal(engine);
         }
         public static ScriptSource ToSource(this string s) => new TextSource(s);
         class TextSource : ScriptSource
@@ -66,7 +73,21 @@ namespace Overlayer.Core.JavaScript
             public string str;
             public TextSource(string str) => this.str = str;
             public override string Path => null;
-            public override TextReader GetReader() => new StringReader(str);
+            public override TextReader GetReader()
+            {
+                using (StringReader sr = new StringReader(str))
+                {
+                    StringBuilder sb = new StringBuilder();
+                    string line = null;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (line.StartsWith("import"))
+                            continue;
+                        sb.AppendLine(line);
+                    }
+                    return new StringReader(sb.ToString());
+                }
+            }
         }
     }
 }

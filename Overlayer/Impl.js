@@ -815,30 +815,43 @@ class Input {
 }
 class Overlayer {
     /**
-    * @param {Function} obj Anything
+    * @returns {string} Inits Folder Absolute Path
+    */
+    static getCurDir();
+    /**
+    * @returns {string} Overlayer Folder AbsolutePath
+    */
+    static getModDir();
+    /**
+    * @param {any} obj Anything
     * @returns {number} 0
     */
     static log(obj);
     /**
-    * @param {Function} obj Anything
+    * @param {Function} func Function
     * @returns {number} 0
     */
-    static hit(obj);
+    static hit(func);
     /**
-    * @param {Function} obj Anything
+    * @param {Function} func Function
     * @returns {number} 0
     */
-    static openLevel(obj);
+    static init(func);
     /**
-    * @param {Function} obj Anything
+    * @param {Function} func Function
     * @returns {number} 0
     */
-    static sceneLoad(obj);
+    static openLevel(func);
     /**
-    * @param {Function} obj Anything
+    * @param {Function} func Function
     * @returns {number} 0
     */
-    static update(obj);
+    static sceneLoad(func);
+    /**
+    * @param {Function} func Function
+    * @returns {number} 0
+    */
+    static update(func);
     /**
     * @param {number} planetType PlanetType
     * @returns {Planet} Planet
@@ -862,6 +875,14 @@ class Overlayer {
     * @param {any} obj Any Value
     */
     static setGlobalVariable(name, obj);
+    /**
+    * @returns {HSV} HSV
+    */
+    static RGBToHSV();
+    /**
+    * @returns {Color} RGB
+    */
+    static HSVToRGB();
 }
 class Vector2 {
     /**
@@ -907,13 +928,13 @@ class GameObject {
     constructor(spr) {
     }
     /**
-    * @returns {Vector3} Position
+    * @returns {Vector2} Position
     */
     getPosition();
     /**
-    * @param {Vector3} vec3 Position
+    * @param {Vector2} vec2 Position
     */
-    setPosition(vec3);
+    setPosition(vec2);
     /**
     * @returns {Color} Color
     */
@@ -922,6 +943,14 @@ class GameObject {
     * @param {Color} col Color
     */
     setColor(col);
+    /**
+    * @returns {Vector2} Size
+    */
+    getSize();
+    /**
+    * @param {Vector2} vec2 Size
+    */
+    setSize(vec2);
     /**
     * @returns {Sprite} Sprite
     */
@@ -943,6 +972,18 @@ class Color {
         this.g = g;
         this.b = b;
         this.a = a;
+    }
+}
+class HSV {
+    /**
+    * @param {number} h Hue
+    * @param {number} s Saturation
+    * @param {number} v Value
+    */
+    constructor(h, s, v) {
+        this.h = h;
+        this.s = s;
+        this.v = v;
     }
 }
 class Planet {
@@ -967,6 +1008,14 @@ class Planet {
     * @param {Sprite} spr Sprite
     */
     setSprite(spr);
+    /**
+    * @returns {Vector2} Size
+    */
+    getSpriteSize();
+    /**
+    * @param {Vector2} vec2 Size
+    */
+    setSpriteSize(vec2);
 }
 class Time {
     /**

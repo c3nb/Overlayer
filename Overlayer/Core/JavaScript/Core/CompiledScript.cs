@@ -73,5 +73,19 @@ namespace Overlayer.Core.JavaScript
                 engine.ClearPostExecuteSteps();
             }
         }
+        internal GlobalOrEvalMethodGenerator.GlobalCodeDelegate del;
+        internal ExecutionContext context;
+        internal void ExecuteFastInternal(ScriptEngine engine)
+        {
+        Run:
+            if (context != null)
+            {
+                del(context);
+                return;
+            }
+            del = (GlobalOrEvalMethodGenerator.GlobalCodeDelegate)methodGen.GeneratedMethod.GeneratedDelegate;
+            context = ExecutionContext.CreateGlobalOrEvalContext(engine, RuntimeScope.CreateGlobalScope(engine), engine.Global);
+            goto Run;
+        }
     }
 }

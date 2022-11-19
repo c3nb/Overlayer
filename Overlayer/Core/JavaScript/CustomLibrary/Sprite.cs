@@ -11,12 +11,12 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         {
             PopulateFunctions();
         }
-        [JSFunction(Name = "load", Flags = JSFunctionFlags.HasEngineParameter)]
+        [JSFunction(Name = "load", Flags = JSFunctionFlags.HasEngineParameter | JSFunctionFlags.ConvertNullReturnValueToUndefined)]
         public static Sprite Load(ScriptEngine engine, string path)
         {
             Sprite spr = new Sprite(engine);
-            Texture2D texture = new Texture2D(1, 1);
-            if (texture.LoadImage(File.ReadAllBytes(path)))
+            Texture2D texture = new Texture2D(0, 0);
+            if (!texture.LoadImage(File.ReadAllBytes(path)))
                 return null;
             spr.orig = texture.ToSprite();
             return spr;
