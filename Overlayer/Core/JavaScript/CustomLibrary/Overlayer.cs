@@ -25,7 +25,8 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         [JSFunction(Name = "hit")]
         public static int Hit(FunctionInstance func)
         {
-            Hits.Add(() => func.Call(func.Prototype == null ? Undefined.Value : func.Prototype));
+            Hits.Add(() => func.Call(func.Prototype == null ? 
+            .Value : func.Prototype));
             return 0;
         }
         [JSFunction(Name = "init")]
@@ -65,12 +66,12 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         [JSFunction(Name = "getGlobalVariable")]
         public static object GetGlobalVariable(string name)
         {
-            return Variables[name];
+            return Variables.TryGetValue(name, out object value) ? value : Undefined.Value;
         }
         [JSFunction(Name = "setGlobalVariable")]
         public static void SetGlobalVariable(string name, object obj)
         {
-            Variables.Add(name, obj);
+            Variables[name] = obj;
         }
         [JSFunction(Name = "getCurDir")]
         public static string GetCurDir() => Path.Combine(Main.Mod.Path, "Inits/");
