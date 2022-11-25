@@ -25,8 +25,7 @@ namespace Overlayer.Core.JavaScript.CustomLibrary
         [JSFunction(Name = "hit")]
         public static int Hit(FunctionInstance func)
         {
-            Hits.Add(() => func.Call(func.Prototype == null ? 
-            .Value : func.Prototype));
+            Hits.Add(() => func.Call(func.Prototype == null ? Undefined.Value : func.Prototype));
             return 0;
         }
         [JSFunction(Name = "init")]
