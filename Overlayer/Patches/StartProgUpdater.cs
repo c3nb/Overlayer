@@ -1,14 +1,49 @@
 ﻿using HarmonyLib;
 using JSEngine.CustomLibrary;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.UI;
+using static Overlayer.Patches.StartProgUpdater;
 
 namespace Overlayer.Patches
 {
     [HarmonyPatch(typeof(scrCountdown), "Update")]
     public static class StartProgUpdater
     {
+        public class POFGetter<T>
+        {
+            readonly Func<object, T> getter;
+            public POFGetter(MemberInfo propertyOrField)
+            {
+                if (propertyOrField is FieldInfo f)
+                {
+                    var g = AccessTools.FieldRefAccess<object, T>(f);
+                    getter = obj => g(obj);
+                }
+                else if (propertyOrField is PropertyInfo p)
+                {
+                    var getMethod = p.GetGetMethod(true);
+                    DynamicMethod dm = new DynamicMethod($"{p.Name}_Getter", typeof(T), new[] { typeof(object) });
+                    ILGenerator il = dm.GetILGenerator();
+                    if (getMethod.IsStatic)
+                    {
+                        il.Emit(OpCodes.Call, getMethod);
+                        il.Emit(OpCodes.Ret);
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Call, getMethod);
+                        il.Emit(OpCodes.Ret);
+                    }
+                }
+            }
+            public T GetValue(object obj = null) => getter(obj);
+        }
+        public static readonly POFGetter<bool> inStrictlyEditingMode = new POFGetter<bool>(typeof(scnEditor).GetMember("inStrictlyEditingMode", BindingFlags.Public | BindingFlags.Instance)[0]);
         public static bool Prefix(scrCountdown __instance, ref Text ___text, ref float ___timeGoTween)
         {
             if ((ADOBase.isLevelEditor || __instance.controller.currentState == States.PlayerControl) && (__instance.controller.goShown || __instance.conductor.fastTakeoff))
@@ -26,14 +61,14 @@ namespace Overlayer.Patches
                         {
                             ___text.text = RDString.Get("status.go", null);
                             SetStartProg(__instance.controller);
-                            ___timeGoTween = (float)(__instance.conductor.crotchet / (double)__instance.conductor.extraTicksCountdown[__instance.controller.curCountdown].speed) / __instance.conductor.song.pitch;
+                            ___timeGoTween = (float)(__instance.conductor.crotchet / __instance.conductor.extraTicksCountdown[__instance.controller.curCountdown].speed) / __instance.conductor.song.pitch;
                         }
                     }
                     __instance.controller.curCountdown++;
                 }
             }
             scnEditor editor = ADOBase.editor;
-            if (editor != null && editor.inStrictlyEditingMode) return false;
+            if (editor != null && inStrictlyEditingMode.GetValue(editor)) return false;
             if (!__instance.controller.goShown && !__instance.conductor.fastTakeoff && (__instance.controller.state == States.PlayerControl || __instance.controller.state == States.Countdown || __instance.controller.state == States.Checkpoint))
             {
                 double num2 = AudioSettings.dspTime - (double)scrConductor.calibration_i;

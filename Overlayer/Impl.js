@@ -799,17 +799,17 @@ const PlanetType =
     Other: 9
 };
 const Judgement = {
-    TooEarly,
-    VeryEarly,
-    EarlyPerfect,
-    Perfect,
-    LatePerfect,
-    VeryLate,
-    TooLate,
-    Multipress,
-    FailMiss,
-    FailOverload,
-    Auto
+    TooEarly: 0,
+    VeryEarly: 1,
+    EarlyPerfect: 2,
+    Perfect: 3,
+    LatePerfect: 4,
+    VeryLate: 5,
+    TooLate: 6,
+    Multipress: 7,
+    FailMiss: 8,
+    FailOverload: 9,
+    Auto: 10
 }
 class Input {
     /**
