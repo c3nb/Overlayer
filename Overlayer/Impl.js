@@ -452,6 +452,8 @@ function Timing(opt);
  * @returns {number} Average Hit Timing
  */
 function TimingAvg(opt);
+/** @type {Tiles} */
+const tiles = undefined;
 const KeyCode =
 {
     None: 0,
@@ -796,6 +798,19 @@ const PlanetType =
     Current: 8,
     Other: 9
 };
+const Judgement = {
+    TooEarly,
+    VeryEarly,
+    EarlyPerfect,
+    Perfect,
+    LatePerfect,
+    VeryLate,
+    TooLate,
+    Multipress,
+    FailMiss,
+    FailOverload,
+    Auto
+}
 class Input {
     /**
     * @param {number} key KeyCode
@@ -853,10 +868,17 @@ class Overlayer {
     */
     static update(func);
     /**
-    * @param {number} planetType PlanetType
-    * @returns {Planet} Planet
+    * @param {string} target target (scrController:Awake)
+    * @param {Function} func Function
+    * @returns {boolean} Success
     */
-    static getPlanet(planetType);
+    static prefix(target, func);
+    /**
+    * @param {string} target target (scrController:Awake)
+    * @param {Function} func Function
+    * @returns {boolean} Success
+    */
+    static postfix(target, func);
     /**
     * @param {number} difficulty Difficulty
     * @param {number} pitch Pitch
@@ -883,6 +905,19 @@ class Overlayer {
     * @returns {Color} RGB
     */
     static HSVToRGB();
+    /**
+    * @param {number} planetType PlanetType
+    * @returns {Planet} Planet
+    */
+    static getPlanet(planetType);
+}
+class Tiles {
+    /**
+    * @returns {Tile} Tile
+    */
+    get(index);
+    /** @type {number} */
+    count;
 }
 class Vector2 {
     /**
@@ -1038,4 +1073,34 @@ class Time {
     * @returns {number} UnityEngine.Time.frameCount
     */
     static getFrameCount();
+}
+class Tile {
+    /**
+    * @param {number} timing Hit Timing
+    * @param {number} xAccuracy XAccuracy
+    * @param {number} accuracy Accuracy
+    * @param {number} judgement Hit Judgement
+    */
+    constructor(timing, xAccuracy, accuracy, judgement) {
+    }
+    /**
+    * @returns {number} Tiles Sequence ID
+    */
+    getSeqID();
+    /**
+    * @returns {number} Hit Timing
+    */
+    getTiming();
+    /**
+    * @returns {number} XAccuracy
+    */
+    getXAccuracy();
+    /**
+    * @returns {number} Accuracy
+    */
+    getAccuracy();
+    /**
+    * @returns {number} Hit Judgement
+    */
+    getJudgement();
 }

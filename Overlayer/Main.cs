@@ -2,23 +2,16 @@
 using Overlayer.Patches;
 using Overlayer.Core;
 using Overlayer.Core.Utils;
-using Overlayer;
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Threading;
-using UnityModManagerNet;
-using System.Runtime.CompilerServices;
 using static UnityModManagerNet.UnityModManager;
 using System.IO;
 using Overlayer.Tags.Global;
-using System.Text;
 using Overlayer.Core.Translation;
-using Rewired.UI.ControlMapper;
-using Overlayer.Core.JavaScript;
+using JSEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
@@ -125,6 +118,7 @@ namespace Overlayer
                 fpsTimeTimer += deltaTime;
             };
         }
+
         public static bool LoadJSTag(string source, string name, out Tag tag)
         {
             tag = null;
@@ -208,7 +202,7 @@ namespace Overlayer
                 {
                     if (Path.GetFileNameWithoutExtension(file) == "Impl")
                         continue;
-                    File.ReadAllText(file).CompileExec()();
+                    File.ReadAllText(file).CompileExecWithArgs()();
                 }
             }
         }
@@ -237,9 +231,9 @@ namespace Overlayer
                     OText.Load();
                     if (!OText.Texts.Any())
                         new OText().Apply();
-                    RunInits();
                     Harmony = new Harmony(modEntry.Info.Id);
                     Harmony.PatchAll(Assembly.GetExecutingAssembly());
+                    RunInits();
                     UpdateLanguage();
                     var settings = Settings.Instance;
                     DeathMessagePatch.compiler = new TextCompiler(TagManager.AllTags);
@@ -307,6 +301,11 @@ namespace Overlayer
             if (GUILayout.Button(Language[TranslationKeys.ReloadCustomTags]))
             {
                 ReloadAllJSTags(CustomTagsPath);
+                Recompile();
+            }
+            if (GUILayout.Button(Language[TranslationKeys.ReloadInits]))
+            {
+                RunInits();
                 Recompile();
             }
             GUILayout.FlexibleSpace();

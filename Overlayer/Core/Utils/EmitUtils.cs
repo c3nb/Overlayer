@@ -31,6 +31,14 @@ namespace Overlayer.Core.Utils
             il.Emit(OpCodes.Ldobj, obj.GetType());
             return handle;
         }
+        public static LocalBuilder MakeArray<T>(this ILGenerator il, int length)
+        {
+            LocalBuilder array = il.DeclareLocal(typeof(T[]));
+            il.Emit(OpCodes.Ldc_I4, length);
+            il.Emit(OpCodes.Newarr, typeof(T));
+            il.Emit(OpCodes.Stloc, array);
+            return array;
+        }
     }
     public static class Type<T>
     {

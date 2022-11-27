@@ -68,5 +68,6 @@
         public static readonly string Argument = nameof(Argument);
         public static readonly string ClearMessage = nameof(ClearMessage);
         public static readonly string ReloadCustomTags = nameof(ReloadCustomTags);
+        public static readonly string ReloadInits = nameof(ReloadInits);
     }
 }

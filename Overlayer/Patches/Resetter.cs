@@ -1,4 +1,7 @@
 ﻿using HarmonyLib;
+using JSEngine.CustomLibrary;
+using Overlayer.Core;
+using System.Collections.Generic;
 using Overlayer.Tags.Global;
 
 namespace Overlayer.Patches

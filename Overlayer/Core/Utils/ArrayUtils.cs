@@ -9,6 +9,34 @@ namespace Overlayer.Core.Utils
 {
     public static class ArrayUtils
     {
+        public static R[] ActualElements<T, R>(this R[] array, T[] seed, Func<T, R, bool> selector)
+        {
+            R[] result = new R[array.Length];
+            for (int i = 0; i < seed.Length; i++)
+            {
+                int index = Array.FindIndex(array, r => selector(seed[i], r));
+                if (index > 0)
+                    result = result.Add(array[index]);
+            }
+            return result.MakeTight();
+        }
+        public static T[] MakeTight<T>(this T[] array)
+        {
+            int index = -1, arrlen = array.Length;
+            for (int i = 0; i < arrlen; i++)
+            {
+                var def = array[i].Equals(default(T));
+                if (index < 0 && def)
+                    index = i;
+                else if (index > 0 && !def)
+                    index = -1;
+            }
+            if (index < 0) return array;
+            int defCount = arrlen - (index + 1);
+            T[] result = new T[defCount];
+            Array.Copy(array, result, arrlen - defCount);
+            return result;
+        }
         public static T[] Push<T>(this T[] array, T item)
         {
             return array.Add(item);
