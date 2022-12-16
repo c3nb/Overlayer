@@ -1,4 +1,5 @@
-﻿using JSEngine;
+﻿//#define TOURNAMENT
+using JSEngine;
 using JSEngine.Library;
 using System.Collections.Generic;
 using System;
@@ -29,22 +30,30 @@ namespace JSEngine.CustomLibrary
         [JSFunction(Name = "prefix")]
         public static bool Prefix(string typeColonMethodName, FunctionInstance func)
         {
+#if !TOURNAMENT
             var target = AccessTools.Method(typeColonMethodName);
             var wrap = func.Wrap(target, true);
             if (wrap == null)
                 return false;
             Main.Harmony.Patch(target, new HarmonyMethod(wrap));
             return true;
+#else
+            return false;
+#endif
         }
         [JSFunction(Name = "postfix")]
         public static bool Postfix(string typeColonMethodName, FunctionInstance func)
         {
+#if !TOURNAMENT
             var target = AccessTools.Method(typeColonMethodName);
             var wrap = func.Wrap(target, false);
             if (wrap == null)
                 return false;
             Main.Harmony.Patch(target, postfix: new HarmonyMethod(wrap));
             return true;
+#else
+            return false;
+#endif
         }
         [JSFunction(Name = "hit")]
         public static int Hit(FunctionInstance func)
