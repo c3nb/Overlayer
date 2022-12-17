@@ -15,7 +15,9 @@ using TinyJson;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UIElements;
+using System.Reflection;
 using System.IO;
+using ADOFAI.Editor.Actions;
 
 namespace Overlayer
 {
@@ -27,6 +29,7 @@ namespace Overlayer
         public static int FirstSeqId = 0;
         public static bool IsFirst = false;
         public static bool IsTimingScaleChanged = false;
+        public static bool ShortcutLoaded = false;
         static readonly string[] events = { "SetSpeed", "Twirl", "Pause", "ScaleMargin", "Hold", "FreeRoam", "MultiPlanet" };
         public static string GetHash(LevelData levelData)
         {
@@ -57,25 +60,38 @@ namespace Overlayer
                 else Main.Logger.Log("SUCCESS");
             }
         }
-        public static void LoadLevelStrictly(string level)
+        public static void LoadLevel(string path)
         {
-            File.WriteAllText("tempLevel.adofai", level);
-            File.SetAttributes("tempLevel.adofai", FileAttributes.ReadOnly);
-            OpenLevel("tempLevel.adofai");
+            ShortcutLoaded = true;
+            File.SetAttributes(path, FileAttributes.ReadOnly);
+            scrController.instance.LoadCustomLevel(path);
         }
-        public static readonly FastInvokeHandler checkUnsavedChanges = MethodInvoker.GetHandler(AccessTools.Method(typeof(scnEditor), "CheckUnsavedChanges"));
-        public static readonly FastInvokeHandler pauseIfUnpaused = MethodInvoker.GetHandler(AccessTools.Method(typeof(scnEditor), "PauseIfUnpaused"));
         public static readonly FastInvokeHandler openLevelCo = MethodInvoker.GetHandler(AccessTools.Method(typeof(scnEditor), "OpenLevelCo"));
-        public static void OpenLevel(string path)
+    }
+    [HarmonyPatch]
+    public static class OpenLevelShortcut
+    {
+        public static IEnumerable<MethodBase> TargetMethods()
         {
-            var editor = scnEditor.instance;
-            checkUnsavedChanges(editor, () =>
+            yield return AccessTools.Method(typeof(scnLevelSelect), "Update");
+            yield return AccessTools.Method(typeof(scnLevelSelectTaro), "Update");
+        }
+        public static void Postfix()
+        {
+            if (RDEditorUtils.CheckForKeyCombo(true, true, KeyCode.O))
+                Tournament.LoadLevel(@"2128998212/main.adofai");
+        }
+    }
+    [HarmonyPatch(typeof(CustomLevel), "LoadAndPlayLevel")]
+    public static class RemoveCustomLevelPaths
+    {
+        public static void Postfix()
+        {
+            if (Tournament.ShortcutLoaded)
             {
-                pauseIfUnpaused(editor);
-                editor.StartCoroutine((IEnumerator)openLevelCo(editor, path));
-            });
-            if (GCS.standaloneLevelMode)
-                editor.DeselectFloors(true);
+                GCS.customLevelPaths = null;
+                Tournament.ShortcutLoaded = false;
+            }
         }
     }
     [HarmonyPatch(typeof(scrPlanet), "SwitchChosen")]
