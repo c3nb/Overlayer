@@ -116,7 +116,7 @@ namespace Overlayer
             Shadow.lineSpacing -= 25f;
             Shadow.lineSpacingAdjustment = 25f;
         }
-        private void Update() => Updater();
+        private void Update() => Updater?.Invoke();
         static bool initialized;
         internal static string[] fontNames;
         public bool TrySetFont(string name)
