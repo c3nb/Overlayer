@@ -1,5 +1,4 @@
-﻿//#define TOURNAMENT
-using JSEngine;
+﻿using JSEngine;
 using JSEngine.Library;
 using System.Collections.Generic;
 using System;
