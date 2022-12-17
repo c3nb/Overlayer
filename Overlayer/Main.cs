@@ -14,9 +14,11 @@ using Overlayer.Core.Translation;
 using JSEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityModManagerNet;
 
 namespace Overlayer
 {
+    [EnableReloading]
     public static class Main
     {
         public static ModEntry Mod;
