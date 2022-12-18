@@ -299,6 +299,15 @@ namespace Overlayer
             Main.Logger.Log(Success
                 ? $"Tournament Feature> [{SentTime:G}] Packet successfully sent, received ({Response}). Sent content: {SentPacket}"
                 : $"Tournament Feature> An error occurred while sending a web request ({Response}). Was sending the content: {SentPacket}");
+
+            var language = Persistence.GetLanguage();
+            var isKorean = language == SystemLanguage.Korean.ToString();
+
+            string resultText;
+            if (Success) resultText = isKorean ? "결과 전송 성공!" : "Submit Success!";
+            else resultText = isKorean ? "결과 전송 실패!" : "Submit Failed!";
+            
+            scrUIController.instance.txtCongrats.text = resultText;
         }
     }
 }
