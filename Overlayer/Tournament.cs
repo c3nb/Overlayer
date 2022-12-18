@@ -88,6 +88,8 @@ namespace Overlayer
         }
         public static void Postfix()
         {
+            if (SteamIntegration.Instance == null) return;
+            
             if (RDEditorUtils.CheckForKeyCombo(true, true, KeyCode.O))
                 Tournament.LoadLevel(Path.Combine(Main.Mod.Path, "LevelContent/level.adofai"));
         }
