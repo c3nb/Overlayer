@@ -17,7 +17,10 @@ using UnityEngine.Networking;
 using UnityEngine.UIElements;
 using System.Reflection;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using ADOFAI.Editor.Actions;
+using Discord;
 
 namespace Overlayer
 {
@@ -37,7 +40,20 @@ namespace Overlayer
             string @event = string.Join(",", levelData.levelEvents.Where(x => events.Contains(x["eventType"])).Select(x => x.Encode()));
             return MD5Hash.GetHash(angle + @event + levelData.songSettings["bpm"].ToString() + levelData.songSettings["pitch"].ToString());
         }
-        public static IEnumerator SendResultToServer(scrController ctrl)
+
+        public static User GetDiscordUser()
+        {
+            var discord = (Discord.Discord)AccessTools.Field(typeof(DiscordController), "discord").GetValue(DiscordController.instance);
+            return discord.GetUserManager().GetCurrentUser();
+        }
+
+        public static string GetFormattedDiscordUsername()
+        {
+            var user = GetDiscordUser();
+            return $"{user.Username}#{user.Discriminator}";
+        }
+        
+        public static void SendResultToServer(scrController ctrl)
         {
             Result result = new Result
             {
@@ -47,24 +63,46 @@ namespace Overlayer
                 difficulty = (int)GCS.difficulty,
                 isTimingScaleChanged = IsTimingScaleChanged,
                 playSeqId = FirstSeqId,
-                discordUsername = DiscordController.currentUsername,
+                discordUsername = GetFormattedDiscordUsername(),
                 pitch = scrConductor.instance.song.pitch,
                 usedCheckpoints = scrController.checkpointsUsed,
                 levelHash = GetHash(scnEditor.instance.levelData),
                 isAutoplay = RDC.auto || RDC.debug
             };
 
-            if (result.isAutoplay) yield break;
+            // if (result.isAutoplay) yield break;
 
             var resultJson = result.ToJson();
+
+            // convert to bytes
+            var bytes = System.Text.Encoding.UTF8.GetBytes(resultJson);
             
-            //$"https://api.awc.enak.kr/player/{result.discordUserId}/rate"
-            using (var r = UnityWebRequest.Put($"https://api.awc.enak.kr/player/{DiscordController.currentUserID}/rate", resultJson))
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"https://api.awc.enak.kr/player/{DiscordController.currentUserID}/rate");
+            request.Method = "PUT";
+            request.ContentType = "application/json";
+            request.ContentLength = bytes.Length;
+            
+            // write the contents into stream
+            using (var stream = request.GetRequestStream())
             {
-                yield return r.SendWebRequest();
-                Main.Logger.Log(r.result != UnityWebRequest.Result.Success
-                    ? $"Tournament Feature> An error occurred while sending a web request ({r.error}). Was sending the content: {resultJson}"
-                    : $"Tournament Feature> Packet successfully sent, with the content: {resultJson}");
+                stream.Write(bytes, 0, bytes.Length);
+                stream.Flush();
+                stream.Close();
+            }
+            
+            try
+            {
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                StreamReader reader = new StreamReader(response.GetResponseStream()!);
+
+                string json = reader.ReadToEnd();
+                Main.Logger.Log($"Tournament Feature> Packet successfully sent, received ({json}). Sent content: {resultJson}");
+            }
+            catch (WebException e)
+            {
+                var resp = new StreamReader(e.Response.GetResponseStream()!).ReadToEnd();
+                Main.Logger.Log($"Tournament Feature> An error occurred while sending a web request ({resp}). Was sending the content: {resultJson}");
             }
         }
         public static void LoadLevel(string path)
@@ -89,6 +127,12 @@ namespace Overlayer
         public static void Postfix()
         {
             if (SteamIntegration.Instance == null) return;
+
+            // if (Input.GetKeyDown(KeyCode.A))
+            // {
+            //     // Tournament.ForceSend();
+            //     // Main.Logger.Log(Tournament.GetDiscordUser().Discriminator);
+            // }
             
             if (RDEditorUtils.CheckForKeyCombo(true, true, KeyCode.O))
                 Tournament.LoadLevel(Path.Combine(Main.Mod.Path, "LevelContent/level.adofai"));
@@ -182,8 +226,8 @@ namespace Overlayer
         {
             // only allow shortcut loads
             if (!CustomLevel.instance || !Tournament.ShortcutLoaded) return;
-            
-            StaticCoroutine.Instance.Run(Tournament.SendResultToServer(__instance));
+
+            Tournament.SendResultToServer(__instance);
         }
     }
     
