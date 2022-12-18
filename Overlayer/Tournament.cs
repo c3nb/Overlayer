@@ -41,6 +41,7 @@ namespace Overlayer
         {
             Result result = new Result
             {
+                playerName = SteamIntegration.Instance?.GetPlayersName(),
                 xAcc = ctrl.mistakesManager.percentXAcc,
                 hitMargins = scrMistakesManager.hitMarginsCount,
                 difficulty = (int)GCS.difficulty,
@@ -186,6 +187,7 @@ namespace Overlayer
     
     public struct Result
     {
+        public string playerName;
         public float xAcc;
         public int[] hitMargins;
         public int difficulty;
