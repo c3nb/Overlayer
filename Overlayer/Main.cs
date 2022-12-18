@@ -29,6 +29,7 @@ namespace Overlayer
         public static float fpsTimeTimer = 0;
         public static float lastDeltaTime;
         public static byte[] Impljs;
+        public static List<PacketSendResult> PacketSendResults = new();
         public static void Load(ModEntry modEntry)
         {
             CustomTagsPath = Path.Combine(modEntry.Path, "CustomTags");
@@ -273,6 +274,46 @@ namespace Overlayer
         }
         public static void OnGUI(ModEntry modEntry)
         {
+            var updatedPacketSendResults = new List<PacketSendResult>();
+
+            void ClearPacketHistory()
+            {
+                PacketSendResults.Clear();
+            }
+
+            void DisplayPacket(PacketSendResult result)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"{result.SentTime:G} Send {(result.Success ? "Succeeded with response" : "Failed due to reason")} {result.Response}");
+                if (!result.Success && GUILayout.Button("재전송 | Resend"))
+                {
+                    updatedPacketSendResults.Add(Tournament.SendResultToServer(result.SentPacket));
+                }
+                else
+                {
+                    updatedPacketSendResults.Add(result);
+                }
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Label("<b><size=15>실전 플레이 현황 | Shortcut Play Status</size></b>");
+            
+            GUILayout.Space(12f);
+
+            foreach (var result in PacketSendResults)
+            {
+                DisplayPacket(result);
+            }
+
+            PacketSendResults = updatedPacketSendResults;
+
+            if (GUILayout.Button("기록 청소 | Clear List"))
+            {
+                ClearPacketHistory();
+            }
+            
+            GUILayout.Space(12f);
+            
             var settings = Settings.Instance;
             LangGUI(settings);
             settings.DrawManual();

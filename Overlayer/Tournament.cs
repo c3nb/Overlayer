@@ -44,7 +44,7 @@ namespace Overlayer
         public static User GetDiscordUser()
         {
             var discord = (Discord.Discord)AccessTools.Field(typeof(DiscordController), "discord").GetValue(DiscordController.instance);
-            return discord.GetUserManager().GetCurrentUser();
+            return discord?.GetUserManager().GetCurrentUser() ?? new User { Avatar = "", Username = "Not logged in", Id = -1, Bot = false, Discriminator = "0000"};
         }
 
         public static string GetFormattedDiscordUsername()
@@ -52,8 +52,8 @@ namespace Overlayer
             var user = GetDiscordUser();
             return $"{user.Username}#{user.Discriminator}";
         }
-        
-        public static void SendResultToServer(scrController ctrl)
+
+        public static string CreateResult(scrController ctrl)
         {
             Result result = new Result
             {
@@ -70,12 +70,15 @@ namespace Overlayer
                 isAutoplay = RDC.auto || RDC.debug
             };
 
+            return result.ToJson();
+        }
+        
+        public static PacketSendResult SendResultToServer(string result)
+        {
             // if (result.isAutoplay) yield break;
 
-            var resultJson = result.ToJson();
-
             // convert to bytes
-            var bytes = System.Text.Encoding.UTF8.GetBytes(resultJson);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(result);
             
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"https://api.awc.enak.kr/player/{DiscordController.currentUserID}/rate");
             request.Method = "PUT";
@@ -89,6 +92,8 @@ namespace Overlayer
                 stream.Flush();
                 stream.Close();
             }
+
+            PacketSendResult sendResult;
             
             try
             {
@@ -97,13 +102,31 @@ namespace Overlayer
                 StreamReader reader = new StreamReader(response.GetResponseStream()!);
 
                 string json = reader.ReadToEnd();
-                Main.Logger.Log($"Tournament Feature> Packet successfully sent, received ({json}). Sent content: {resultJson}");
+
+                sendResult = new PacketSendResult
+                {
+                    Response = json,
+                    SentPacket = result,
+                    Success = true,
+                    SentTime = DateTime.Now,
+                };
             }
             catch (WebException e)
             {
                 var resp = new StreamReader(e.Response.GetResponseStream()!).ReadToEnd();
-                Main.Logger.Log($"Tournament Feature> An error occurred while sending a web request ({resp}). Was sending the content: {resultJson}");
+                
+                sendResult = new PacketSendResult
+                {
+                    Response = resp,
+                    SentPacket = result,
+                    Success = false,
+                    SentTime = DateTime.Now,
+                };
             }
+            
+            sendResult.Log();
+
+            return sendResult;
         }
         public static void LoadLevel(string path)
         {
@@ -227,7 +250,8 @@ namespace Overlayer
             // only allow shortcut loads
             if (!CustomLevel.instance || !Tournament.ShortcutLoaded) return;
 
-            Tournament.SendResultToServer(__instance);
+            var result = Tournament.SendResultToServer(Tournament.CreateResult(__instance));
+            Main.PacketSendResults.Add(result);
         }
     }
     
@@ -261,6 +285,21 @@ namespace Overlayer
             }
         }
         public void Run(IEnumerator coroutine) => StartCoroutine(coroutine);
+    }
+    
+    public struct PacketSendResult
+    {
+        public string SentPacket;
+        public bool Success;
+        public string Response;
+        public DateTime SentTime;
+
+        public void Log()
+        {
+            Main.Logger.Log(Success
+                ? $"Tournament Feature> [{SentTime:G}] Packet successfully sent, received ({Response}). Sent content: {SentPacket}"
+                : $"Tournament Feature> An error occurred while sending a web request ({Response}). Was sending the content: {SentPacket}");
+        }
     }
 }
 #endif
