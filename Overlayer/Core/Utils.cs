@@ -1,0 +1,379 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using UnityEngine.UI;
+using UnityEngine;
+using Random = System.Random;
+
+namespace Overlayer.Core
+{
+    public static unsafe class Utils
+    {
+        #region Array
+        public static R[] ActualElements<T, R>(this R[] array, T[] seed, Func<T, R, bool> selector)
+        {
+            R[] result = new R[array.Length];
+            for (int i = 0; i < seed.Length; i++)
+            {
+                int index = Array.FindIndex(array, r => selector(seed[i], r));
+                if (index > 0)
+                    result = result.Add(array[index]);
+            }
+            return result.MakeTight();
+        }
+        public static T[] MakeTight<T>(this T[] array)
+        {
+            int index = -1, arrlen = array.Length;
+            for (int i = 0; i < arrlen; i++)
+            {
+                var def = array[i].Equals(default(T));
+                if (index < 0 && def)
+                    index = i;
+                else if (index > 0 && !def)
+                    index = -1;
+            }
+            if (index < 0) return array;
+            int defCount = arrlen - (index + 1);
+            T[] result = new T[defCount];
+            Array.Copy(array, result, arrlen - defCount);
+            return result;
+        }
+        public static T[] Push<T>(this T[] array, T item)
+        {
+            return array.Add(item);
+        }
+        public static T[] Pop<T>(this T[] array, out T item)
+        {
+            int length = array.Length;
+            if (length == 0)
+            {
+                item = default(T);
+                return array;
+            }
+            item = array[length - 1];
+            Array.Resize(ref array, length - 1);
+            return array;
+        }
+        public static T[] Copy<T>(this T[] array)
+        {
+            var len = array.Length;
+            T[] arr = new T[len];
+            Array.Copy(array, 0, arr, 0, len);
+            return arr;
+        }
+        public static T[] Add<T>(this T[] array, T item)
+        {
+            int length = array.Length;
+            Array.Resize(ref array, length + 1);
+            array[length] = item;
+            return array;
+        }
+        public static T[] AddRange<T>(this T[] array, IEnumerable<T> items)
+        {
+            int count = items is Array arr ? arr.Length : items.Count();
+            int length = array.Length;
+            Array.Resize(ref array, length + count);
+            int index = length;
+            foreach (T item in items)
+                array[index++] = item;
+            return array;
+        }
+        public static T[] Insert<T>(this T[] array, int index, T item)
+        {
+            int length = array.Length;
+            Array.Resize(ref array, length + 1);
+            if (index < length)
+                Array.Copy(array, index, array, index + 1, length - index);
+            array[index] = item;
+            return array;
+        }
+        public static T[] InsertRange<T>(this T[] array, int index, IEnumerable<T> items)
+        {
+            int length = array.Length;
+            int count = items is Array a ? a.Length : items.Count();
+            Array.Resize(ref array, count + length);
+            if (index < length)
+                Array.Copy(array, index, array, index + count, length - index);
+            Array itemsArray = items is Array arr ? arr : items.ToArray();
+            itemsArray.CopyTo(array, index);
+            return array;
+        }
+        public static T[] MoveFirst<T>(this T[] array, T item)
+        {
+            Array.Copy(array, 0, array, 1, array.Length - 1);
+            array[0] = item;
+            return array;
+        }
+        public static T[] MoveLast<T>(this T[] array, T item)
+        {
+            int length = array.Length;
+            Array.Copy(array, 1, array, 0, length - 1);
+            array[length - 1] = item;
+            return array;
+        }
+
+        public static void Push<T>(ref T[] array, T item)
+            => array = array.Push(item);
+        public static void Pop<T>(ref T[] array, out T item)
+            => array = array.Pop(out item);
+        public static void Copy<T>(this T[] array, out T[] result)
+        {
+            var len = array.Length;
+            result = new T[len];
+            Array.Copy(array, 0, result, 0, len);
+        }
+        public static void Add<T>(ref T[] array, T item)
+            => array = array.Add(item);
+        public static void AddRange<T>(ref T[] array, IEnumerable<T> items)
+            => array = array.AddRange(items);
+        public static void Insert<T>(ref T[] array, int index, T item)
+            => array = array.Insert(index, item);
+        public static void InsertRange<T>(ref T[] array, int index, IEnumerable<T> items)
+            => array = array.InsertRange(index, items);
+        public static void MoveFirst<T>(ref T[] array, T item)
+            => array = array.MoveFirst(item);
+        public static void MoveLast<T>(ref T[] array, T item)
+            => array = array.MoveLast(item);
+        public static T[] Empty<T>() => new T[0];
+        #endregion
+        #region String
+        public const int Upper = 65;
+        public const int UpperLast = 90;
+        public const int Lower = 97;
+        public const int LowerLast = 122;
+        public const char Undefined = char.MinValue;
+        public static readonly Random Random = new Random(DateTime.Now.Millisecond);
+        public static readonly Regex English = new Regex("^[A-Za-z]*$", RegexOptions.Compiled);
+        public static readonly Regex RichTagBreaker = new Regex(@"<(color|material|quad|size)=(.|\n)*?>|<\/(color|material|quad|size)>|<(b|i)>|<\/(b|i)>", RegexOptions.Compiled | RegexOptions.Multiline);
+        public static readonly Regex RichTagBreakerWithoutSize = new Regex(@"<(color|material|quad)=(.|\n)*?>|<\/(color|material|quad)>|<(b|i)>|<\/(b|i)>", RegexOptions.Compiled | RegexOptions.Multiline);
+        public static readonly int[] Tops = { 0x3131, 0x3132, 0x3134, 0x3137, 0x3138, 0x3139, 0x3141, 0x3142, 0x3143, 0x3145, 0x3146, 0x3147, 0x3148, 0x3149, 0x314a, 0x314b, 0x314c, 0x314d, 0x314e };
+        public static readonly int[] Mids = { 0x314f, 0x3150, 0x3151, 0x3152, 0x3153, 0x3154, 0x3155, 0x3156, 0x3157, 0x3158, 0x3159, 0x315a, 0x315b, 0x315c, 0x315d, 0x315e, 0x315f, 0x3160, 0x3161, 0x3162, 0x3163 };
+        public static readonly int[] Bots = { 0, 0x3131, 0x3132, 0x3133, 0x3134, 0x3135, 0x3136, 0x3137, 0x3139, 0x313a, 0x313b, 0x313c, 0x313d, 0x313e, 0x313f, 0x3140, 0x3141, 0x3142, 0x3144, 0x3145, 0x3146, 0x3147, 0x3148, 0x314a, 0x314b, 0x314c, 0x314d, 0x314e };
+        public static readonly char[] TopChars = { 'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ' };
+        public static readonly char[] MidChars = { 'ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ' };
+        public static readonly char[] BotChars = { '\0', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ' };
+        public static bool IsUpper(this char c) => c >= Upper && c <= UpperLast;
+        public static bool IsLower(this char c) => c >= Lower && c <= LowerLast;
+        public static bool IsAlphabet(this char c) => IsUpper(c) || IsLower(c);
+        public static char ToUpper(this char c) => c.IsUpper() ? c : (char)(c - 32);
+        public static char ToLower(this char c) => c.IsLower() ? c : (char)(c + 32);
+        public static char Invert(this char c) => IsUpper(c) ? c.ToLower() : c.ToUpper();
+        public static string Invert(this string s)
+        {
+            if (s == null || s.Length <= 0) return s;
+            fixed (char* ptr = s)
+            {
+                char* c = ptr;
+                char v;
+                while ((v = *c) != '\0')
+                {
+                    if (IsAlphabet(v))
+                        *c = v.Invert();
+                    c++;
+                }
+            }
+            return s;
+        }
+        public static string InvertAlternately(this string s)
+        {
+            if (s == null || s.Length <= 0) return s;
+            bool isLower = s[0].IsLower();
+            fixed (char* ptr = s)
+            {
+                char* c = ptr;
+                char v;
+                while ((v = *c) != '\0')
+                {
+                    if (IsAlphabet(v))
+                        *c = (isLower = !isLower) ? v.ToLower() : v.ToUpper();
+                    c++;
+                }
+            }
+            return s;
+        }
+        public static string ToUpperFast(this string s)
+        {
+            fixed (char* ptr = s)
+            {
+                char* c = ptr;
+                char v;
+                while ((v = *c) != '\0')
+                {
+                    if (IsAlphabet(v))
+                        *c = v.ToUpper();
+                    c++;
+                }
+            }
+            return s;
+        }
+        public static string ToLowerFast(this string s)
+        {
+            fixed (char* ptr = s)
+            {
+                char* c = ptr;
+                char v;
+                while ((v = *c) != '\0')
+                {
+                    if (IsAlphabet(v))
+                        *c = v.ToLower();
+                    c++;
+                }
+            }
+            return s;
+        }
+        public static int ToInt(this string s)
+        {
+            int result = 0;
+            bool unary = s[0] == 45;
+            fixed (char* v = s)
+            {
+                char* c = v;
+                if (unary) c++;
+                while (*c != '\0')
+                {
+                    result = 10 * result + (*c - 48);
+                    c++;
+                }
+            }
+            if (unary)
+                return -result;
+            return result;
+        }
+        public static long ToLong(this string s)
+        {
+            long result = 0;
+            bool unary = s[0] == 45;
+            fixed (char* v = s)
+            {
+                char* c = v;
+                if (unary) c++;
+                while (*c != '\0')
+                {
+                    result = 10 * result + (*c - 48);
+                    c++;
+                }
+            }
+            if (unary)
+                return -result;
+            return result;
+        }
+        public static double ToDouble(this string s)
+        {
+            double result = 0;
+            bool isDot = false;
+            int dCount = 1;
+            bool unary = s[0] == 45;
+            fixed (char* v = s)
+            {
+                char* c = v;
+                if (unary) c++;
+                while (*c != '\0')
+                {
+                    if (*c == '.')
+                    {
+                        isDot = true;
+                        goto Continue;
+                    }
+                    if (!isDot)
+                        result = 10 * result + (*c - 48);
+                    else result += (*c - 48) / dPow[dCount++];
+                    Continue:
+                    c++;
+                }
+            }
+            if (unary)
+                return -result;
+            return result;
+        }
+        public static float ToFloat(this string s)
+        {
+            float result = 0;
+            bool isDot = false;
+            int dCount = 1;
+            bool unary = s[0] == 45;
+            fixed (char* v = s)
+            {
+                char* c = v;
+                if (unary) c++;
+                while (*c != '\0')
+                {
+                    if (*c == '.')
+                    {
+                        isDot = true;
+                        goto Continue;
+                    }
+                    if (!isDot)
+                        result = 10 * result + (*c - 48);
+                    else result += (*c - 48) / fPow[dCount++];
+                    Continue:
+                    c++;
+                }
+            }
+            if (unary)
+                return -result;
+            return result;
+        }
+        public static string BreakRichTag(this string s)
+            => RichTagBreaker.Replace(s, string.Empty);
+        public static string BreakRichTagWithoutSize(this string s)
+            => RichTagBreakerWithoutSize.Replace(s, string.Empty);
+        private static readonly double[] dPow = GetDoublePow();
+        private static double[] GetDoublePow()
+        {
+            const int max = 309;
+            var exps = new double[max];
+            for (var i = 0; i < max; i++)
+                exps[i] = Math.Pow(10, i);
+            return exps;
+        }
+        private static readonly float[] fPow = GetFloatPow();
+        private static float[] GetFloatPow()
+        {
+            const int max = 39;
+            var exps = new float[max];
+            for (var i = 0; i < max; i++)
+                exps[i] = (float)Math.Pow(10, i);
+            return exps;
+        }
+        public static string ToStringFast(this int i, int radix = 10)
+        {
+            const string chars = "0123456789ABCDEF";
+            var str = new char[32];
+            var idx = str.Length;
+            bool isNegative = i < 0;
+            if (i <= 0)
+            {
+                str[--idx] = chars[-(i % radix)];
+                i = -(i / radix);
+            }
+            while (i != 0)
+            {
+                str[--idx] = chars[i % radix];
+                i /= radix;
+            }
+            if (isNegative)
+                str[--idx] = '-';
+            return new string(str, idx, str.Length - idx);
+        }
+        public static string Escape(this string str) => str.Replace(@"\", @"\\").Replace(":", @"\:");
+        public static string Unescape(this string str) => str.Replace(@"\:", ":").Replace(@"\\", @"\");
+        #endregion
+        #region Extensions
+        public static T MakeFlexible<T>(this T comp) where T : Component
+        {
+            comp.gameObject.MakeFlexible();
+            return comp;
+        }
+        public static GameObject MakeFlexible(this GameObject go)
+        {
+            ContentSizeFitter csf = go.GetComponent<ContentSizeFitter>() ?? go.AddComponent<ContentSizeFitter>();
+            csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            return go;
+        }
+        #endregion
+    }
+}

@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="rsBindConversionNotDefined" xml:space="preserve">
+    <value>Keine Konvertierung von {0} nach {1} definiert.</value>
+  </data>
+  <data name="rsBindOperatorNotDefined" xml:space="preserve">
+    <value>Kein Operator für {1} {0} {2} definiert.</value>
+  </data>
+  <data name="rsChunkNotCompiled" xml:space="preserve">
+    <value>Chunk ist nicht übersetzt.</value>
+  </data>
+  <data name="rsClrGenericNoType" xml:space="preserve">
+    <value>Kein Type für den generischen Parameter {0} gefunden.</value>
+  </data>
+  <data name="rsClrGenericTypeExpected" xml:space="preserve">
+    <value>Clr-Type erwartet.</value>
+  </data>
+  <data name="rsConstExpressionEvalError" xml:space="preserve">
+    <value>Konstanter Ausdruck konnte nicht ausgewertet werden ({0}).</value>
+  </data>
+  <data name="rsConstExpressionNeeded" xml:space="preserve">
+    <value>Konstanter Ausdruck erwartet.</value>
+  </data>
+  <data name="rsCoroutineInvalidAR" xml:space="preserve">
+    <value>Argument ar muss vom selben LuaThread stammen.</value>
+  </data>
+  <data name="rsCoroutineInvalidCO" xml:space="preserve">
+    <value>Argument co muss ein LuaThread oder Thread sein.</value>
+  </data>
+  <data name="rsCoroutineNoBeginResume" xml:space="preserve">
+    <value>BeginResume wurde nicht aufgerufen.</value>
+  </data>
+  <data name="rsCoroutineWrongThread" xml:space="preserve">
+    <value>Yield wurde vom falsche Thread aus gerufen.</value>
+  </data>
+  <data name="rsDelegateCouldNotHaveOut" xml:space="preserve">
+    <value>Delegates dürfen keine Ausgabeparameter haben.</value>
+  </data>
+  <data name="rsExpressionNotEnumerable" xml:space="preserve">
+    <value>Expression ist nicht IEnumerable.</value>
+  </data>
+  <data name="rsFileInvalidModeFormat" xml:space="preserve">
+    <value>Format für mode-parameter nicht erkannt.</value>
+  </data>
+  <data name="rsFileNotReadable" xml:space="preserve">
+    <value>Datei kann nicht gelesen werden.</value>
+  </data>
+  <data name="rsFileNotSeekable" xml:space="preserve">
+    <value>Dateizeiger kann nicht neu positioniert werden.</value>
+  </data>
+  <data name="rsFileNotWriteable" xml:space="preserve">
+    <value>In die Datei kann nicht geschrieben werden.</value>
+  </data>
+  <data name="rsFormatError" xml:space="preserve">
+    <value>'{0}' kann nicht in '{1}' konvertiert werden.</value>
+  </data>
+  <data name="rsGlobalFunctionNotUnique" xml:space="preserve">
+    <value>Funktion '{0}' wurde bereits in '{1}' definiert.</value>
+  </data>
+  <data name="rsIndexNotFound" xml:space="preserve">
+    <value>'{0}' hat keinen Index.</value>
+  </data>
+  <data name="rsInvokeNoDelegate" xml:space="preserve">
+    <value>'{0}' kann nicht aufgerufen werden.</value>
+  </data>
+  <data name="rsMemberNotReadable" xml:space="preserve">
+    <value>'{0}:{1}' kann nicht gelesen werden.</value>
+  </data>
+  <data name="rsMemberNotResolved" xml:space="preserve">
+    <value>'{0}:{1}' nicht gefunden.</value>
+  </data>
+  <data name="rsMemberNotUnique" xml:space="preserve">
+    <value>'{0}:{1}' nicht eindeutig.</value>
+  </data>
+  <data name="rsMemberNotWritable" xml:space="preserve">
+    <value>'{0}:{1}' nicht schreibbar.</value>
+  </data>
+  <data name="rsMethodStaticMix" xml:space="preserve">
+    <value>Es ist nicht möglich statische mit nicht statischen Methoden zu vermischen ({0}).</value>
+  </data>
+  <data name="rsNilNotCallable" xml:space="preserve">
+    <value>Nil kann nicht aufgerufen werden.</value>
+  </data>
+  <data name="rsNilOperatorError" xml:space="preserve">
+    <value>Operator ist nicht für nil definiert.</value>
+  </data>
+  <data name="rsNoLengthOperator" xml:space="preserve">
+    <value>Keine Länge für {0}.</value>
+  </data>
+  <data name="rsNullReference" xml:space="preserve">
+    <value>Objekt ist nil.</value>
+  </data>
+  <data name="rsNumberExpected" xml:space="preserve">
+    <value>Zahl erwartet.</value>
+  </data>
+  <data name="rsParseAssignmentExpected" xml:space="preserve">
+    <value>Zuweisung erwartet.</value>
+  </data>
+  <data name="rsParseCatchVarTypeMustAssignableToException" xml:space="preserve">
+    <value>Das Argument muss kompatible zu Exception sein (unerwarteter type: {0})</value>
+  </data>
+  <data name="rsParseConvertNumberError" xml:space="preserve">
+    <value>Zahl erwartet ('{0}' nicht konvertiert).</value>
+  </data>
+  <data name="rsParseEof" xml:space="preserve">
+    <value>Block vor Dateiende geschlossen.</value>
+  </data>
+  <data name="rsParseExpressionNoResult" xml:space="preserve">
+    <value>Ausdruck hat kein Ergebnis.</value>
+  </data>
+  <data name="rsParseExpressionNotAssignable" xml:space="preserve">
+    <value>Ausdruck kann nichts zugewiesen werden.</value>
+  </data>
+  <data name="rsParseInvalidArgList" xml:space="preserve">
+    <value>Benannte Argumente können erst festgelegt werden, wenn alle positionierten Argumente angegeben wurden.</value>
+  </data>
+  <data name="rsParseInvalidChar" xml:space="preserve">
+    <value>Unerwartetes Zeichen.</value>
+  </data>
+  <data name="rsParseInvalidComment" xml:space="preserve">
+    <value>Kommentar wurde nicht geschlossen.</value>
+  </data>
+  <data name="rsParseInvalidString" xml:space="preserve">
+    <value>Zeilenumbruch in Zeichenfolge.</value>
+  </data>
+  <data name="rsParseInvalidStringOpening" xml:space="preserve">
+    <value>Ungültige Long-String Eröffnung.</value>
+  </data>
+  <data name="rsParseNoArgList" xml:space="preserve">
+    <value>Keine Argumentenliste definiert.</value>
+  </data>
+  <data name="rsParseTypeRedef" xml:space="preserve">
+    <value>Es nicht erlaubt den Type neu zu definieren.</value>
+  </data>
+  <data name="rsParseUnexpectedToken" xml:space="preserve">
+    <value>'{1}' erwartet, aber '{0}' gefunden.</value>
+  </data>
+  <data name="rsParseUnexpectedTokenElse" xml:space="preserve">
+    <value>Unerwarteter Token in Else-Statement.</value>
+  </data>
+  <data name="rsParseUnexpectedTokenPrefix" xml:space="preserve">
+    <value>Literal, Function oder Tabelle erwartet.</value>
+  </data>
+  <data name="rsParseUnknownType" xml:space="preserve">
+    <value>Typ '{0}' nicht gefunden.</value>
+  </data>
+  <data name="rsStackTraceAt" xml:space="preserve">
+    <value> bei </value>
+  </data>
+  <data name="rsStackTraceInternal" xml:space="preserve">
+    <value> -- Intern --</value>
+  </data>
+  <data name="rsStackTraceLine" xml:space="preserve">
+    <value> Zeile </value>
+  </data>
+  <data name="rsStackTraceUnknownMethod" xml:space="preserve">
+    <value>&lt;Unbekannte Methode&gt;</value>
+  </data>
+  <data name="rsTableAddDuplicate" xml:space="preserve">
+    <value>Eintrag mit Key '{0}' schon vorhanden.</value>
+  </data>
+  <data name="rsTableCallMemberFailed" xml:space="preserve">
+    <value>Fehler bei der Ausführung von '{0}'.</value>
+  </data>
+  <data name="rsTableKeyNotNullable" xml:space="preserve">
+    <value>Nil ist kein gültiger Key.</value>
+  </data>
+  <data name="rsTableMethodExpected" xml:space="preserve">
+    <value>Methoden benötigen eine LuaTable als ersten Parameter ('{0}').</value>
+  </data>
+  <data name="rsTableOperatorIncompatible" xml:space="preserve">
+    <value>Operator '{0}' ist nicht kompatibel (erwartet {1}).</value>
+  </data>
+  <data name="rsTableOperatorNotFound" xml:space="preserve">
+    <value>Operator '{0}' ist für die Table nicht definiert.</value>
+  </data>
+  <data name="rsTableRecursionLevelError" xml:space="preserve">
+    <value>Tabelle ist zu tief geschachtelt.</value>
+  </data>
+  <data name="rsTypeAliasInvalidName" xml:space="preserve">
+    <value>Name für Type ist ungültig '{0}'.</value>
+  </data>
+  <data name="rsTypeExtentionInvalidMethod" xml:space="preserve">
+    <value>Die Methode {0}.{1} muss static, public und einen Parameter haben.</value>
+  </data>
+  <data name="rsTypeExtentionInvalidType" xml:space="preserve">
+    <value>{0} muss static sein.</value>
+  </data>
+  <data name="rsTypeInvalidType" xml:space="preserve">
+    <value>Bei '{0}' handelt es sich um einen GenericParamater-, Pointer- oder Byreftyp. Die Typen können nicht in einen LuaType umgewandelt werden.</value>
+  </data>
+  <data name="rsTypeIsNotSupported" xml:space="preserve">
+    <value>Type '{0} wird nicht unterstützt.</value>
+  </data>
+  <data name="rsTypeParseError" xml:space="preserve">
+    <value>Ungültige Typebeschreibung '{0}' (unerwartet: {1} bei {2}; erwartet: {3})</value>
+  </data>
+</root>

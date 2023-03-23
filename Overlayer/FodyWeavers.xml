@@ -1,0 +1,23 @@
+﻿<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
+  <Costura ExcludeAssemblies='Unity*|*Unity' />
+  <Costura>
+	<ExcludeAssemblies>
+		Unity*
+		*Unity
+		RDTools
+		DOTween
+		DOTweenPro
+		DotNetZip
+		DemiLib
+		Assembly*
+		com*
+		Newtonsoft.Json
+		Ookii.Dialogs
+		Purchasing.Common
+		Rewired*
+		SkyHook.Unity
+		0Harmony
+		dnlib
+	</ExcludeAssemblies>
+</Costura>
+</Weavers>
