@@ -8,5 +8,6 @@ namespace Overlayer.Core
 {
     public static class TextManager
     {
+
     }
 }

@@ -13,7 +13,7 @@ namespace Overlayer.Core.Tags
         string str = "";
         HashSet<char> tagOpenChars;
         Func<string> compiledResult;
-        List<Tag> tags;
+        IEnumerable<Tag> tags;
         public string Source
         {
             get => str;
@@ -24,7 +24,7 @@ namespace Overlayer.Core.Tags
             }
         }
         public HashSet<Tag> References { get; private set; }
-        public List<Tag> Tags => tags;
+        public IEnumerable<Tag> Tags => tags;
         public Replacer(IEnumerable<Tag> tags = null)
         {
             References = new HashSet<Tag>();
@@ -34,14 +34,9 @@ namespace Overlayer.Core.Tags
         public void SetReference(IEnumerable<Tag> tags)
         {
             if (tags == null) return;
-            this.tags = tags is List<Tag> t ? t : tags.ToList() ?? new List<Tag>();
-            tagOpenChars = tags != null ? tags.Select(t => t.Config.Open).Distinct().ToHashSet() : new HashSet<char>();
+            this.tags = tags;
+            tagOpenChars = tags.Select(t => t.Config.Open).ToHashSet();
             compiled = false;
-        }
-        public void AddTag(Tag tag)
-        {
-            tags.Add(tag);
-            tagOpenChars.Add(tag.Config.Open);
         }
         public string Replace()
         {

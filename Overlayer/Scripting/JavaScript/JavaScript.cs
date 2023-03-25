@@ -22,23 +22,11 @@ namespace Overlayer.Scripting.JavaScript
         {
             throw new NotImplementedException();
         }
-
         public override object Evaluate()
         {
             throw new NotImplementedException();
         }
-
-        public override object Evaluate(object[] args)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Execute()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Execute(object[] args)
         {
             throw new NotImplementedException();
         }

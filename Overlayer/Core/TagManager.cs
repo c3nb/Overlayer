@@ -14,10 +14,23 @@ namespace Overlayer.Core
         static Dictionary<string, Tag> AllTags = new Dictionary<string, Tag>();
         static Dictionary<string, Tag> NotPlayingTags = new Dictionary<string, Tag>();
         static Dictionary<string, Tag> ReferencedTags = new Dictionary<string, Tag>();
+        static Dictionary<Tag, ClassTagAttribute> TagPatches = new Dictionary<Tag, ClassTagAttribute>();
         public static Tag GetTag(string name) => AllTags.TryGetValue(name, out var tag) ? tag : null;
         public static Tag GetReferencedTag(string name) => ReferencedTags.TryGetValue(name, out var tag) ? tag : null;
         public static bool IsReferenced(string name) => ReferencedTags.ContainsKey(name);
-        public static void UpdateReference() => ReferencedTags = AllTags.Values.Where(t => t.Referenced).ToDictionary(t => t.Name, t => t);
+        public static void UpdateReference()
+        {
+            ReferencedTags = AllTags.Values.Where(t => t.Referenced).ToDictionary(t => t.Name, t => t);
+            AllTags.Values.ForEach(t =>
+            {
+                if (TagPatches.TryGetValue(t, out var attr))
+                {
+                    if (ReferencedTags.ContainsKey(t.Name))
+                        PatchType(attr.Harmony, attr.PatchesType);
+                    else attr.Harmony.UnpatchAll(attr.Harmony.Id);
+                }
+            });
+        }
         public static bool RemoveTag(string name)
         {
             bool result = AllTags.Remove(name);
@@ -31,6 +44,7 @@ namespace Overlayer.Core
             AllTags ??= new Dictionary<string, Tag>();
             NotPlayingTags??= new Dictionary<string, Tag>();
             ReferencedTags ??= new Dictionary<string, Tag>();
+            TagPatches ??= new Dictionary<Tag, ClassTagAttribute>();
         }
         public static void Load(Assembly assembly, TagConfig config = null)
         {
@@ -56,6 +70,12 @@ namespace Overlayer.Core
                 if (decTypeTag != null)
                 {
                     decTypeTag.Combine(tagAttr);
+                    if (decTypeTag.PatchesType != null)
+                    {
+                        TagPatches[tag] = decTypeTag;
+                        Harmony h = decTypeTag.Harmony = new Harmony($"TagPatch_{tag.Name}");
+                        PatchType(h, decTypeTag.PatchesType);
+                    }    
                     foreach (string thread in decTypeTag.Threads)
                         tag.AddThread(decType.GetMethod(thread, AccessTools.all));
                 }
@@ -69,6 +89,14 @@ namespace Overlayer.Core
         {
             AllTags.Values.ForEach(t => t.Dispose());
             AllTags = NotPlayingTags = ReferencedTags = null;
+            TagPatches.Values.ForEach(attr => attr.Harmony.UnpatchAll(attr.Harmony.Id));
+            TagPatches = null;
+        }
+        static void PatchType(Harmony h, Type t)
+        {
+            h.CreateClassProcessor(t).Patch();
+            foreach (Type nested in t.GetNestedTypes(AccessTools.allDeclared))
+                h.CreateClassProcessor(nested).Patch();
         }
     }
 }

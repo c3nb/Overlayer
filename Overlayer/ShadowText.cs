@@ -78,9 +78,10 @@ namespace Overlayer
                 Shadow.rectTransform.anchoredPosition = value + new Vector2(xy, -xy);
             }
         }
-        private void Awake()
+        public bool Initialized { get; private set; }
+        public void Init(TextConfig config)
         {
-            
+            if (Initialized) return;
             if (!PublicCanvas)
             {
                 GameObject pCanvasObj = PCanvasObj = new GameObject("Overlayer Canvas");
@@ -88,7 +89,8 @@ namespace Overlayer
                 PublicCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 CanvasScaler scaler = pCanvasObj.AddComponent<CanvasScaler>();
                 scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-                scaler.referenceResolution = new Vector2(1920, 1080);
+                var currentRes = Screen.currentResolution;
+                scaler.referenceResolution = new Vector2(currentRes.width, currentRes.height);
                 DontDestroyOnLoad(PublicCanvas);
             }
 
@@ -96,9 +98,10 @@ namespace Overlayer
             shadowObject.transform.SetParent(PublicCanvas.transform);
             shadowObject.MakeFlexible();
             Shadow = shadowObject.AddComponent<TextMeshProUGUI>();
-            Shadow.color = Color.black.WithAlpha(0.4f);
             var font = FontManager.GetFont("Default");
             Shadow.font = font.fontTMP;
+            Shadow.enableVertexGradient = true;
+            Shadow.colorGradient = config.ShadowColor;
 
             GameObject mainObject = new GameObject();
             mainObject.transform.SetParent(PublicCanvas.transform);
@@ -106,12 +109,11 @@ namespace Overlayer
             Main = mainObject.AddComponent<TextMeshProUGUI>();
             Main.font = font.fontTMP;
             Main.enableVertexGradient = true;
+            Main.colorGradient = config.TextColor;
 
-            Main.lineSpacing -= 25f;
-            Main.lineSpacingAdjustment = 25f;
-
-            Shadow.lineSpacing -= 25f;
-            Shadow.lineSpacingAdjustment = 25f;
+            Main.enableAutoSizing = Shadow.enableAutoSizing = false;
+            Main.lineSpacing = Shadow.lineSpacing = config.LineSpacing;
+            Initialized = true;
         }
         public bool TrySetFont(string name)
         {

@@ -31,9 +31,10 @@ namespace Overlayer
         {
             if (value)
             {
-                TagManager.Load(Assembly.GetExecutingAssembly());
+                Assembly ass = Assembly.GetExecutingAssembly();
+                TagManager.Load(ass);
                 Harmony = new Harmony(modEntry.Info.Id);
-                Harmony.PatchAll(Assembly.GetExecutingAssembly());
+                Harmony.PatchAll(ass);
             }
             else
             {
