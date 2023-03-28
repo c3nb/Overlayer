@@ -7,7 +7,7 @@ namespace JSEngine
     /// <summary>
     /// Represents a script file.
     /// </summary>
-    public class FileScriptSource : ScriptSource
+    public class FileSource : ScriptSource
     {
         private string path;
         private Encoding encoding;
@@ -18,7 +18,7 @@ namespace JSEngine
         /// <param name="path"> The path of the script file. </param>
         /// <param name="encoding"> The character encoding to use if the file lacks a byte order
         /// mark (BOM).  If this parameter is omitted, the file is assumed to be UTF8. </param>
-        public FileScriptSource(string path, Encoding encoding = null)
+        public FileSource(string path, Encoding encoding = null)
         {
             if (path == null)
                 throw new ArgumentNullException(nameof(path));

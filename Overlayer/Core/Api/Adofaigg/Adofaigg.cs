@@ -24,7 +24,6 @@ namespace Overlayer.Core.Api.Adofaigg
         public async Task<Response<T>> Request<T>(Parameters parameters) where T : Json
         {
             string reqUrl = $"{API}{header}{parameters}";
-            Main.Logger.Log($"Request Url: {reqUrl}");
             string json = await client.DownloadStringTaskAsync(reqUrl);
             Response<T> r = JsonConvert.DeserializeObject<Response<T>>(json);
             r.json = json;

@@ -31,10 +31,17 @@ namespace Overlayer.Core
                 }
             });
         }
+        public static void AddTag(Tag tag, bool notPlaying)
+        {
+            AllTags.Add(tag.Name, tag);
+            if (notPlaying) 
+                NotPlayingTags.Add(tag.Name, tag);
+        }
         public static bool RemoveTag(string name)
         {
             bool result = AllTags.Remove(name);
-            result &= NotPlayingTags.Remove(name);
+            NotPlayingTags.Remove(name);
+            ReferencedTags.Remove(name);
             return result;
         }
         public static IEnumerable<Tag> All => AllTags.Values;

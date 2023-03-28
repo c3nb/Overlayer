@@ -26,6 +26,7 @@ namespace Overlayer
             Text = ShadowText.NewText();
             Text.Init(config);
         }
+
         public void Apply()
         {
             PlayingText.Source = config.PlayingText;

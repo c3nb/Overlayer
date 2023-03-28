@@ -8,7 +8,8 @@ namespace Overlayer.Scripting
 {
     public abstract class Script : IDisposable
     {
-        public string Source { get; set; }
+        public Script(string path) => Path = path;
+        public string Path { get; }
         public abstract ScriptType ScriptType { get; }
         public abstract void Compile();
         public abstract object Evaluate();

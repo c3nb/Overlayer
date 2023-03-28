@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Overlayer.Scripting
 {
+    [Flags]
     public enum ScriptType
     {
-        JavaScript,
-        Python,
-        Lua
+        None = 0,
+        JavaScript = 1,
+        Python = 2,
+        Lua = 4,
+        All = JavaScript | Python | Lua,
     }
 }

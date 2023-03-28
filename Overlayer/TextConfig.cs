@@ -16,7 +16,7 @@ namespace Overlayer
         public float LineSpacing = 10f;
         #endregion
         #region OverlayerTextConfig
-        public string PlayingText = string.Empty;
+        public string PlayingText = "<color=#{FOHex}>{Overloads}</color> <color=#{TEHex}>{CurTE}</color> <color=#{VEHex}>{CurVE}</color> <color=#{EPHex}>{CurEP}</color> <color=#{PHex}>{CurP}</color> <color=#{LPHex}>{CurLP}</color> <color=#{VLHex}>{CurVL}</color> <color=#{TLHex}>{CurTL}</color> <color=#{FMHex}>{MissCount}</color>";
         public string NotPlayingText = string.Empty;
         public Vector2 Position = Vector2.zero;
         public float FontSize = 44;

@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using UnityEngine.UI;
 using UnityEngine;
 using Random = System.Random;
+using System.Reflection.Emit;
+using System.Reflection;
+using HarmonyLib;
+using System.Runtime.InteropServices;
 
 namespace Overlayer.Core
 {
     public static unsafe class Utils
     {
+        static Utils()
+        {
+            var assName = new AssemblyName("Overlayer.Core.Utils_Patch");
+            ass = AssemblyBuilder.DefineDynamicAssembly(assName, AssemblyBuilderAccess.Run);
+            mod = ass.DefineDynamicModule(assName.Name);
+        }
         #region Array
         public static R[] ActualElements<T, R>(this R[] array, T[] seed, Func<T, R, bool> selector)
         {
@@ -361,6 +370,84 @@ namespace Overlayer.Core
         public static string Escape(this string str) => str.Replace(@"\", @"\\").Replace(":", @"\:");
         public static string Unescape(this string str) => str.Replace(@"\:", ":").Replace(@"\\", @"\");
         #endregion
+        #region Patch
+        public static readonly AssemblyBuilder ass;
+        public static readonly ModuleBuilder mod;
+        public static int TypeCount { get; internal set; }
+        public static MethodInfo Wrap<T>(this T del) where T : Delegate
+        {
+            Type delType = del.GetType();
+            IgnoreAccessCheck(delType);
+            MethodInfo invoke = delType.GetMethod("Invoke");
+            MethodInfo method = del.Method;
+            TypeBuilder type = mod.DefineType(TypeCount++.ToString(), TypeAttributes.Public);
+            ParameterInfo[] parameters = method.GetParameters();
+            Type[] paramTypes = parameters.Select(p => p.ParameterType).ToArray();
+            MethodBuilder methodB = type.DefineMethod("Wrapper", MethodAttributes.Public | MethodAttributes.Static, invoke.ReturnType, paramTypes);
+            FieldBuilder delField = type.DefineField("function", delType, FieldAttributes.Public | FieldAttributes.Static);
+            IgnoreAccessCheck(invoke.ReturnType);
+            ILGenerator il = methodB.GetILGenerator();
+            il.Emit(OpCodes.Ldsfld, delField);
+            int paramIndex = 1;
+            foreach (ParameterInfo param in parameters)
+            {
+                IgnoreAccessCheck(param.ParameterType);
+                methodB.DefineParameter(paramIndex++, ParameterAttributes.None, param.Name);
+                il.Emit(OpCodes.Ldarg, paramIndex - 2);
+            }
+            il.Emit(OpCodes.Call, invoke);
+            il.Emit(OpCodes.Ret);
+            Type t = type.CreateType();
+            t.GetField("function").SetValue(null, del);
+            return t.GetMethod("Wrapper");
+        }
+        public static MethodInfo Prefix<T>(this Harmony harmony, MethodBase target, T del) where T : Delegate
+            => harmony.Patch(target, new HarmonyMethod(Wrap(del)));
+        public static MethodInfo Postfix<T>(this Harmony harmony, MethodBase target, T del) where T : Delegate
+            => harmony.Patch(target, postfix: new HarmonyMethod(Wrap(del)));
+        static readonly HashSet<string> accessIgnored = new HashSet<string>();
+        internal static void IgnoreAccessCheck(Type type)
+        {
+            var name = type.Assembly.GetName();
+            if (name.Name.StartsWith("System"))
+                return;
+            if (accessIgnored.Add(name.Name))
+                ass.SetCustomAttribute(GetIACT(name.Name));
+        }
+        static CustomAttributeBuilder GetIACT(string name) => new CustomAttributeBuilder(iact, new[] { name });
+        static readonly ConstructorInfo iact = typeof(IgnoresAccessChecksToAttribute).GetConstructor(new[] { typeof(string) });
+        #endregion
+        #region Emit
+        public static IntPtr EmitObject<T>(this ILGenerator il, ref T obj)
+        {
+            IntPtr ptr = Type<T>.GetAddress(ref obj);
+            if (IntPtr.Size == 4)
+                il.Emit(OpCodes.Ldc_I4, ptr.ToInt32());
+            else
+                il.Emit(OpCodes.Ldc_I8, ptr.ToInt64());
+            il.Emit(OpCodes.Ldobj, obj.GetType());
+            return ptr;
+        }
+        public static GCHandle EmitObjectGC(this ILGenerator il, object obj)
+        {
+            GCHandle handle = GCHandle.Alloc(il);
+            IntPtr ptr = GCHandle.ToIntPtr(handle);
+            if (IntPtr.Size == 4)
+                il.Emit(OpCodes.Ldc_I4, ptr.ToInt32());
+            else
+                il.Emit(OpCodes.Ldc_I8, ptr.ToInt64());
+            il.Emit(OpCodes.Ldobj, obj.GetType());
+            return handle;
+        }
+        public static LocalBuilder MakeArray<T>(this ILGenerator il, int length)
+        {
+            LocalBuilder array = il.DeclareLocal(typeof(T[]));
+            il.Emit(OpCodes.Ldc_I4, length);
+            il.Emit(OpCodes.Newarr, typeof(T));
+            il.Emit(OpCodes.Stloc, array);
+            return array;
+        }
+        #endregion
         #region Extensions
         public static T MakeFlexible<T>(this T comp) where T : Component
         {
@@ -375,5 +462,49 @@ namespace Overlayer.Core
             return go;
         }
         #endregion
+    }
+    public static class Type<T>
+    {
+        delegate IntPtr AddrGetter(ref T obj);
+        static readonly AddrGetter addrGetter;
+        delegate int SizeGetter();
+        static readonly SizeGetter sizeGetter;
+        static Type()
+        {
+            addrGetter = CreateAddrGetter();
+            sizeGetter = CreateSizeGetter();
+        }
+        static AddrGetter CreateAddrGetter()
+        {
+            DynamicMethod dm = new DynamicMethod($"{typeof(T).FullName}_Address", typeof(IntPtr), new[] { typeof(T).MakeByRefType() });
+            ILGenerator il = dm.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Conv_U);
+            il.Emit(OpCodes.Ret);
+            return (AddrGetter)dm.CreateDelegate(typeof(AddrGetter));
+        }
+        static SizeGetter CreateSizeGetter()
+        {
+            DynamicMethod dm = new DynamicMethod($"{typeof(T).FullName}_Size", typeof(int), Type.EmptyTypes);
+            ILGenerator il = dm.GetILGenerator();
+            il.Emit(OpCodes.Sizeof, typeof(T));
+            il.Emit(OpCodes.Ret);
+            return (SizeGetter)dm.CreateDelegate(typeof(SizeGetter));
+        }
+        public static readonly Type Base = typeof(T);
+        public static int Size => sizeGetter();
+        public static IntPtr GetAddress(ref T obj) => addrGetter(ref obj);
+    }
+}
+namespace System.Runtime.CompilerServices
+{
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public sealed class IgnoresAccessChecksToAttribute : Attribute
+    {
+        public IgnoresAccessChecksToAttribute(string assemblyName)
+        {
+            AssemblyName = assemblyName;
+        }
+        public string AssemblyName { get; }
     }
 }

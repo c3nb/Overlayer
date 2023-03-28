@@ -8,6 +8,9 @@ namespace Overlayer.Core
 {
     public static class TextManager
     {
+        public static void Refresh()
+        {
 
+        }
     }
 }

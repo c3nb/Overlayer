@@ -848,7 +848,7 @@ namespace JSEngine
         /// <exception cref="ArgumentNullException"> <paramref name="path"/> is a <c>null</c> reference. </exception>
         public void ExecuteFile(string path, System.Text.Encoding encoding)
         {
-            Execute(new FileScriptSource(path, encoding));
+            Execute(new FileSource(path, encoding));
         }
 
         /// <summary>
