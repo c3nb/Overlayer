@@ -12,5 +12,6 @@ namespace Overlayer.Scripting
         public ApiAttribute(string desc) => Description = desc;
         public string Description { get; }
         public ScriptType SupportScript = ScriptType.All;
+        public int Flags = 0;
     }
 }
