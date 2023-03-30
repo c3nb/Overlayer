@@ -63,6 +63,7 @@ namespace Overlayer.Patches
             var controller = scrController.instance;
             if (controller && controller.currFloor.freeroam) return true;
 
+            // TODO: Where is CurHitTags
             // __result = CurHitTags.GetCurHitMargin(GCS.difficulty);
 
             float angle = (float)radian * (hitangle - refangle);
