@@ -96,11 +96,11 @@ namespace JSEngine.Library
         /// delegate for the function name. </param>
         /// <param name="length"> The "typical" number of arguments expected by the function.  Pass
         /// <c>-1</c> to use the number of arguments expected by the delegate. </param>
-        internal ClrFunction(ObjectInstance prototype, Delegate delegateToCall, string name = null, int length = -1)
+        internal ClrFunction(ObjectInstance prototype, Delegate delegateToCall, string name = null, int length = -1, JSFunctionFlags flags = JSFunctionFlags.None)
             : base(prototype)
         {
             // Initialize the [[Call]] method.
-            this.callBinder = new JSBinder(new JSBinderMethod(delegateToCall.Method));
+            this.callBinder = new JSBinder(new JSBinderMethod(delegateToCall.Method, flags));
 
             // If the delegate has a class instance, use that to call the method.
             this.thisBinding = delegateToCall.Target;

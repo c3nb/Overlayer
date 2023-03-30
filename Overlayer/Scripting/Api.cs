@@ -66,10 +66,10 @@ namespace Overlayer.Scripting
             TagManager.RemoveTag(name);
             TextManager.Refresh();
         }
-        [Api("Resolve CLR Type", SupportScript = ScriptType.JavaScript)]
-        public static ObjectInstance Resolve(string clrType)
+        [Api("Resolve CLR Type", SupportScript = ScriptType.JavaScript, Flags = (int)JSFunctionFlags.HasEngineParameter)]
+        public static ObjectInstance Resolve(ScriptEngine engine, string clrType)
         {
-            return ClrStaticTypeWrapper.FromCache(, AccessTools.TypeByName(clrType));
+            return ClrStaticTypeWrapper.FromCache(engine, AccessTools.TypeByName(clrType));
         }
     }
 }

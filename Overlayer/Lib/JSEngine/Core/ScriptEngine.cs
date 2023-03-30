@@ -1093,16 +1093,14 @@ namespace JSEngine
         /// </summary>
         /// <param name="functionName"> The name of the global variable to set. </param>
         /// <param name="functionDelegate"> The delegate that will implement the function. </param>
-        public void SetGlobalFunction(string functionName, Delegate functionDelegate)
+        public void SetGlobalFunction(string functionName, Delegate functionDelegate, JSFunctionFlags flags = JSFunctionFlags.None)
         {
             if (functionName == null)
                 throw new ArgumentNullException(nameof(functionName));
             if (functionDelegate == null)
                 throw new ArgumentNullException(nameof(functionDelegate));
-            SetGlobalValue(functionName, new ClrFunction(this.Function.InstancePrototype, functionDelegate, functionName));
+            SetGlobalValue(functionName, new ClrFunction(this.Function.InstancePrototype, functionDelegate, functionName, flags: flags));
         }
-
-
 
 
         //     TIMING EVENTS
