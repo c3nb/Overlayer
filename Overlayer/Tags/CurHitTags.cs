@@ -3,7 +3,7 @@ using Overlayer.Patches;
 
 namespace Overlayer.Tags
 {
-    public class CurHitTags
+    public static class CurHitTags
     {
         private static GetHitMarginFixer.PerDiff Diff =>
             GetHitMarginFixer.diff[GCS.difficulty];

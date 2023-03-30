@@ -3,7 +3,7 @@ using Overlayer.Patches;
 
 namespace Overlayer.Tags
 {
-    public class Normal
+    public static class Normal
     {
         private static GetHitMarginFixer.PerDiff Diff =>
             GetHitMarginFixer.diff[Difficulty.Normal];

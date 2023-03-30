@@ -3,7 +3,7 @@ using Overlayer.Patches;
 
 namespace Overlayer.Tags
 {
-    public class Lenient
+    public static class Lenient
     {
         private static GetHitMarginFixer.PerDiff Diff =>
             GetHitMarginFixer.diff[Difficulty.Lenient];
