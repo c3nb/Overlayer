@@ -1251,6 +1251,7 @@
     <Compile Include="Scripting\ScriptType.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShadowText.cs" />
+    <Compile Include="Tags\CurHitTags.cs" />
     <Compile Include="Tags\Lenient.cs" />
     <Compile Include="Tags\Normal.cs" />
     <Compile Include="Tags\Strict.cs" />
