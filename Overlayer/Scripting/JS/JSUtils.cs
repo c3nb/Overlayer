@@ -110,7 +110,7 @@ namespace Overlayer.Scripting.JS
         }
         public static bool IsTrue(object obj)
             => obj == null || obj.Equals(true);
-        static readonly MethodInfo istrue = typeof(JavaScript).GetMethod("IsTrue", AccessTools.all);
+        static readonly MethodInfo istrue = typeof(JSUtils).GetMethod("IsTrue", AccessTools.all);
         class CustomParameter : ParameterInfo
         {
             public CustomParameter(Type type, string name)
