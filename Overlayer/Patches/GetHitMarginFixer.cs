@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using AdofaiMapConverter;
 using HarmonyLib;
+using Overlayer.Core;
 using Overlayer.Tags;
 using UnityEngine;
+using System.Linq;
 
 namespace Overlayer.Patches
 {
@@ -29,15 +31,15 @@ namespace Overlayer.Patches
             }
         }
 
-        public static readonly Dictionary<Difficulty, PerDiff> diff = new()
+        public static int Combo = 0;
+        private static readonly double radian = 57.295780181884766;
+
+        public  static readonly Dictionary<Difficulty, PerDiff> diff = new()
         {
             { Difficulty.Lenient, new(Difficulty.Lenient) },
             { Difficulty.Normal, new(Difficulty.Normal) },
             { Difficulty.Strict, new(Difficulty.Strict) },
         };
-
-        public static int Combo = 0;
-
         private static readonly Dictionary<HitMargin, int> ScoreMap = new()
         {
             { HitMargin.Perfect, 300 },
@@ -52,8 +54,13 @@ namespace Overlayer.Patches
             { Difficulty.Normal, 0.065f },
             { Difficulty.Strict, 0.04f },
         };
-
-        private static readonly double radian = 57.295780181884766;
+        private static readonly Dictionary<string, string[]> diffTags = new()
+        {
+            { "Current", new[] { "CurHit", "CTE", "CVE", "CEP", "CP", "CLP", "CVL", "CTL", "Score" } },
+            { "Lenient", new[] { "LHit", "LTE", "LVE", "LEP", "LP", "LLP", "LVL", "LTL", "LScore" } },
+            { "Normal", new[] { "NHit", "NTE", "NVE", "NEP", "NP", "NLP", "NVL", "NTL", "NScore" } },
+            { "Strict", new[] { "SHit", "STE", "SVE", "SEP", "SP", "SLP", "SVL", "STL", "SScore" } },
+        };
 
         public delegate double boundaryGetter(float inMobile, float inPC, double minAngle);
         public delegate HitMargin HitMarginGetter(Difficulty diff);
@@ -64,17 +71,12 @@ namespace Overlayer.Patches
             var controller = scrController.instance;
             if (controller && controller.currFloor.freeroam) return true;
 
-            __result = CurHitTags.Diff.NowMargin;
-
             float angle = (float)radian * (hitangle - refangle);
             if (isCW) angle = -angle;
 
-            HitMarginGetter getter = HitMarginGenerater(angle, bpmTimesSpeed, conductorPitch, marginScale);
+            UpdateTags(bpmTimesSpeed, conductorPitch, marginScale, angle);
 
-            diff[Difficulty.Lenient].Update(getter);
-            diff[Difficulty.Normal].Update(getter);
-            diff[Difficulty.Strict].Update(getter);
-
+            __result = diff[GCS.difficulty].NowMargin;
             Combo = (__result == HitMargin.Perfect) ? Combo + 1 : 0;
 
             return false;
@@ -93,6 +95,43 @@ namespace Overlayer.Patches
 
             return ctrl.currFloor?.isSafe ?? false;
         }
+
+        private static void UpdateTags(float bpmTimesSpeed, float conductorPitch, double marginScale, float angle)
+        {
+            HitMarginGetter getter = HitMarginGenerater(angle, bpmTimesSpeed, conductorPitch, marginScale);
+            Dictionary<Difficulty, bool> Up = new()
+            {
+                { Difficulty.Lenient, false },
+                { Difficulty.Normal, false },
+                { Difficulty.Strict, false },
+            };
+
+            if (HasAnyTags(diffTags["Lenient"]))
+            {
+                diff[Difficulty.Lenient].Update(getter);
+                Up[Difficulty.Lenient] = true;
+            }
+            if (HasAnyTags(diffTags["Normal"]))
+            {
+                diff[Difficulty.Normal].Update(getter);
+                Up[Difficulty.Normal] = true;
+            }
+            if (HasAnyTags(diffTags["Strict"]))
+            {
+                diff[Difficulty.Strict].Update(getter);
+                Up[Difficulty.Strict] = true;
+            }
+            if (HasAnyTags(diffTags["Current"]) && !Up[GCS.difficulty])
+            {
+                diff[GCS.difficulty].Update(getter);
+            }
+        }
+
+        private static bool HasAnyTags(string[] tags) =>
+            (from string tag in tags
+             where TagManager.IsReferenced(tag)
+             select new { })
+            .Count() != 0;
 
         private static boundaryGetter BoundaryGetter(float bpm, float pitch, double marginScale) =>
             (inMobile, inPC, minAngle) =>
