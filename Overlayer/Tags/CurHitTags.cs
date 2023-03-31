@@ -5,7 +5,7 @@ namespace Overlayer.Tags
 {
     public static class CurHitTags
     {
-        private static GetHitMarginFixer.PerDiff Diff =>
+        public static GetHitMarginFixer.PerDiff Diff =>
             GetHitMarginFixer.diff[GCS.difficulty];
 
         [Tag("CurHit")]

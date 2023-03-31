@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AdofaiMapConverter;
 using HarmonyLib;
+using Overlayer.Tags;
 using UnityEngine;
 
 namespace Overlayer.Patches
@@ -63,8 +64,7 @@ namespace Overlayer.Patches
             var controller = scrController.instance;
             if (controller && controller.currFloor.freeroam) return true;
 
-            // TODO: Where is CurHitTags
-            // __result = CurHitTags.GetCurHitMargin(GCS.difficulty);
+            __result = CurHitTags.Diff.NowMargin;
 
             float angle = (float)radian * (hitangle - refangle);
             if (isCW) angle = -angle;
