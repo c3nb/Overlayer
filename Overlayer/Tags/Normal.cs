@@ -10,6 +10,7 @@ namespace Overlayer.Tags
 
         [Tag("NHit")]
         public static string Hit() => RDString.Get("HitMargin." + Diff.NowMargin);
+
         [Tag("NTE")]
         public static double TE() => Diff.Counts[HitMargin.TooEarly];
         [Tag("NVE")]
@@ -24,5 +25,8 @@ namespace Overlayer.Tags
         public static double VL() => Diff.Counts[HitMargin.VeryLate];
         [Tag("NTL")]
         public static double TL() => Diff.Counts[HitMargin.TooLate];
+
+        [Tag("NScore")]
+        public static double Score() => Diff.Score;
     }
 }
