@@ -6,6 +6,7 @@ using Overlayer.Core;
 using Overlayer.Tags;
 using UnityEngine;
 using System.Linq;
+using Overlayer.Core.Tags;
 
 namespace Overlayer.Patches
 {
@@ -166,5 +167,11 @@ namespace Overlayer.Patches
                     result = HitMargin.TooLate;
                 return result;
             };
+    }
+
+    public class HitMarginTagAttribute : ClassTagAttribute
+    {
+        public HitMarginTagAttribute(string name) : base(name) =>
+            PatchesType = typeof(GetHitMarginFixer);
     }
 }
