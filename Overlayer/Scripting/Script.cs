@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Overlayer.Scripting.JS;
+using Overlayer.Scripting.Lua;
+using Overlayer.Scripting.Python;
+using System;
 
 namespace Overlayer.Scripting
 {
@@ -15,5 +14,19 @@ namespace Overlayer.Scripting
         public abstract object Evaluate();
         public abstract void Execute();
         public abstract void Dispose();
+        public static Script Create(string path, ScriptType scriptType)
+        {
+            switch (scriptType)
+            {
+                case ScriptType.JavaScript:
+                    return new JavaScript(path);
+                case ScriptType.Python:
+                    return new PythonScript(path);
+                case ScriptType.Lua:
+                    return new LuaScript(path);
+                default:
+                    return null;
+            }
+        }
     }
 }

@@ -198,7 +198,7 @@ namespace Neo.IronLua
 		#endregion
 
 		#region -- Compile ------------------------------------------------------------
-
+		public string SourcePath = null;
 		/// <summary>Create a code delegate without executing it.</summary>
 		/// <param name="fileName">File to parse.</param>
 		/// <param name="options">Options for the compile process.</param>
@@ -206,6 +206,7 @@ namespace Neo.IronLua
 		/// <returns>Compiled chunk.</returns>
 		public LuaChunk CompileChunk(string fileName, LuaCompileOptions options, params KeyValuePair<string, Type>[] args)
 		{
+			SourcePath = fileName;
 			using (var sr = new StreamReader(fileName))
 			using (var lex = LuaLexer.Create(Path.GetFileName(fileName), sr, true))
 				return CompileChunkCore(lex, options, args);

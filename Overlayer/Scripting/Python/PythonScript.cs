@@ -1,5 +1,10 @@
 ﻿using Microsoft.Scripting.Hosting;
 using Overlayer.Core;
+using System.Collections.Generic;
+using System;
+using System.Reflection;
+using System.Linq.Expressions;
+using System.Linq;
 
 namespace Overlayer.Scripting.Python
 {
@@ -9,12 +14,25 @@ namespace Overlayer.Scripting.Python
         private ScriptSource source;
         private ScriptScope scope;
         private CompiledCode code;
+        static Dictionary<string, Delegate> apis = new Dictionary<string, Delegate>();
         public PythonScript(string path) : base(path)
         {
             Engine = PythonUtils.CreateEngine(path, out source);
             scope = Engine.CreateScope();
             foreach (var tag in TagManager.All)
                 scope.SetVariable(tag.Name, tag.HasOption ? tag.FastInvokerOpt : tag.FastInvoker);
+            if (apis == null)
+            {
+                apis = new Dictionary<string, Delegate>();
+                foreach (var api in Api.GetApi(ScriptType))
+                {
+                    var attr = api.GetCustomAttribute<ApiAttribute>();
+                    var del = api.CreateDelegate(Expression.GetDelegateType(api.GetParameters().Select(p => p.ParameterType).ToArray()));
+                    apis.Add(api.Name, del);
+                }
+            }
+            foreach (var api in apis)
+                scope.SetVariable(api.Key, api.Value);
         }
         public override ScriptType ScriptType => ScriptType.Python;
         public override void Compile() => code = source.Compile();

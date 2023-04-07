@@ -1820,7 +1820,6 @@ namespace Neo.IronLua
 		public MethodInfo Method => method;
 		/// <summary>Delegate of the Method</summary>
 		public Delegate Delegate => Parser.CreateDelegate(instance, Method);
-
 		// -- Static ----------------------------------------------------------
 
 		internal static DynamicMetaObject BindInvoke(Lua runtime, Expression methodExpression, ILuaMethod methodValue, MethodInfo mi, CallInfo callInfo, DynamicMetaObject[] args, Type typeReturn)
