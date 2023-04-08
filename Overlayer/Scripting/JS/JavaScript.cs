@@ -28,7 +28,10 @@ namespace Overlayer.Scripting.JS
                 foreach (var api in Api.GetApi(ScriptType))
                 {
                     var attr = api.GetCustomAttribute<ApiAttribute>();
-                    var del = api.CreateDelegate(Expression.GetDelegateType(api.GetParameters().Select(p => p.ParameterType).ToArray()));
+                    Delegate del;
+                    if (api.ReturnType != typeof(void))
+                        del = api.CreateDelegate(Expression.GetFuncType(api.GetParameters().Select(p => p.ParameterType).Append(api.ReturnType).ToArray()));
+                    else del = api.CreateDelegate(Expression.GetActionType(api.GetParameters().Select(p => p.ParameterType).ToArray()));
                     apis.Add(api.Name, (del, (JSFunctionFlags)attr.Flags));
                 }
             }

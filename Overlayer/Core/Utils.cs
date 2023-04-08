@@ -129,6 +129,15 @@ namespace Overlayer.Core
             @enum = values[selected];
             return result;
         }
+        public static bool RightToggle(bool value, string label)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            value = GUILayout.Toggle(value, "");
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            return value;
+        }
         #endregion
         #region Array
         public static R[] ActualElements<T, R>(this R[] array, T[] seed, Func<T, R, bool> selector)

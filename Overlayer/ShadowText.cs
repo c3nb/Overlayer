@@ -27,8 +27,8 @@ namespace Overlayer
         }
         public void Destroy(bool destoryCanvas = false)
         {
-            UnityEngine.Object.Destroy(Main.gameObject);
-            UnityEngine.Object.Destroy(Shadow.gameObject);
+            UnityEngine.Object.Destroy(Main);
+            UnityEngine.Object.Destroy(Shadow);
             if (destoryCanvas)
                 UnityEngine.Object.Destroy(PCanvasObj);
         }
@@ -109,7 +109,7 @@ namespace Overlayer
             Shadow.font = font.fontTMP;
             Shadow.enableVertexGradient = true;
             Shadow.color = Color.white.WithAlpha(0.4f);
-            Shadow.colorGradient = config.ShadowColor;
+            Shadow.colorGradient = config.ShadowColor_G;
 
             GameObject mainObject = new GameObject();
             mainObject.transform.SetParent(PublicCanvas.transform);
@@ -118,10 +118,11 @@ namespace Overlayer
             Main.font = font.fontTMP;
             Main.enableVertexGradient = true;
             Main.color = Color.white;
-            Main.colorGradient = config.TextColor;
+            Main.colorGradient = config.TextColor_G;
 
             Main.enableAutoSizing = Shadow.enableAutoSizing = false;
             Main.lineSpacing = Shadow.lineSpacing = config.LineSpacing;
+            Main.lineSpacingAdjustment = Shadow.lineSpacingAdjustment = -config.LineSpacing;
             Initialized = true;
         }
         public bool TrySetFont(string name)

@@ -1240,12 +1240,17 @@
     <Compile Include="Main.cs" />
     <Compile Include="OverlayerText.cs" />
     <Compile Include="Patches\GetHitMarginFixer.cs" />
+    <Compile Include="Patches\RemoveFuckingUMMDummyLogPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scripting\Api.cs" />
     <Compile Include="Scripting\ApiAttribute.cs" />
+    <Compile Include="Scripting\Impl.cs" />
+    <Compile Include="Scripting\JS\JavaScriptImpl.cs" />
     <Compile Include="Scripting\JS\JavaScript.cs" />
     <Compile Include="Scripting\JS\JSUtils.cs" />
+    <Compile Include="Scripting\Lua\LuaImpl.cs" />
     <Compile Include="Scripting\Lua\LuaScript.cs" />
+    <Compile Include="Scripting\Python\PythonImpl.cs" />
     <Compile Include="Scripting\Python\PythonScript.cs" />
     <Compile Include="Scripting\Python\PythonUtils.cs" />
     <Compile Include="Scripting\Script.cs" />
@@ -1274,7 +1279,9 @@
     <EmbeddedResource Include="Lib\NeoLua\Properties\Resources.de.resx" />
     <EmbeddedResource Include="Lib\NeoLua\Properties\Resources.resx" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Tags\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\A Dance of Fire and Ice\Mods\Overlayer\Overlayer.dll"</PostBuildEvent>

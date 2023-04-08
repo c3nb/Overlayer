@@ -10,7 +10,9 @@ using Overlayer.Core;
 using Overlayer.Core.Translation;
 using Overlayer.Scripting;
 using UnityEngine;
-using SA.GoogleDoc;
+using Overlayer.Scripting.JS;
+using Overlayer.Scripting.Lua;
+using Overlayer.Scripting.Python;
 
 namespace Overlayer
 {
@@ -37,24 +39,32 @@ namespace Overlayer
         {
             if (value)
             {
+                Backup();
                 Settings = ModSettings.Load<Settings>(modEntry);
+                Settings.Load();
+                UpdateLanguage();
                 Assembly ass = Assembly.GetExecutingAssembly();
                 TagManager.Load(ass);
                 Harmony = new Harmony(modEntry.Info.Id);
                 Harmony.PatchAll(ass);
                 RunScripts(ScriptPath);
+                TextManager.Load();
             }
             else
             {
                 Harmony.UnpatchAll(Harmony.Id);
                 Harmony = null;
                 TagManager.Release();
+                TextManager.Save();
+                TextManager.Release();
             }
             return true;
         }
         public static void OnGUI(ModEntry modEntry)
         {
             LanguageSelectGUI();
+            Settings.Draw();
+            TextManager.GUI();
         }
         public static void LanguageSelectGUI()
         {
@@ -85,18 +95,24 @@ namespace Overlayer
         public static void OnSaveGUI(ModEntry modEntry)
         {
             ModSettings.Save(Settings, modEntry);
+            TextManager.Save();
         }
         #endregion
         #region Functions
-        public static IEnumerable<Script> RunScripts(string folderPath)
+        public static void RunScripts(string folderPath)
         {
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+            File.WriteAllText(Path.Combine(folderPath, "Impl.js"), new JavaScriptImpl().Generate());
+            File.WriteAllText(Path.Combine(folderPath, "Impl.lua"), new LuaImpl().Generate());
+            File.WriteAllText(Path.Combine(folderPath, "Impl.py"), new PythonImpl().Generate());
             foreach (string script in Directory.GetFiles(folderPath))
             {
+                if (Path.GetFileNameWithoutExtension(script) == "Impl") continue;
                 ScriptType sType = Script.GetScriptType(script);
                 if (sType == ScriptType.None) continue;
                 Script scr = Script.Create(script, sType);
                 scr.Execute();
-                yield return scr;
             }
         }
         public static void UpdateLanguage()
