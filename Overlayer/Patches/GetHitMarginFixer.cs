@@ -168,10 +168,4 @@ namespace Overlayer.Patches
                 return result;
             };
     }
-
-    public class HitMarginTagAttribute : ClassTagAttribute
-    {
-        public HitMarginTagAttribute(string name) : base(name) =>
-            PatchesType = typeof(GetHitMarginFixer);
-    }
 }

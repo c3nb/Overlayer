@@ -8,63 +8,63 @@ namespace Overlayer.Tags
         private static GetHitMarginFixer.PerDiff Diff =>
             GetHitMarginFixer.diff[Difficulty.Strict];
 
-        [HitMarginTag("SHit")]
+        [ClassTag("SHit")]
         public static class SHit
         {
             [Tag]
             public static string Hit() => RDString.Get("HitMargin." + Diff.NowMargin);
         }
 
-        [HitMarginTag("STE")]
+        [ClassTag("STE")]
         public static class STE
         {
             [Tag]
             public static double TE() => Diff.Counts[HitMargin.TooEarly];
         }
 
-        [HitMarginTag("SVE")]
+        [ClassTag("SVE")]
         public static class SVE
         {
             [Tag]
             public static double VE() => Diff.Counts[HitMargin.VeryEarly];
         }
         
-        [HitMarginTag("SEP")]
+        [ClassTag("SEP")]
         public static class SEP
         {
             [Tag]
             public static double EP() => Diff.Counts[HitMargin.EarlyPerfect];
         }
         
-        [HitMarginTag("SP")]
+        [ClassTag("SP")]
         public static class SP
         {
             [Tag]
             public static double P() => Diff.Counts[HitMargin.Perfect];
         }
         
-        [HitMarginTag("SLP")]
+        [ClassTag("SLP")]
         public static class SLP
         {
             [Tag]
             public static double LP() => Diff.Counts[HitMargin.LatePerfect];
         }
         
-        [HitMarginTag("SVL")]
+        [ClassTag("SVL")]
         public static class SVL
         {
             [Tag]
             public static double VL() => Diff.Counts[HitMargin.VeryLate];
         }
         
-        [HitMarginTag("STL")]
+        [ClassTag("STL")]
         public static class STL
         {
             [Tag]
             public static double TL() => Diff.Counts[HitMargin.TooLate];
         }
 
-        [HitMarginTag("SScore")]
+        [ClassTag("SScore")]
         public static class SScore
         {
             [Tag]

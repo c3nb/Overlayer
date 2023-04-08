@@ -8,63 +8,63 @@ namespace Overlayer.Tags
         private static GetHitMarginFixer.PerDiff Diff =>
             GetHitMarginFixer.diff[Difficulty.Normal];
 
-        [HitMarginTag("NHit")]
+        [ClassTag("NHit")]
         public static class NHit
         {
             [Tag]
             public static string Hit() => RDString.Get("HitMargin." + Diff.NowMargin);
         }
 
-        [HitMarginTag("NTE")]
+        [ClassTag("NTE")]
         public static class NTE
         {
             [Tag]
             public static double TE() => Diff.Counts[HitMargin.TooEarly];
         }
         
-        [HitMarginTag("NVE")]
+        [ClassTag("NVE")]
         public static class NVE
         {
             [Tag]
             public static double VE() => Diff.Counts[HitMargin.VeryEarly];
         }
         
-        [HitMarginTag("NEP")]
+        [ClassTag("NEP")]
         public static class NEP
         {
             [Tag]
             public static double EP() => Diff.Counts[HitMargin.EarlyPerfect];
         }
         
-        [HitMarginTag("NP")]
+        [ClassTag("NP")]
         public static class NP
         {
             [Tag]
             public static double P() => Diff.Counts[HitMargin.Perfect];
         }
         
-        [HitMarginTag("NLP")]
+        [ClassTag("NLP")]
         public static class NLP
         {
             [Tag]
             public static double LP() => Diff.Counts[HitMargin.LatePerfect];
         }
         
-        [HitMarginTag("NVL")]
+        [ClassTag("NVL")]
         public static class NVL
         {
             [Tag]
             public static double VL() => Diff.Counts[HitMargin.VeryLate];
         }
 
-        [HitMarginTag("NTL")]
+        [ClassTag("NTL")]
         public static class NTL
         {
             [Tag]
             public static double TL() => Diff.Counts[HitMargin.TooLate];
         }
 
-        [HitMarginTag("NScore")]
+        [ClassTag("NScore")]
         public static class NScore
         {
             [Tag]
