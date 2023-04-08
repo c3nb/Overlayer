@@ -567,6 +567,7 @@ namespace Overlayer.Core
         }
         #endregion
         #region Extensions
+        public static double Round(this double value, int digits) => digits < 0 ? value : Math.Round(value,  digits);
         public static void Deconstruct<T1, T2>(this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value)
         {
             key = tuple.Key;

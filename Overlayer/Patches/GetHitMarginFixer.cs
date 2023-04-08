@@ -1,88 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using AdofaiMapConverter;
-using HarmonyLib;
-using Overlayer.Core;
-using Overlayer.Tags;
+﻿using HarmonyLib;
+using System;
 using UnityEngine;
-using System.Linq;
-using Overlayer.Core.Tags;
+using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
     [HarmonyPatch(typeof(scrMisc), "GetHitMargin")]
     public static class GetHitMarginFixer
     {
-        public class PerDiff
-        {
-            public Difficulty Diff { get; private set; }
-            public HitMargin NowMargin { get => nowMargin; private set => nowMargin = value; }
-            public Dictionary<HitMargin, int> Counts { get; private set; } = new();
-            public int Score { get; private set; } = 0;
-
-            private HitMargin nowMargin;
-
-            public PerDiff(Difficulty diff) { Diff = diff; }
-
-            public void Update(HitMarginGetter getter)
-            {
-                NowMargin = getter(Diff);
-                if (!nowMargin.SafeMargin()) Counts[NowMargin]++;
-                Score += ScoreMap.GetValueSafe(NowMargin);
-            }
-        }
-
-        public static int Combo = 0;
-        private static readonly double radian = 57.295780181884766;
-
-        public  static readonly Dictionary<Difficulty, PerDiff> diff = new()
-        {
-            { Difficulty.Lenient, new(Difficulty.Lenient) },
-            { Difficulty.Normal, new(Difficulty.Normal) },
-            { Difficulty.Strict, new(Difficulty.Strict) },
-        };
-        private static readonly Dictionary<HitMargin, int> ScoreMap = new()
-        {
-            { HitMargin.Perfect, 300 },
-            { HitMargin.EarlyPerfect, 150 },
-            { HitMargin.LatePerfect, 150 },
-            { HitMargin.VeryEarly, 91 },
-            { HitMargin.VeryLate, 91 },
-        };
-        private static readonly Dictionary<Difficulty, float> criteria = new()
-        {
-            { Difficulty.Lenient, 0.091f },
-            { Difficulty.Normal, 0.065f },
-            { Difficulty.Strict, 0.04f },
-        };
-        private static readonly Dictionary<string, string[]> diffTags = new()
-        {
-            { "Current", new[] { "CurHit", "CTE", "CVE", "CEP", "CP", "CLP", "CVL", "CTL", "Score" } },
-            { "Lenient", new[] { "LHit", "LTE", "LVE", "LEP", "LP", "LLP", "LVL", "LTL", "LScore" } },
-            { "Normal", new[] { "NHit", "NTE", "NVE", "NEP", "NP", "NLP", "NVL", "NTL", "NScore" } },
-            { "Strict", new[] { "SHit", "STE", "SVE", "SEP", "SP", "SLP", "SVL", "STL", "SScore" } },
-        };
-
-        public delegate double boundaryGetter(float inMobile, float inPC, double minAngle);
-        public delegate HitMargin HitMarginGetter(Difficulty diff);
-
-        public static bool Prefix
-            (float hitangle, float refangle, bool isCW, float bpmTimesSpeed, float conductorPitch, double marginScale, ref HitMargin __result)
+        public static bool Prefix(float hitangle, float refangle, bool isCW, float bpmTimesSpeed, float conductorPitch, double marginScale, ref HitMargin __result)
         {
             var controller = scrController.instance;
-            if (controller && controller.currFloor.freeroam) return true;
-
-            float angle = (float)radian * (hitangle - refangle);
-            if (isCW) angle = -angle;
-
-            UpdateTags(bpmTimesSpeed, conductorPitch, marginScale, angle);
-
-            __result = diff[GCS.difficulty].NowMargin;
-            Combo = (__result == HitMargin.Perfect) ? Combo + 1 : 0;
-
-            return false;
+            if (controller)
+            {
+                if (controller.currFloor.freeroam)
+                    return true;
+            }
+            Variables.Lenient = GetHitMargin(Difficulty.Lenient, hitangle, refangle, isCW, bpmTimesSpeed, conductorPitch, marginScale);
+            Variables.Normal = GetHitMargin(Difficulty.Normal, hitangle, refangle, isCW, bpmTimesSpeed, conductorPitch, marginScale);
+            Variables.Strict = GetHitMargin(Difficulty.Strict, hitangle, refangle, isCW, bpmTimesSpeed, conductorPitch, marginScale);
+            __result = CurHitTags.GetCurHitMargin(GCS.difficulty);
+            if (!Variables.Lenient.SafeMargin())
+                Variables.LenientCounts[Variables.Lenient]++;
+            if (!Variables.Normal.SafeMargin())
+                Variables.NormalCounts[Variables.Normal]++;
+            if (!Variables.Strict.SafeMargin())
+                Variables.StrictCounts[Variables.Strict]++;
+            if (__result == HitMargin.Perfect)
+                Variables.Combo++;
+            else Variables.Combo = 0;
+            switch (GCS.difficulty)
+            {
+                case Difficulty.Lenient:
+                    CalculateScores(__result, Variables.Normal, Variables.Strict, __result);
+                    return false;
+                case Difficulty.Normal:
+                    CalculateScores(Variables.Lenient, __result, Variables.Strict, __result);
+                    return false;
+                case Difficulty.Strict:
+                    CalculateScores(Variables.Lenient, Variables.Normal, __result, __result);
+                    return false;
+                default: return false;
+            }
         }
-
         public static bool SafeMargin(this ref HitMargin hitMargin)
         {
             scrController ctrl = scrController.instance;
@@ -93,79 +53,120 @@ namespace Overlayer.Patches
                 if (ctrl.midspinInfiniteMargin || (RDC.auto && !RDC.useOldAuto))
                     hitMargin = HitMargin.Perfect;
             }
-
             return ctrl.currFloor?.isSafe ?? false;
         }
-
-        private static void UpdateTags(float bpmTimesSpeed, float conductorPitch, double marginScale, float angle)
+        public static void CalculateScores(HitMargin l, HitMargin n, HitMargin s, HitMargin cur)
         {
-            HitMarginGetter getter = HitMarginGenerater(angle, bpmTimesSpeed, conductorPitch, marginScale);
-            Dictionary<Difficulty, bool> Up = new()
+            switch (cur)
             {
-                { Difficulty.Lenient, false },
-                { Difficulty.Normal, false },
-                { Difficulty.Strict, false },
-            };
-
-            if (HasAnyTags(diffTags["Lenient"]))
-            {
-                diff[Difficulty.Lenient].Update(getter);
-                Up[Difficulty.Lenient] = true;
+                case HitMargin.VeryEarly:
+                case HitMargin.VeryLate:
+                    Variables.CurrentScore += 91;
+                    break;
+                case HitMargin.EarlyPerfect:
+                case HitMargin.LatePerfect:
+                    Variables.CurrentScore += 150;
+                    break;
+                case HitMargin.Perfect:
+                    Variables.CurrentScore += 300;
+                    break;
             }
-            if (HasAnyTags(diffTags["Normal"]))
+            switch (l)
             {
-                diff[Difficulty.Normal].Update(getter);
-                Up[Difficulty.Normal] = true;
+                case HitMargin.VeryEarly:
+                case HitMargin.VeryLate:
+                    Variables.LenientScore += 91;
+                    break;
+                case HitMargin.EarlyPerfect:
+                case HitMargin.LatePerfect:
+                    Variables.LenientScore += 150;
+                    break;
+                case HitMargin.Perfect:
+                    Variables.LenientScore += 300;
+                    break;
             }
-            if (HasAnyTags(diffTags["Strict"]))
+            switch (n)
             {
-                diff[Difficulty.Strict].Update(getter);
-                Up[Difficulty.Strict] = true;
+                case HitMargin.VeryEarly:
+                case HitMargin.VeryLate:
+                    Variables.NormalScore += 91;
+                    break;
+                case HitMargin.EarlyPerfect:
+                case HitMargin.LatePerfect:
+                    Variables.NormalScore += 150;
+                    break;
+                case HitMargin.Perfect:
+                    Variables.NormalScore += 300;
+                    break;
             }
-            if (HasAnyTags(diffTags["Current"]) && !Up[GCS.difficulty])
+            switch (s)
             {
-                diff[GCS.difficulty].Update(getter);
+                case HitMargin.VeryEarly:
+                case HitMargin.VeryLate:
+                    Variables.StrictScore += 91;
+                    break;
+                case HitMargin.EarlyPerfect:
+                case HitMargin.LatePerfect:
+                    Variables.StrictScore += 150;
+                    break;
+                case HitMargin.Perfect:
+                    Variables.StrictScore += 300;
+                    break;
             }
         }
-
-        private static bool HasAnyTags(string[] tags) =>
-            (from string tag in tags
-             where TagManager.IsReferenced(tag)
-             select new { })
-            .Count() != 0;
-
-        private static boundaryGetter BoundaryGetter(float bpm, float pitch, double marginScale) =>
-            (inMobile, inPC, minAngle) =>
-            {
-                float a = ADOBase.isMobile ? inMobile : (inPC / GCS.currentSpeedTrial);
-
-                double angleInRead = scrMisc.TimeToAngleInRad((double)Mathf.Max(a, 0.025f), (double)bpm, (double)pitch, false);
-                return Math.Max(minAngle * marginScale, radian * angleInRead);
-            };
-
-        private static HitMarginGetter HitMarginGenerater
-            (float angle, float bpmTimesSpeed, float conductorPitch, double marginScale) => 
-            diff =>
-            {
-                boundaryGetter getBoundary = BoundaryGetter(bpmTimesSpeed, conductorPitch, marginScale);
-                double passBound = getBoundary(0.09f, criteria.GetValueSafe(diff, 0.065f), GCS.HITMARGIN_COUNTED);
-                double perfectBound = getBoundary(0.07f, 0.03f, 45.0);
-                double pureBound = getBoundary(0.05f, 0.02f, 30.0);
-
-                HitMargin result = HitMargin.TooEarly;
-                if ((double)angle > -passBound)
-                    result = HitMargin.VeryEarly;
-                if ((double)angle > -perfectBound)
-                    result = HitMargin.EarlyPerfect;
-                if ((double)angle > -pureBound)
-                    result = HitMargin.Perfect;
-                if ((double)angle > pureBound)
-                    result = HitMargin.LatePerfect;
-                if ((double)angle > perfectBound)
-                    result = HitMargin.VeryLate;
-                if ((double)angle > passBound)
-                    result = HitMargin.TooLate;
+        public static double GetAdjustedAngleBoundaryInDeg(Difficulty diff, HitMarginGeneral marginType, double bpmTimesSpeed, double conductorPitch, double marginMult = 1.0)
+        {
+            float num = 0.065f;
+            if (diff == Difficulty.Lenient)
+                num = 0.091f;
+            if (diff == Difficulty.Normal)
+                num = 0.065f;
+            if (diff == Difficulty.Strict)
+                num = 0.04f;
+            bool isMobile = ADOBase.isMobile;
+            num = isMobile ? 0.09f : (num / GCS.currentSpeedTrial);
+            float num2 = isMobile ? 0.07f : (0.03f / GCS.currentSpeedTrial);
+            float a = isMobile ? 0.05f : (0.02f / GCS.currentSpeedTrial);
+            num = Mathf.Max(num, 0.025f);
+            num2 = Mathf.Max(num2, 0.025f);
+            double num3 = (double)Mathf.Max(a, 0.025f);
+            double val = scrMisc.TimeToAngleInRad((double)num, bpmTimesSpeed, conductorPitch, false) * 57.295780181884766;
+            double val2 = scrMisc.TimeToAngleInRad((double)num2, bpmTimesSpeed, conductorPitch, false) * 57.295780181884766;
+            double val3 = scrMisc.TimeToAngleInRad(num3, bpmTimesSpeed, conductorPitch, false) * 57.295780181884766;
+            double result = Math.Max(GCS.HITMARGIN_COUNTED * marginMult, val);
+            double result2 = Math.Max(45.0 * marginMult, val2);
+            double result3 = Math.Max(30.0 * marginMult, val3);
+            if (marginType == HitMarginGeneral.Counted)
                 return result;
-            };
+            if (marginType == HitMarginGeneral.Perfect)
+                return result2;
+            if (marginType == HitMarginGeneral.Pure)
+                return result3;
+            return result;
+        }
+        public static HitMargin GetHitMargin(Difficulty diff, float hitangle, float refangle, bool isCW, float bpmTimesSpeed, float conductorPitch, double marginScale)
+        {
+            float num = (hitangle - refangle) * (isCW ? 1 : -1);
+            HitMargin result = HitMargin.TooEarly;
+            float num2 = num;
+            num2 = 57.29578f * num2;
+            double adjustedAngleBoundaryInDeg = GetAdjustedAngleBoundaryInDeg(diff, HitMarginGeneral.Counted, (double)bpmTimesSpeed, (double)conductorPitch, marginScale);
+            double adjustedAngleBoundaryInDeg2 = GetAdjustedAngleBoundaryInDeg(diff, HitMarginGeneral.Perfect, (double)bpmTimesSpeed, (double)conductorPitch, marginScale);
+            double adjustedAngleBoundaryInDeg3 = GetAdjustedAngleBoundaryInDeg(diff, HitMarginGeneral.Pure, (double)bpmTimesSpeed, (double)conductorPitch, marginScale);
+            if ((double)num2 > -adjustedAngleBoundaryInDeg)
+                result = HitMargin.VeryEarly;
+            if ((double)num2 > -adjustedAngleBoundaryInDeg2)
+                result = HitMargin.EarlyPerfect;
+            if ((double)num2 > -adjustedAngleBoundaryInDeg3)
+                result = HitMargin.Perfect;
+            if ((double)num2 > adjustedAngleBoundaryInDeg3)
+                result = HitMargin.LatePerfect;
+            if ((double)num2 > adjustedAngleBoundaryInDeg2)
+                result = HitMargin.VeryLate;
+            if ((double)num2 > adjustedAngleBoundaryInDeg)
+                result = HitMargin.TooLate;
+            return result;
+        }
+
     }
 }

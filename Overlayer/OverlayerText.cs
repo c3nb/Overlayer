@@ -49,6 +49,7 @@ namespace Overlayer
                     Text.Shadow.text = ShadowNotPlayingText.Replace();
                 }
             };
+            UnityEngine.Object.DontDestroyOnLoad(Text);
             Text.Init(config);
         }
         public void GUI()
@@ -197,6 +198,7 @@ namespace Overlayer
             Text.FontSize = config.FontSize;
             Text.Alignment = config.Alignment;
             Text.TrySetFont(config.Font);
+            Main.Logger.Log("APPLY");
         }
     }
 }

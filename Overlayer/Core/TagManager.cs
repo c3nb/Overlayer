@@ -93,21 +93,28 @@ namespace Overlayer.Core
             AllTags.Values.ForEach(t => t.Dispose());
             AllTags = NotPlayingTags = ReferencedTags = null;
         }
-        static Func<int, string> GenerateFieldTagWrapper(FieldTagAttribute fTag, FieldInfo field)
+        static Delegate GenerateFieldTagWrapper(FieldTagAttribute fTag, FieldInfo field)
         {
-            DynamicMethod dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", typeof(string), new[] { typeof(int) });
-            ILGenerator il = dm.GetILGenerator();
-            il.Emit(OpCodes.Ldsfld, field);
+            DynamicMethod dm;
+            ILGenerator il;
             if (fTag.Round)
             {
+                dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", typeof(string), new[] { typeof(int) });
+                il = dm.GetILGenerator();
+                il.Emit(OpCodes.Ldsfld, field);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Call, round);
+                il.Emit(OpCodes.Call, Replacer.StringConverter.GetFromConverter(field.FieldType));
+                il.Emit(OpCodes.Ret);
+                return (Func<int, string>)dm.CreateDelegate(typeof(Func<int, string>));
             }
-            il.Emit(OpCodes.Call, toString);
+            dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", typeof(string), Type.EmptyTypes);
+            il = dm.GetILGenerator();
+            il.Emit(OpCodes.Ldsfld, field);
+            il.Emit(OpCodes.Call, Replacer.StringConverter.GetFromConverter(field.FieldType));
             il.Emit(OpCodes.Ret);
-            return (Func<int, string>)dm.CreateDelegate(typeof(Func<int, string>));
+            return (Func<string>)dm.CreateDelegate(typeof(Func<string>));
         }
         static readonly MethodInfo round = typeof(Math).GetMethod("Round", new[] { typeof(double), typeof(int) });
-        static readonly MethodInfo toString = typeof(double).GetMethod("ToString", Type.EmptyTypes);
     }
 }

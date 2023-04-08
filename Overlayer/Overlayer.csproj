@@ -1241,6 +1241,7 @@
     <Compile Include="OverlayerText.cs" />
     <Compile Include="Patches\GetHitMarginFixer.cs" />
     <Compile Include="Patches\RemoveFuckingUMMDummyLogPatch.cs" />
+    <Compile Include="Patches\Resetter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scripting\Api.cs" />
     <Compile Include="Scripting\ApiAttribute.cs" />
@@ -1259,9 +1260,10 @@
     <Compile Include="ShadowText.cs" />
     <Compile Include="Tags\CurHitTags.cs" />
     <Compile Include="Tags\HexCode.cs" />
-    <Compile Include="Tags\Lenient.cs" />
-    <Compile Include="Tags\Normal.cs" />
-    <Compile Include="Tags\Strict.cs" />
+    <Compile Include="Tags\LHitTags.cs" />
+    <Compile Include="Tags\NHitTags.cs" />
+    <Compile Include="Tags\SHitTags.cs" />
+    <Compile Include="Tags\Variables.cs" />
     <Compile Include="TextConfig.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1279,9 +1281,7 @@
     <EmbeddedResource Include="Lib\NeoLua\Properties\Resources.de.resx" />
     <EmbeddedResource Include="Lib\NeoLua\Properties\Resources.resx" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tags\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\A Dance of Fire and Ice\Mods\Overlayer\Overlayer.dll"</PostBuildEvent>

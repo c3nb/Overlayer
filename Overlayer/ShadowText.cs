@@ -122,7 +122,7 @@ namespace Overlayer
 
             Main.enableAutoSizing = Shadow.enableAutoSizing = false;
             Main.lineSpacing = Shadow.lineSpacing = config.LineSpacing;
-            Main.lineSpacingAdjustment = Shadow.lineSpacingAdjustment = -config.LineSpacing;
+            Main.lineSpacingAdjustment = Shadow.lineSpacingAdjustment = config.LineSpacingAdjustment;
             Initialized = true;
         }
         public bool TrySetFont(string name)

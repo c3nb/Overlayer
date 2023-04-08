@@ -76,6 +76,7 @@ namespace Overlayer
             }
         }
         public float LineSpacing = -25f;
+        public float LineSpacingAdjustment = 25f;
         #endregion
         #region OverlayerTextConfig
         public bool Active = true;
