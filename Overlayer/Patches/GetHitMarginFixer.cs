@@ -62,6 +62,12 @@ namespace Overlayer.Patches
             { "Normal", new[] { "NHit", "NTE", "NVE", "NEP", "NP", "NLP", "NVL", "NTL", "NScore" } },
             { "Strict", new[] { "SHit", "STE", "SVE", "SEP", "SP", "SLP", "SVL", "STL", "SScore" } },
         };
+        private static Dictionary<Difficulty, bool> Updated = new()
+        {
+            { Difficulty.Lenient, false },
+            { Difficulty.Normal, false },
+            { Difficulty.Strict, false },
+        };
 
         public delegate double boundaryGetter(float inMobile, float inPC, double minAngle);
         public delegate HitMargin HitMarginGetter(Difficulty diff);
@@ -100,31 +106,26 @@ namespace Overlayer.Patches
         private static void UpdateTags(float bpmTimesSpeed, float conductorPitch, double marginScale, float angle)
         {
             HitMarginGetter getter = HitMarginGenerater(angle, bpmTimesSpeed, conductorPitch, marginScale);
-            Dictionary<Difficulty, bool> Up = new()
-            {
-                { Difficulty.Lenient, false },
-                { Difficulty.Normal, false },
-                { Difficulty.Strict, false },
-            };
 
             if (HasAnyTags(diffTags["Lenient"]))
             {
                 diff[Difficulty.Lenient].Update(getter);
-                Up[Difficulty.Lenient] = true;
+                Updated[Difficulty.Lenient] = true;
             }
             if (HasAnyTags(diffTags["Normal"]))
             {
                 diff[Difficulty.Normal].Update(getter);
-                Up[Difficulty.Normal] = true;
+                Updated[Difficulty.Normal] = true;
             }
             if (HasAnyTags(diffTags["Strict"]))
             {
                 diff[Difficulty.Strict].Update(getter);
-                Up[Difficulty.Strict] = true;
+                Updated[Difficulty.Strict] = true;
             }
-            if (HasAnyTags(diffTags["Current"]) && !Up[GCS.difficulty])
+            if (HasAnyTags(diffTags["Current"]) && !Updated[GCS.difficulty])
             {
                 diff[GCS.difficulty].Update(getter);
+                Updated[GCS.difficulty] = false;
             }
         }
 
