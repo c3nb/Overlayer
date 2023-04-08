@@ -9,6 +9,8 @@ using System.IO;
 using Overlayer.Core;
 using Overlayer.Core.Translation;
 using Overlayer.Scripting;
+using UnityEngine;
+using SA.GoogleDoc;
 
 namespace Overlayer
 {
@@ -20,6 +22,7 @@ namespace Overlayer
         public static Harmony Harmony { get; private set; }
         public static string ScriptPath => Path.Combine(Mod.Path, "Scripts");
         public static Language Language { get; private set; }
+        public static Settings Settings { get; private set; }
         #endregion
         #region UMM Impl
         public static void Load(ModEntry modEntry)
@@ -34,6 +37,7 @@ namespace Overlayer
         {
             if (value)
             {
+                Settings = ModSettings.Load<Settings>(modEntry);
                 Assembly ass = Assembly.GetExecutingAssembly();
                 TagManager.Load(ass);
                 Harmony = new Harmony(modEntry.Info.Id);
@@ -50,11 +54,37 @@ namespace Overlayer
         }
         public static void OnGUI(ModEntry modEntry)
         {
-
+            LanguageSelectGUI();
+        }
+        public static void LanguageSelectGUI()
+        {
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("한국어"))
+            {
+                Settings.Lang = SystemLanguage.Korean;
+                UpdateLanguage();
+            }
+            if (GUILayout.Button("English"))
+            {
+                Settings.Lang = SystemLanguage.English;
+                UpdateLanguage();
+            }
+            if (GUILayout.Button("中國語"))
+            {
+                Settings.Lang = SystemLanguage.Chinese;
+                UpdateLanguage();
+            }
+            if (GUILayout.Button("日本語"))
+            {
+                Settings.Lang = SystemLanguage.Japanese;
+                UpdateLanguage();
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
         }
         public static void OnSaveGUI(ModEntry modEntry)
         {
-
+            ModSettings.Save(Settings, modEntry);
         }
         #endregion
         #region Functions
@@ -67,6 +97,24 @@ namespace Overlayer
                 Script scr = Script.Create(script, sType);
                 scr.Execute();
                 yield return scr;
+            }
+        }
+        public static void UpdateLanguage()
+        {
+            switch (Settings.Lang)
+            {
+                case SystemLanguage.Korean:
+                    Language = Language.Korean;
+                    break;
+                case SystemLanguage.English:
+                    Language = Language.English;
+                    break;
+                case SystemLanguage.Chinese:
+                    Language = Language.Chinese;
+                    break;
+                case SystemLanguage.Japanese:
+                    Language = Language.Japanese;
+                    break;
             }
         }
         public static void Backup()
