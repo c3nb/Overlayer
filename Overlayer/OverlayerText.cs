@@ -25,6 +25,8 @@ namespace Overlayer
         public OverlayerText(TextConfig config = null)
         {
             this.config = config ?? new TextConfig();
+            if (config.Name.IsNullOrEmpty())
+                config.Name = $"Text {ShadowText.TotalCount - 1}";
             PlayingText = new Replacer(config.PlayingText, TagManager.All);
             NotPlayingText = new Replacer(config.NotPlayingText, TagManager.NP);
             ShadowPlayingText = new Replacer(config.PlayingText, TagManager.All);
@@ -32,7 +34,7 @@ namespace Overlayer
             Text = ShadowText.NewText();
             Text.Init(config);
         }
-        public void SettingsUI()
+        public void GUI()
         {
             GUILayout.BeginHorizontal();
             config.IsExpanded = GUILayout.Toggle(config.IsExpanded, "");
@@ -61,7 +63,7 @@ namespace Overlayer
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"{Main.Language[TranslationKeys.TextAlignment]}:");
-                if (GUIUtils.DrawEnum($"{Main.Language[TranslationKeys.Text]} {Number} {Main.Language[TranslationKeys.Alignment]}", ref config.Alignment)) Apply();
+                if (Core.Utils.DrawEnum($"{config.Name} {Main.Language[TranslationKeys.Alignment]}", ref config.Alignment)) Apply();
                 if (GUILayout.Button(Main.Language[TranslationKeys.Reset]))
                 {
                     config.Alignment = TextAlignmentOptions.Left;
@@ -79,72 +81,68 @@ namespace Overlayer
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                if (GUIUtils.DrawTextField(ref config.Font, Main.Language[TranslationKeys.TextFont])) Apply();
+                if (Core.Utils.DrawTextField(ref config.Font, Main.Language[TranslationKeys.TextFont])) Apply();
                 if (GUILayout.Button(Main.Language[TranslationKeys.LogFontList]))
                     foreach (string font in FontManager.OSFonts)
                         Main.Logger.Log(font);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
 
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
-                GUILayout.Space(1);
-                if (GUIUtils.DrawColor(ref config.Color)) Apply();
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(Main.Language[TranslationKeys.ShadowColor]);
-                GUILayout.Space(1);
-                if (GUIUtils.DrawColor(ref config.ShadowColor)) Apply();
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-
-                bool newGradientText = GUILayout.Toggle(config.GradientText, Main.Language[TranslationKeys.Gradient]);
+                bool newGradientText = GUILayout.Toggle(config.Gradient, Main.Language[TranslationKeys.Gradient]);
                 if (newGradientText)
                 {
-                    GUIUtils.IndentGUI(() =>
-                    {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label(Main.Language[TranslationKeys.TopLeft]);
-                        GUILayout.Space(1);
-                        if (GUIUtils.DrawColor(ref config.Gradient[0])) Apply();
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
+                    GUILayout.Space(1);
+                    if (Core.Utils.DrawColor(ref config.TextColor)) Apply();
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
 
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label(Main.Language[TranslationKeys.TopRight]);
-                        GUILayout.Space(1);
-                        if (GUIUtils.DrawColor(ref config.Gradient[1])) Apply();
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label(Main.Language[TranslationKeys.BottomLeft]);
-                        GUILayout.Space(1);
-                        if (GUIUtils.DrawColor(ref config.Gradient[2])) Apply();
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label(Main.Language[TranslationKeys.BottomRight]);
-                        GUILayout.Space(1);
-                        if (GUIUtils.DrawColor(ref config.Gradient[3])) Apply();
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-                    });
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
+                    GUILayout.Space(1);
+                    if (Core.Utils.DrawColor(ref config.ShadowColor)) Apply();
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
                 }
-                if (newGradientText != config.GradientText)
+                else
                 {
-                    config.GradientText = newGradientText;
+                    Color color;
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
+                    GUILayout.Space(1);
+                    color = config.TextColor_;
+                    if (Core.Utils.DrawColor(ref color))
+                    {
+                        config.TextColor_ = color;
+                        Apply();
+                    }
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(Main.Language[TranslationKeys.ShadowColor]);
+                    GUILayout.Space(1);
+                    color = config.ShadowColor_;
+                    if (Core.Utils.DrawColor(ref color))
+                    {
+                        config.ShadowColor_ = color;
+                        Apply();
+                    }
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+                }
+                if (newGradientText != config.Gradient)
+                {
+                    config.Gradient = newGradientText;
                     Apply();
                 }
                 GUILayout.BeginHorizontal();
-                if (GUIUtils.DrawTextArea(ref config.PlayingText, Main.Language[TranslationKeys.Text])) Apply();
+                if (Core.Utils.DrawTextArea(ref config.PlayingText, Main.Language[TranslationKeys.Text])) Apply();
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                if (GUIUtils.DrawTextArea(ref config.NotPlayingText, Main.Language[TranslationKeys.TextDisplayedWhenNotPlaying])) Apply();
+                if (Core.Utils.DrawTextArea(ref config.NotPlayingText, Main.Language[TranslationKeys.TextDisplayedWhenNotPlaying])) Apply();
                 GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
 
@@ -152,13 +150,11 @@ namespace Overlayer
                 if (GUILayout.Button(Main.Language[TranslationKeys.Refresh])) Apply();
                 if (GUILayout.Button(Main.Language[TranslationKeys.Reset]))
                 {
-                    config = new Setting();
+                    config = new TextConfig();
                     Apply();
                 }
-                if (GUILayout.Button(Main.Language[TranslationKeys.Destroy]))
-                {
-
-                }
+                if (TextManager.Texts.Count > 1 && GUILayout.Button(Main.Language[TranslationKeys.Destroy]))
+                    TextManager.RemoveText(this);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
                 Core.Utils.EndIndent();

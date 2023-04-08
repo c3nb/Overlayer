@@ -17,13 +17,20 @@ namespace Overlayer
     {
         public static GameObject PCanvasObj;
         public static Canvas PublicCanvas;
-        public static int TotalCount { get; private set; }
+        public static int TotalCount { get; internal set; }
         public static ShadowText NewText()
         {
             int count = ++TotalCount;
             ShadowText st = new GameObject($"ShadowText_{count}").AddComponent<ShadowText>();
             st.Number = count;
             return st;
+        }
+        public void Destroy(bool destoryCanvas = false)
+        {
+            UnityEngine.Object.Destroy(Main.gameObject);
+            UnityEngine.Object.Destroy(Shadow.gameObject);
+            if (destoryCanvas)
+                UnityEngine.Object.Destroy(PCanvasObj);
         }
         public Action Updater;
         public TextMeshProUGUI Main;
