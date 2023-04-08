@@ -2,6 +2,7 @@
 using System.Threading;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Overlayer.Core.Tags
 {
@@ -11,14 +12,10 @@ namespace Overlayer.Core.Tags
         public ClassTagAttribute() : base() { }
         public ClassTagAttribute(string name) : base(name) { }
         public string[] Threads { get; set; }
-        internal Harmony harmony;
-        internal List<Thread> threads;
-        internal List<Tag> tags;
-        internal Type target;
-        public void Combine(TagAttribute tagAttr)
+        public IEnumerable<MethodInfo> GetThreads(Type thisType)
         {
-            tagAttr.NotPlaying |= NotPlaying;
-            tagAttr.Name ??= Name;
+            foreach (var thread in Threads)
+                yield return thisType.GetMethod(thread, AccessTools.all);
         }
     }
 }

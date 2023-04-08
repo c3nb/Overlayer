@@ -7,6 +7,8 @@ using static UnityModManagerNet.UnityModManager.ModEntry;
 using static UnityModManagerNet.UnityModManager;
 using System.IO;
 using Overlayer.Core;
+using Overlayer.Core.Translation;
+using Overlayer.Scripting;
 
 namespace Overlayer
 {
@@ -17,6 +19,7 @@ namespace Overlayer
         public static ModLogger Logger { get; private set; }
         public static Harmony Harmony { get; private set; }
         public static string ScriptPath => Path.Combine(Mod.Path, "Scripts");
+        public static Language Language { get; private set; }
         #endregion
         #region UMM Impl
         public static void Load(ModEntry modEntry)
@@ -35,6 +38,7 @@ namespace Overlayer
                 TagManager.Load(ass);
                 Harmony = new Harmony(modEntry.Info.Id);
                 Harmony.PatchAll(ass);
+                RunScripts(ScriptPath);
             }
             else
             {
@@ -54,6 +58,17 @@ namespace Overlayer
         }
         #endregion
         #region Functions
+        public static IEnumerable<Script> RunScripts(string folderPath)
+        {
+            foreach (string script in Directory.GetFiles(folderPath))
+            {
+                ScriptType sType = Script.GetScriptType(script);
+                if (sType == ScriptType.None) continue;
+                Script scr = Script.Create(script, sType);
+                scr.Execute();
+                yield return scr;
+            }
+        }
         public static void Backup()
         {
             foreach (var file in Directory.GetFiles(Mod.Path, "*.json").Concat(Directory.GetFiles(Mod.Path, "*.txtgrp")).Concat(Directory.GetFiles(Mod.Path, "*.xml")).Where(f => Path.GetFileName(f) != "info.json"))

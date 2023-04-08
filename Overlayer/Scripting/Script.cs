@@ -2,6 +2,7 @@
 using Overlayer.Scripting.Lua;
 using Overlayer.Scripting.Python;
 using System;
+using IOPath = System.IO.Path;
 
 namespace Overlayer.Scripting
 {
@@ -26,6 +27,17 @@ namespace Overlayer.Scripting
                     return new LuaScript(path);
                 default:
                     return null;
+            }
+        }
+        public static ScriptType GetScriptType(string path)
+        {
+            string ext = IOPath.GetExtension(path);
+            switch (ext)
+            {
+                case ".js": return ScriptType.JavaScript;
+                case ".lua": return ScriptType.Lua;
+                case ".py": return ScriptType.Python;
+                default: return ScriptType.None;
             }
         }
     }

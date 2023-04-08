@@ -15,26 +15,12 @@ namespace Overlayer.Core
         static Dictionary<string, Tag> AllTags = new Dictionary<string, Tag>();
         static Dictionary<string, Tag> NotPlayingTags = new Dictionary<string, Tag>();
         static Dictionary<string, Tag> ReferencedTags = new Dictionary<string, Tag>();
-        static List<ClassTagAttribute> TagPatches = new List<ClassTagAttribute>();
         public static Tag GetTag(string name) => AllTags.TryGetValue(name, out var tag) ? tag : null;
         public static Tag GetReferencedTag(string name) => ReferencedTags.TryGetValue(name, out var tag) ? tag : null;
         public static bool IsReferenced(string name) => ReferencedTags.ContainsKey(name);
         public static void UpdateReference()
         {
             ReferencedTags = AllTags.Values.Where(t => t.Referenced).ToDictionary(t => t.Name, t => t);
-            foreach (Tag tag in ReferencedTags.Values)
-            {
-
-            }
-            AllTags.Values.ForEach(t =>
-            {
-                if (TagPatches.Where(c => c.tags.Contains()))
-                {
-                    if (ReferencedTags.ContainsKey(t.Name))
-                        PatchType(attr.harmony, attr.target);
-                    else attr.harmony.UnpatchAll(attr.harmony.Id);
-                }
-            });
         }
         public static void AddTag(Tag tag, bool notPlaying)
         {
@@ -56,7 +42,6 @@ namespace Overlayer.Core
             AllTags ??= new Dictionary<string, Tag>();
             NotPlayingTags??= new Dictionary<string, Tag>();
             ReferencedTags ??= new Dictionary<string, Tag>();
-            TagPatches ??= new Dictionary<Tag, ClassTagAttribute>();
         }
         public static void Load(Assembly assembly, TagConfig config = null)
         {
@@ -65,39 +50,48 @@ namespace Overlayer.Core
         }
         public static void Load(Type type, TagConfig config = null)
         {
+            Prepare();
             ClassTagAttribute cTag = type.GetCustomAttribute<ClassTagAttribute>();
+            var methods = type.GetMethods(AccessTools.all);
+            var fields = type.GetFields(AccessTools.all);
             if (cTag != null)
             {
-                cTag.target = type;
-                cTag.harmony = new Harmony($"ClassTag_{type.Name}_Harmony");
-                TagPatches.Add()
-                if (cTag.Name == null)
-                {
-                    List<Tag> tags = new List<Tag>();
-                    
-                }
+                var def = methods.FirstOrDefault(m => m.GetCustomAttribute<TagAttribute>()?.IsDefault ?? false);
+                if (def == null) throw new InvalidOperationException("Default Tag Method Not Found.");
+                Tag tag = new Tag(cTag.Name, config);
+                foreach (var thread in cTag.GetThreads(type))
+                    tag.AddThread(thread);
+                tag.SetGetter(def).Build();
+                AllTags.Add(cTag.Name, tag);
+                if (cTag.NotPlaying)
+                    NotPlayingTags.Add(cTag.Name, tag);
             }
-            foreach (MethodInfo method in type.GetMethods(AccessTools.all))
+            foreach (MethodInfo method in methods)
             {
-
+                TagAttribute tagAttr = method.GetCustomAttribute<TagAttribute>();
+                if (tagAttr == null) continue;
+                Tag tag = new Tag(tagAttr.Name, config);
+                tag.SetGetter(method).Build();
+                AllTags.Add(tagAttr.Name, tag);
+                if (tagAttr.NotPlaying)
+                    NotPlayingTags.Add(tagAttr.Name, tag);
             }
-            foreach (FieldInfo field in type.GetFields(AccessTools.all))
+            foreach (FieldInfo field in fields)
             {
-
+                FieldTagAttribute tagAttr = field.GetCustomAttribute<FieldTagAttribute>();
+                if (tagAttr == null) continue;
+                Tag tag = new Tag(tagAttr.Name, config);
+                var func = GenerateFieldTagWrapper(tagAttr, field);
+                tag.SetGetter((string o) => func(Replacer.StringConverter.ToInt32(o)).ToString()).Build();
+                AllTags.Add(tagAttr.Name, tag);
+                if (tagAttr.NotPlaying)
+                    NotPlayingTags.Add(tagAttr.Name, tag);
             }
         }
         public static void Release()
         {
             AllTags.Values.ForEach(t => t.Dispose());
             AllTags = NotPlayingTags = ReferencedTags = null;
-            TagPatches.Values.ForEach(attr => attr.harmony.UnpatchAll(attr.harmony.Id));
-            TagPatches = null;
-        }
-        static void PatchType(Harmony h, Type t)
-        {
-            h.CreateClassProcessor(t).Patch();
-            foreach (Type nested in t.GetNestedTypes(AccessTools.allDeclared))
-                h.CreateClassProcessor(nested).Patch();
         }
         static Func<int, double> GenerateFieldTagWrapper(FieldTagAttribute fTag, FieldInfo field)
         {
@@ -111,13 +105,6 @@ namespace Overlayer.Core
             }
             il.Emit(OpCodes.Ret);
             return (Func<int, double>)dm.CreateDelegate(typeof(Func<int, double>));
-        }
-        static bool HasPatches(Tag t)
-        {
-            foreach (var cTag in TagPatches)
-                if (cTag.tags.Contains(t))
-                    return true;
-            return false;
         }
         static readonly MethodInfo round = typeof(Math).GetMethod("Round", new[] { typeof(double), typeof(int) });
     }

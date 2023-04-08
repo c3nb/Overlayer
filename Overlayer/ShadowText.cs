@@ -101,6 +101,7 @@ namespace Overlayer
             var font = FontManager.GetFont("Default");
             Shadow.font = font.fontTMP;
             Shadow.enableVertexGradient = true;
+            Shadow.color = Color.white.WithAlpha(0.4f);
             Shadow.colorGradient = config.ShadowColor;
 
             GameObject mainObject = new GameObject();
@@ -109,6 +110,7 @@ namespace Overlayer
             Main = mainObject.AddComponent<TextMeshProUGUI>();
             Main.font = font.fontTMP;
             Main.enableVertexGradient = true;
+            Main.color = Color.white;
             Main.colorGradient = config.TextColor;
 
             Main.enableAutoSizing = Shadow.enableAutoSizing = false;

@@ -10,6 +10,7 @@ using System.Reflection.Emit;
 using System.Reflection;
 using HarmonyLib;
 using System.Runtime.InteropServices;
+using Vostok.Metrics.Primitives.Gauge;
 
 namespace Overlayer.Core
 {
@@ -21,6 +22,20 @@ namespace Overlayer.Core
             ass = AssemblyBuilder.DefineDynamicAssembly(assName, AssemblyBuilderAccess.Run);
             mod = ass.DefineDynamicModule(assName.Name);
         }
+        #region GUI
+        public static void BeginIndent(float hIndent = 20f, float vIndent = 0f)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(hIndent);
+            GUILayout.BeginVertical();
+            GUILayout.Space(vIndent);
+        }
+        public static void EndIndent()
+        {
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
+        }
+        #endregion
         #region Array
         public static R[] ActualElements<T, R>(this R[] array, T[] seed, Func<T, R, bool> selector)
         {
