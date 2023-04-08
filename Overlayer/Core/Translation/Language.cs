@@ -16,6 +16,7 @@ namespace Overlayer.Core.Translation
         public static readonly Language Korean = new Language(GID.KOREAN);
         public static readonly Language English = new Language(GID.ENGLISH);
         public static readonly Language Japanese = new Language(GID.JAPANESE);
+        public static readonly Language Chinese = new Language(GID.CHINESE);
         public readonly string url;
         public Dictionary<string, string> dict { get; private set; }
         public readonly string path;
