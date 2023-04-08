@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Threading;
 using HarmonyLib;
-using Overlayer.Core;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Overlayer.Core.Tags
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class ClassTagAttribute : TagAttribute
     {
+        public ClassTagAttribute() : base() { }
         public ClassTagAttribute(string name) : base(name) { }
-        public string[] Threads;
-        internal Harmony Harmony;
-        public Type PatchesType;
-        public void Combine(TagAttribute tagAttr)
+        public string[] Threads { get; set; }
+        public IEnumerable<MethodInfo> GetThreads(Type thisType)
         {
-            tagAttr.NotPlaying |= NotPlaying;
-            tagAttr.Name ??= Name;
+            foreach (var thread in Threads)
+                yield return thisType.GetMethod(thread, AccessTools.all);
         }
     }
 }
