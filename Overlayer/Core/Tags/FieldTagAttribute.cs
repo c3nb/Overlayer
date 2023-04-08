@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Overlayer.Core.Tags
 {
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class FieldTagAttribute : TagAttribute
     {
         public FieldTagAttribute() : base() { }
