@@ -1,6 +1,5 @@
 ﻿using AdofaiMapConverter;
 using HarmonyLib;
-using JetBrains.Annotations;
 using Overlayer.Core.Tags;
 using System;
 using System.Collections.Generic;
@@ -82,7 +81,8 @@ namespace Overlayer.Core
                 if (tagAttr == null) continue;
                 Tag tag = new Tag(tagAttr.Name, config);
                 var func = GenerateFieldTagWrapper(tagAttr, field);
-                tag.SetGetter((string o) => func(Replacer.StringConverter.ToInt32(o)).ToString()).Build();
+                tag.SetGetter(func);
+                tag.Build();
                 AllTags.Add(tagAttr.Name, tag);
                 if (tagAttr.NotPlaying)
                     NotPlayingTags.Add(tagAttr.Name, tag);
@@ -93,9 +93,9 @@ namespace Overlayer.Core
             AllTags.Values.ForEach(t => t.Dispose());
             AllTags = NotPlayingTags = ReferencedTags = null;
         }
-        static Func<int, double> GenerateFieldTagWrapper(FieldTagAttribute fTag, FieldInfo field)
+        static Func<int, string> GenerateFieldTagWrapper(FieldTagAttribute fTag, FieldInfo field)
         {
-            DynamicMethod dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper", typeof(double), new[] { typeof(int) });
+            DynamicMethod dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", typeof(string), new[] { typeof(int) });
             ILGenerator il = dm.GetILGenerator();
             il.Emit(OpCodes.Ldsfld, field);
             if (fTag.Round)
@@ -103,9 +103,11 @@ namespace Overlayer.Core
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Call, round);
             }
+            il.Emit(OpCodes.Call, toString);
             il.Emit(OpCodes.Ret);
-            return (Func<int, double>)dm.CreateDelegate(typeof(Func<int, double>));
+            return (Func<int, string>)dm.CreateDelegate(typeof(Func<int, string>));
         }
         static readonly MethodInfo round = typeof(Math).GetMethod("Round", new[] { typeof(double), typeof(int) });
+        static readonly MethodInfo toString = typeof(double).GetMethod("ToString", Type.EmptyTypes);
     }
 }
