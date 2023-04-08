@@ -8,32 +8,29 @@ namespace Overlayer.Tags
         public static GetHitMarginFixer.PerDiff Diff =>
             GetHitMarginFixer.diff[GCS.difficulty];
 
-        private static double getCount(HitMargin margin)
-            => Diff.Counts.TryGetValue(margin, out var count) ? count : 0;
-
         [Tag("CurHit")]
         public static string Hit() => RDString.Get("HitMargin." + Diff.NowMargin);
 
         [Tag("CTE")]
-        public static double TE() => getCount(HitMargin.TooEarly);
+        public static double TE() => Diff.Counts[HitMargin.TooEarly];
 
         [Tag("CVE")]
-        public static double VE() => getCount(HitMargin.VeryEarly);
+        public static double VE() => Diff.Counts[HitMargin.VeryEarly];
 
         [Tag("CEP")]
-        public static double EP() => getCount(HitMargin.EarlyPerfect);
+        public static double EP() => Diff.Counts[HitMargin.EarlyPerfect];
 
         [Tag("CP")]
-        public static double P() => getCount(HitMargin.Perfect);
+        public static double P() => Diff.Counts[HitMargin.Perfect];
 
         [Tag("CLP")]
-        public static double LP() => getCount(HitMargin.LatePerfect);
+        public static double LP() => Diff.Counts[HitMargin.LatePerfect];
 
         [Tag("CVL")]
-        public static double VL() => getCount(HitMargin.VeryLate);
+        public static double VL() => Diff.Counts[HitMargin.VeryLate];
 
         [Tag("CTL")]
-        public static double TL() => getCount(HitMargin.TooLate);
+        public static double TL() => Diff.Counts[HitMargin.TooLate];
 
         [Tag("CScore")]
         public static double Score() => Diff.Score;
