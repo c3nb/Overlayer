@@ -8,67 +8,31 @@ namespace Overlayer.Tags
         private static GetHitMarginFixer.PerDiff Diff =>
             GetHitMarginFixer.diff[Difficulty.Normal];
 
-        [ClassTag("NHit")]
-        public static class NHit
-        {
-            [Tag]
-            public static string Hit() => RDString.Get("HitMargin." + Diff.NowMargin);
-        }
+        [Tag("NHit")]
+        public static string Hit() => RDString.Get("HitMargin." + Diff.NowMargin);
 
-        [ClassTag("NTE")]
-        public static class NTE
-        {
-            [Tag]
-            public static double TE() => Diff.Counts[HitMargin.TooEarly];
-        }
-        
-        [ClassTag("NVE")]
-        public static class NVE
-        {
-            [Tag]
-            public static double VE() => Diff.Counts[HitMargin.VeryEarly];
-        }
-        
-        [ClassTag("NEP")]
-        public static class NEP
-        {
-            [Tag]
-            public static double EP() => Diff.Counts[HitMargin.EarlyPerfect];
-        }
-        
-        [ClassTag("NP")]
-        public static class NP
-        {
-            [Tag]
-            public static double P() => Diff.Counts[HitMargin.Perfect];
-        }
-        
-        [ClassTag("NLP")]
-        public static class NLP
-        {
-            [Tag]
-            public static double LP() => Diff.Counts[HitMargin.LatePerfect];
-        }
-        
-        [ClassTag("NVL")]
-        public static class NVL
-        {
-            [Tag]
-            public static double VL() => Diff.Counts[HitMargin.VeryLate];
-        }
+        [Tag("NTE")]
+        public static double TE() => Diff.Counts[HitMargin.TooEarly];
 
-        [ClassTag("NTL")]
-        public static class NTL
-        {
-            [Tag]
-            public static double TL() => Diff.Counts[HitMargin.TooLate];
-        }
+        [Tag("NVE")]
+        public static double VE() => Diff.Counts[HitMargin.VeryEarly];
 
-        [ClassTag("NScore")]
-        public static class NScore
-        {
-            [Tag]
-            public static double Score() => Diff.Score;
-        }
+        [Tag("NEP")]
+        public static double EP() => Diff.Counts[HitMargin.EarlyPerfect];
+
+        [Tag("NP")]
+        public static double P() => Diff.Counts[HitMargin.Perfect];
+
+        [Tag("NLP")]
+        public static double LP() => Diff.Counts[HitMargin.LatePerfect];
+
+        [Tag("NVL")]
+        public static double VL() => Diff.Counts[HitMargin.VeryLate];
+
+        [Tag("NTL")]
+        public static double TL() => Diff.Counts[HitMargin.TooLate];
+
+        [Tag("NScore")]
+        public static double Score() => Diff.Score;
     }
 }
