@@ -25,7 +25,13 @@ namespace Overlayer.Scripting.Python
             {
                 apis = new Dictionary<string, Delegate>();
                 foreach (var api in Api.GetApi(ScriptType))
-                    apis.Add(api.Name, api.CreateDelegate(Expression.GetDelegateType(api.GetParameters().Select(p => p.ParameterType).ToArray())));
+                {
+                    Delegate del;
+                    if (api.ReturnType != typeof(void))
+                        del = api.CreateDelegate(Expression.GetFuncType(api.GetParameters().Select(p => p.ParameterType).Append(api.ReturnType).ToArray()));
+                    else del = api.CreateDelegate(Expression.GetActionType(api.GetParameters().Select(p => p.ParameterType).ToArray()));
+                    apis.Add(api.Name, del);
+                }
             }
             foreach (var api in apis)
                 scope.SetVariable(api.Key, api.Value);

@@ -8,34 +8,74 @@ using TMPro;
 
 namespace Overlayer
 {
+    public struct Color2
+    {
+        public Color2(float r, float g, float b, float a = 1)
+        {
+            this.r = r;
+            this.g = g;
+            this.b = b; 
+            this.a = a;
+        }
+        public float r, g, b, a;
+        public static implicit operator Color(Color2 color) => new Color(color.r, color.g, color.b, color.a);
+        public static implicit operator Color2(Color color) => new Color2(color.r, color.g, color.b, color.a);
+    }
+    public struct VertexGradient2
+    {
+        public VertexGradient2(Color2 color) : this(color, color, color, color) { }
+        public VertexGradient2(Color2 topLeft, Color2 topRight, Color2 bottomLeft, Color2 bottomRight)
+        {
+            this.topLeft = topLeft;
+            this.topRight = topRight;
+            this.bottomLeft = bottomLeft;
+            this.bottomRight = bottomRight;
+        }
+        public Color2 topLeft;
+        public Color2 topRight;
+        public Color2 bottomLeft;
+        public Color2 bottomRight;
+        public static implicit operator VertexGradient(VertexGradient2 color) => new VertexGradient(color.topLeft, color.topRight, color.bottomLeft, color.bottomRight);
+        public static implicit operator VertexGradient2(VertexGradient color) => new VertexGradient2(color.topLeft, color.topRight, color.bottomLeft, color.bottomRight);
+    }
     public class TextConfig
     {
         #region ShadowTextConfig
-        public VertexGradient TextColor = new VertexGradient(Color.white);
-        public VertexGradient ShadowColor = new VertexGradient(Color.black.WithAlpha(0.4f));
+        public VertexGradient2 TextColor
+        {
+            get => TextColor_G;
+            set => TextColor_G = value;
+        }
+        public VertexGradient2 ShadowColor
+        {
+            get => ShadowColor_G;
+            set => ShadowColor_G = value;
+        }
+        internal VertexGradient TextColor_G = new VertexGradient(Color.white);
+        internal VertexGradient ShadowColor_G = new VertexGradient(Color.black.WithAlpha(0.4f));
         internal Color TextColor_
         {
-            get => TextColor.topLeft;
+            get => TextColor_G.topLeft;
             set
             {
-                TextColor.topLeft = value;
-                TextColor.topRight = value;
-                TextColor.bottomLeft = value;
-                TextColor.bottomRight = value;
+                TextColor_G.topLeft = value;
+                TextColor_G.topRight = value;
+                TextColor_G.bottomLeft = value;
+                TextColor_G.bottomRight = value;
             }
         }
         internal Color ShadowColor_
         {
-            get => ShadowColor.topLeft;
+            get => ShadowColor_G.topLeft;
             set
             {
-                ShadowColor.topLeft = value;
-                ShadowColor.topRight = value;
-                ShadowColor.bottomLeft = value;
-                ShadowColor.bottomRight = value;
+                ShadowColor_G.topLeft = value;
+                ShadowColor_G.topRight = value;
+                ShadowColor_G.bottomLeft = value;
+                ShadowColor_G.bottomRight = value;
             }
         }
-        public float LineSpacing = 10f;
+        public float LineSpacing = -25f;
         #endregion
         #region OverlayerTextConfig
         public bool Active = true;

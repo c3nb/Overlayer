@@ -11,8 +11,12 @@ namespace Overlayer.Core.Translation
 {
     public class Language
     {
+        //V2
+        //public static string GetUrl(int gid) =>
+        //    $"https://docs.google.com/spreadsheets/d/1es4yyxCxR88VuouFOwED9VM7PqtP2lTaGl8m5FS8F50/gviz/tq?tqx=out:json&tq&gid={gid}";
+        //V1
         public static string GetUrl(int gid) =>
-            $"https://docs.google.com/spreadsheets/d/1es4yyxCxR88VuouFOwED9VM7PqtP2lTaGl8m5FS8F50/gviz/tq?tqx=out:json&tq&gid={gid}";
+            $"https://docs.google.com/spreadsheets/d/1CzaJzpqnVT_Ku3QdH0mPwyOkEbpa4e0BpcrC5mc_mjk/gviz/tq?tqx=out:json&tq&gid={gid}";
         public static readonly Language Korean = new Language(GID.KOREAN);
         public static readonly Language English = new Language(GID.ENGLISH);
         public static readonly Language Japanese = new Language(GID.JAPANESE);

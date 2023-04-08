@@ -1,37 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Overlayer.Core;
+﻿using Overlayer.Core;
 using Overlayer.Core.Tags;
 using Overlayer.Core.Translation;
-using SA.GoogleDoc;
 using TMPro;
 using UnityEngine;
-using static Community.CsharpSqlite.Sqlite3;
 using UnityModManagerNet;
 
 namespace Overlayer
 {
     public class OverlayerText
     {
+        public static bool IsPlaying
+        {
+            get
+            {
+                var ctrl = scrController.instance;
+                var cdt = scrConductor.instance;
+                if (ctrl != null && cdt != null)
+                    return !ctrl.paused && cdt.isGameWorld;
+                return false;
+            }
+        }
         public TextConfig config;
         public ShadowText Text { get; private set; }
         public Replacer PlayingText { get; private set; }
         public Replacer NotPlayingText { get; private set; }
         public Replacer ShadowPlayingText { get; private set; }
         public Replacer ShadowNotPlayingText { get; private set; }
-        public OverlayerText(TextConfig config = null)
+        public OverlayerText(TextConfig cfg = null)
         {
-            this.config = config ?? new TextConfig();
-            if (config.Name.IsNullOrEmpty())
-                config.Name = $"Text {ShadowText.TotalCount - 1}";
+            config = cfg ?? new TextConfig();
+            if (string.IsNullOrEmpty(config.Name))
+                config.Name = $"Text {ShadowText.TotalCount}";
             PlayingText = new Replacer(config.PlayingText, TagManager.All);
             NotPlayingText = new Replacer(config.NotPlayingText, TagManager.NP);
-            ShadowPlayingText = new Replacer(config.PlayingText, TagManager.All);
-            ShadowNotPlayingText = new Replacer(config.NotPlayingText, TagManager.NP);
+            ShadowPlayingText = new Replacer(config.PlayingText.BreakRichTag(), TagManager.All);
+            ShadowNotPlayingText = new Replacer(config.NotPlayingText.BreakRichTag(), TagManager.NP);
             Text = ShadowText.NewText();
+            Text.Updater = () =>
+            {
+                if (IsPlaying)
+                {
+                    Text.Main.text = PlayingText.Replace();
+                    Text.Shadow.text = ShadowPlayingText.Replace();
+                }
+                else
+                {
+                    Text.Main.text = NotPlayingText.Replace();
+                    Text.Shadow.text = ShadowNotPlayingText.Replace();
+                }
+            };
             Text.Init(config);
         }
         public void GUI()
@@ -66,7 +83,7 @@ namespace Overlayer
                 if (Core.Utils.DrawEnum($"{config.Name} {Main.Language[TranslationKeys.Alignment]}", ref config.Alignment)) Apply();
                 if (GUILayout.Button(Main.Language[TranslationKeys.Reset]))
                 {
-                    config.Alignment = TextAlignmentOptions.Left;
+                    config.Alignment = TextAlignmentOptions.TopLeft;
                     Apply();
                 }
                 GUILayout.FlexibleSpace();
@@ -91,19 +108,19 @@ namespace Overlayer
                 bool newGradientText = GUILayout.Toggle(config.Gradient, Main.Language[TranslationKeys.Gradient]);
                 if (newGradientText)
                 {
-                    GUILayout.BeginHorizontal();
+                    GUILayout.BeginVertical();
                     GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
                     GUILayout.Space(1);
-                    if (Core.Utils.DrawColor(ref config.TextColor)) Apply();
+                    if (Core.Utils.DrawColor(ref config.TextColor_G)) Apply();
                     GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
 
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
+                    GUILayout.BeginVertical();
+                    GUILayout.Label(Main.Language[TranslationKeys.ShadowColor]);
                     GUILayout.Space(1);
-                    if (Core.Utils.DrawColor(ref config.ShadowColor)) Apply();
+                    if (Core.Utils.DrawColor(ref config.ShadowColor_G)) Apply();
                     GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
                 }
                 else
                 {
@@ -164,19 +181,22 @@ namespace Overlayer
         {
             PlayingText.Source = config.PlayingText;
             NotPlayingText.Source = config.NotPlayingText;
-            ShadowPlayingText.Source = config.PlayingText;
-            ShadowNotPlayingText.Source = config.NotPlayingText;
+            ShadowPlayingText.Source = config.PlayingText.BreakRichTag();
+            ShadowNotPlayingText.Source = config.NotPlayingText.BreakRichTag();
             PlayingText.SetReference(TagManager.All);
             NotPlayingText.SetReference(TagManager.NP);
             ShadowPlayingText.SetReference(TagManager.All);
             ShadowNotPlayingText.SetReference(TagManager.NP);
             Text.Main.lineSpacing = config.LineSpacing;
             Text.Shadow.lineSpacing = config.LineSpacing;
-            Text.Main.colorGradient = config.TextColor;
-            Text.Shadow.colorGradient = config.ShadowColor;
+            Text.Shadow.lineSpacingAdjustment = -config.LineSpacing;
+            Text.Shadow.lineSpacingAdjustment = -config.LineSpacing;
+            Text.Main.colorGradient = config.TextColor_G;
+            Text.Shadow.colorGradient = config.ShadowColor_G;
             Text.Center = Text.Position = config.Position;
             Text.FontSize = config.FontSize;
             Text.Alignment = config.Alignment;
+            Text.TrySetFont(config.Font);
         }
     }
 }
