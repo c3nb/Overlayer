@@ -1239,6 +1239,7 @@
     <Compile Include="Lib\Vostok\Sys\Metrics\PerfCounters\Utilities\Win32ExceptionUtility.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="OverlayerText.cs" />
+    <Compile Include="Patches\GetHitMarginFixer.cs" />
     <Compile Include="Patches\RemoveFuckingUMMDummyLogPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scripting\Api.cs" />
@@ -1256,6 +1257,10 @@
     <Compile Include="Scripting\ScriptType.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShadowText.cs" />
+    <Compile Include="Tags\CurHitTags.cs" />
+    <Compile Include="Tags\Lenient.cs" />
+    <Compile Include="Tags\Normal.cs" />
+    <Compile Include="Tags\Strict.cs" />
     <Compile Include="TextConfig.cs" />
   </ItemGroup>
   <ItemGroup>
