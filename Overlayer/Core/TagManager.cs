@@ -104,14 +104,15 @@ namespace Overlayer.Core
                 il.Emit(OpCodes.Ldsfld, field);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Call, round);
-                il.Emit(OpCodes.Call, Replacer.StringConverter.GetFromConverter(field.FieldType));
+                il.Emit(OpCodes.Call, StringConverter.GetFromConverter(field.FieldType));
                 il.Emit(OpCodes.Ret);
                 return (Func<int, string>)dm.CreateDelegate(typeof(Func<int, string>));
             }
-            dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", typeof(string), Type.EmptyTypes);
+            dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper", typeof(string), Type.EmptyTypes);
             il = dm.GetILGenerator();
             il.Emit(OpCodes.Ldsfld, field);
-            il.Emit(OpCodes.Call, Replacer.StringConverter.GetFromConverter(field.FieldType));
+            if (field.FieldType != typeof(string))
+                il.Emit(OpCodes.Call, StringConverter.GetFromConverter(field.FieldType));
             il.Emit(OpCodes.Ret);
             return (Func<string>)dm.CreateDelegate(typeof(Func<string>));
         }

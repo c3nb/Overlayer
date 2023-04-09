@@ -38,7 +38,7 @@ namespace Overlayer.Core.Api.Overlayer
         public async Task<double> Predict(LevelMeta meta)
         {
             var result = await client.DownloadStringTaskAsync(Url + $"/predict/?tileCount={meta.tileCount}&twirlRatio={meta.twirlRatio}&setSpeedRatio={meta.setSpeedRatio}&minTA={meta.minTA}&maxTA={meta.maxTA}&taAverage={meta.taAverage}&taVariance={meta.taVariance}&taStdDeviation={meta.taStdDeviation}&minSA={meta.minSA}&maxSA={meta.maxSA}&saAverage={meta.saAverage}&saVariance={meta.saVariance}&saStdDeviation={meta.saStdDeviation}&minMs={meta.minMs}&maxMs={meta.maxMs}&msAverage={meta.msAverage}&msVariance={meta.msVariance}&msStdDeviation={meta.msStdDeviation}&minBpm={meta.minBpm}&maxBpm={meta.maxBpm}&bpmAverage={meta.bpmAverage}&bpmVariance={meta.bpmVariance}&bpmStdDeviation={meta.bpmStdDeviation}".Replace("+", "").Replace("∞", "-1"));
-            return AdjustDiff(result.ToDouble());
+            return AdjustDiff(StringConverter.ToDouble(result));
         }
         private static double AdjustDiff(double diff)
         {

@@ -190,8 +190,8 @@ namespace Overlayer
             ShadowNotPlayingText.SetReference(TagManager.NP);
             Text.Main.lineSpacing = config.LineSpacing;
             Text.Shadow.lineSpacing = config.LineSpacing;
-            Text.Shadow.lineSpacingAdjustment = -config.LineSpacing;
-            Text.Shadow.lineSpacingAdjustment = -config.LineSpacing;
+            Text.Main.lineSpacingAdjustment = config.LineSpacingAdjustment;
+            Text.Shadow.lineSpacingAdjustment = config.LineSpacingAdjustment;
             Text.Main.colorGradient = config.TextColor_G;
             Text.Shadow.colorGradient = config.ShadowColor_G;
             Text.Center = Text.Position = config.Position;

@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Overlayer.Core.Tags;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Overlayer.Tags
 {
@@ -15,11 +13,15 @@ namespace Overlayer.Tags
         public static HitMargin Lenient;
         public static HitMargin Normal;
         public static HitMargin Strict;
-        public static int LenientScore;
-        public static int NormalScore;
-        public static int StrictScore;
-        public static int CurrentScore;
         public static int Combo;
+        [FieldTag("LScore")]
+        public static int LenientScore;
+        [FieldTag("NScore")]
+        public static int NormalScore;
+        [FieldTag("SScore")]
+        public static int StrictScore;
+        [FieldTag("Score")]
+        public static int CurrentScore;
         public static void Reset()
         {
             foreach (HitMargin h in HitMargins)

@@ -552,6 +552,7 @@
     <Compile Include="Core\Api\Overlayer\LevelMeta.cs" />
     <Compile Include="Core\Api\Overlayer\Overlayer.cs" />
     <Compile Include="Core\FontManager.cs" />
+    <Compile Include="Core\StringConverter.cs" />
     <Compile Include="Core\Tags\FieldTagAttribute.cs" />
     <Compile Include="Core\Translation\GID.cs" />
     <Compile Include="Core\Translation\Language.cs" />
