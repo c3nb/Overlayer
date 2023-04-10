@@ -6,23 +6,23 @@ namespace Overlayer.Tags
     {
         [Tag("CurHit")]
         public static string Hit() => RDString.Get("HitMargin." + GetCurHitMargin(GCS.difficulty));
-        [Tag("CurTE")]
+        [Tag("CurTE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double TE() => GetCurDiffCount(HitMargin.TooEarly);
-        [Tag("CurVE")]
+        [Tag("CurVE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double VE() => GetCurDiffCount(HitMargin.VeryEarly);
-        [Tag("CurEP")]
+        [Tag("CurEP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double EP() => GetCurDiffCount(HitMargin.EarlyPerfect);
-        [Tag("CurP")]
+        [Tag("CurP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double P() => GetCurDiffCount(HitMargin.Perfect);
-        [Tag("CurLP")]
+        [Tag("CurLP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double LP() => GetCurDiffCount(HitMargin.LatePerfect);
-        [Tag("CurVL")]
+        [Tag("CurVL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double VL() => GetCurDiffCount(HitMargin.VeryLate);
-        [Tag("CurTL")]
+        [Tag("CurTL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double TL() => GetCurDiffCount(HitMargin.TooLate);
         [Tag("CurDifficulty")]
         public static string Difficulty() => RDString.Get("enum.Difficulty." + GCS.difficulty);
-        [Tag("Combo")]
+        [Tag("Combo", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double Combo() => Variables.Combo;
         [Tag("MissCount")]
         public static double MissCount() => scrController.instance?.mistakesManager.GetHits(HitMargin.FailMiss) ?? 0;

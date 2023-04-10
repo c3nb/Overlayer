@@ -23,6 +23,7 @@ namespace Overlayer.Core
             List<TextConfig> configs = JsonConvert.DeserializeObject<List<TextConfig>>(File.ReadAllText(path), settings);
             foreach (var config in configs)
                 CreateText(config);
+            Refresh();
         }
         public static void Save()
         {
@@ -32,19 +33,22 @@ namespace Overlayer.Core
         public static void CreateText(TextConfig config = null)
         {
             Texts.Add(new OverlayerText(config));
-            Refresh();
+            if (config == null)
+                Refresh();
         }
-        public static void RemoveText(OverlayerText text)
+        public static void RemoveText(OverlayerText text, bool listRemove = true)
         {
             text.Text.Destroy();
             UnityEngine.Object.Destroy(text.Text);
             ShadowText.TotalCount--;
-            Texts.Remove(text);
+            if (listRemove)
+                Texts.Remove(text);
             Refresh();
         }
         public static void Release()
         {
-            Texts.ForEach(RemoveText);
+            Texts.ForEach(t => RemoveText(t, false));
+            Texts.Clear();
             UnityEngine.Object.Destroy(ShadowText.PCanvasObj);
             ShadowText.PublicCanvas = null;
         }

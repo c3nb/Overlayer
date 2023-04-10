@@ -74,7 +74,7 @@ namespace Overlayer.Scripting.JS
             if (udf == null) return null;
             UDFWrapper holder = new UDFWrapper(udf);
 
-            TypeBuilder type = Core.Utils.mod.DefineType(Core.Utils.TypeCount++.ToString(), TypeAttributes.Public);
+            TypeBuilder type = Core.Utility.mod.DefineType(Core.Utility.TypeCount++.ToString(), TypeAttributes.Public);
             ParameterInfo[] parameters = SelectActualParams(target, target.GetParameters(), udf.ArgumentNames.ToArray());
             if (parameters == null) return null;
             Type[] paramTypes = parameters.Select(p => p.ParameterType).ToArray();
@@ -87,7 +87,7 @@ namespace Overlayer.Scripting.JS
             foreach (ParameterInfo param in parameters)
             {
                 Type pType = param.ParameterType;
-                Core.Utils.IgnoreAccessCheck(pType);
+                Core.Utility.IgnoreAccessCheck(pType);
                 udf.Engine.SetGlobalValue(pType.Name, pType);
                 methodB.DefineParameter(paramIndex++, ParameterAttributes.None, param.Name);
                 int pIndex = paramIndex - 2;

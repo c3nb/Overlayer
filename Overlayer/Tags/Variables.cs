@@ -14,13 +14,13 @@ namespace Overlayer.Tags
         public static HitMargin Normal;
         public static HitMargin Strict;
         public static int Combo;
-        [FieldTag("LScore")]
+        [FieldTag("LScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static int LenientScore;
-        [FieldTag("NScore")]
+        [FieldTag("NScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static int NormalScore;
-        [FieldTag("SScore")]
+        [FieldTag("SScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static int StrictScore;
-        [FieldTag("Score")]
+        [FieldTag("Score", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static int CurrentScore;
         public static void Reset()
         {

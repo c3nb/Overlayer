@@ -24,12 +24,14 @@ namespace Overlayer.Core.Tags
         internal int ReferencedCount = 0;
         // For CustomTag
         public string SourcePath = null;
+        public IEnumerable<PatchInfo> RelatedPatches;
         public Tag(string name, TagConfig config = null)
         {
             Name = name;
             Config = config ?? TagConfig.DefaultNormal;
             OptionConverter = null;
             Threads = new List<Thread>();
+            RelatedPatches = new List<PatchInfo>();
         }
         public Tag SetGetter(Func<string, string> getter)
         {

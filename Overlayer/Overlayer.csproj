@@ -826,7 +826,7 @@
     <Compile Include="Lib\NeoLua\Parser.cs" />
     <Compile Include="Lib\NeoLua\Parser.Emit.cs" />
     <Compile Include="Lib\NeoLua\Properties\Resources.Designer.cs" />
-    <Compile Include="Core\Utils.cs" />
+    <Compile Include="Core\Utility.cs" />
     <Compile Include="Lib\AdofaiMapConverter\Actions\Action.cs" />
     <Compile Include="Lib\AdofaiMapConverter\Actions\ActionUtils.cs" />
     <Compile Include="Lib\AdofaiMapConverter\Actions\AnimateTrack.cs" />
@@ -1277,6 +1277,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Lib\JSEngine\Compiler\Emit\Optimizations.txt" />
+    <EmbeddedResource Include="ov2Logo.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Lib\NeoLua\Properties\Resources.de.resx" />

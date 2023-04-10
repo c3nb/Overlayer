@@ -16,9 +16,9 @@ using Overlayer.Core.Translation;
 
 namespace Overlayer.Core
 {
-    public static unsafe class Utils
+    public static unsafe class Utility
     {
-        static Utils()
+        static Utility()
         {
             var assName = new AssemblyName("Overlayer.Core.Utils_Patch");
             ass = AssemblyBuilder.DefineDynamicAssembly(assName, AssemblyBuilderAccess.Run);
@@ -137,6 +137,28 @@ namespace Overlayer.Core
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             return value;
+        }
+        public static bool IsMouseHovering()
+        {
+            return Event.current.type == EventType.Repaint && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition);
+        }
+        public static Color ShiftHue(Color color, float amount)
+        {
+            Color.RGBToHSV(color, out float hue, out _, out _);
+            hue += amount;
+            return Color.HSVToRGB(hue, 1, 1);
+        }
+        public static Color ShiftSaturation(Color color, float amount)
+        {
+            Color.RGBToHSV(color, out _, out float sat, out _);
+            sat += amount;
+            return Color.HSVToRGB(1, sat, 1);
+        }
+        public static Color ShiftValue(Color color, float amount)
+        {
+            Color.RGBToHSV(color, out _, out _, out float val);
+            val += amount;
+            return Color.HSVToRGB(1, 1, val);
         }
         #endregion
         #region Array
@@ -454,6 +476,20 @@ namespace Overlayer.Core
             il.Emit(OpCodes.Newarr, typeof(T));
             il.Emit(OpCodes.Stloc, array);
             return array;
+        }
+        #endregion
+        #region Misc
+        public static void ExecuteSafe(Action exec, out Exception ex)
+        {
+            ex = null;
+            try { exec.Invoke(); }
+            catch (Exception e) { ex = e; }
+        }
+        public static T ExecuteSafe<T>(Func<T> exec, out Exception ex)
+        {
+            ex = null;
+            try { return exec.Invoke(); }
+            catch (Exception e) { ex = e; return default; }
         }
         #endregion
         #region Extensions

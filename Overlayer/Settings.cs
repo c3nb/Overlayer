@@ -41,10 +41,10 @@ namespace Overlayer
         public SystemLanguage Lang = SystemLanguage.English;
         public void Draw()
         {
-            AllowCollectingLevels = Core.Utils.RightToggle(AllowCollectingLevels, Main.Language[TranslationKeys.AllowCollectingLevel]);
+            AllowCollectingLevels = Core.Utility.RightToggle(AllowCollectingLevels, Main.Language[TranslationKeys.AllowCollectingLevel]);
             if (ChangeFont = GUILayout.Toggle(ChangeFont, Main.Language[TranslationKeys.AdofaiFont]))
             {
-                Core.Utils.BeginIndent();
+                Core.Utility.BeginIndent();
                 GUILayout.BeginHorizontal();
                 GUILayout.Label(Main.Language[TranslationKeys.AdofaiFont_Font]);
                 AdofaiFont.name = GUILayout.TextField(AdofaiFont.name);
@@ -82,7 +82,7 @@ namespace Overlayer
                         Main.Logger.Log(font);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
-                Core.Utils.EndIndent();
+                Core.Utility.EndIndent();
             }
         }
     }

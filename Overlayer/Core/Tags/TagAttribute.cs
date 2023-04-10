@@ -10,6 +10,7 @@ namespace Overlayer.Core.Tags
         public TagAttribute(string name) => Name = name;
         public string Name { get; set; }
         public bool NotPlaying { get; set; }
+        public string RelatedPatches = null;
         public bool IsDefault => Name == null;
     }
 }

@@ -109,7 +109,6 @@ namespace Overlayer.Core.Tags
             il.Emit(OpCodes.Ret);
             compiledResult = (Func<string>)result.CreateDelegate(typeof(Func<string>));
             compiled = true;
-            TagManager.UpdateReference();
             return this;
         }
         TagInfo ParseTag(char open, ref int index)
