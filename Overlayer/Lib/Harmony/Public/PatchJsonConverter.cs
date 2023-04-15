@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal class PatchJsonConverter : JsonConverter<Patch>
 	{

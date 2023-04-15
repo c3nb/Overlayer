@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	// A test for "Return buffers" in https://github.com/dotnet/coreclr/blob/master/Documentation/botr/clr-abi.md
 

@@ -11,7 +11,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 #endif
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	class PatchComparer : IEqualityComparer<Patch>
 	{
@@ -172,10 +172,10 @@ namespace HarmonyEx
 		public bool Debugging => prefixes.Any(p => p.debug) || postfixes.Any(p => p.debug) || transpilers.Any(p => p.debug) || finalizers.Any(p => p.debug);
 
 		/// <summary>Adds prefixes</summary>
-		/// <param name="owner">An owner (Harmony ID)</param>
+		/// <param name="owner">An owner (HarmonyEx ID)</param>
 		/// <param name="methods">The patch methods</param>
 		///
-		internal void AddPrefixes(string owner, params HarmonyMethod[] methods)
+		internal void AddPrefixes(string owner, params HarmonyExMethod[] methods)
 		{
 			prefixes = Add(owner, methods, prefixes);
 		}
@@ -184,7 +184,7 @@ namespace HarmonyEx
 		[Obsolete("This method only exists for backwards compatibility since the class is public.")]
 		public void AddPrefix(MethodInfo patch, string owner, int priority, string[] before, string[] after, bool debug)
 		{
-			AddPrefixes(owner, new HarmonyMethod(patch, priority, before, after, debug));
+			AddPrefixes(owner, new HarmonyExMethod(patch, priority, before, after, debug));
 		}
 
 		/// <summary>Removes prefixes</summary>
@@ -196,10 +196,10 @@ namespace HarmonyEx
 		}
 
 		/// <summary>Adds postfixes</summary>
-		/// <param name="owner">An owner (Harmony ID)</param>
+		/// <param name="owner">An owner (HarmonyEx ID)</param>
 		/// <param name="methods">The patch methods</param>
 		///
-		internal void AddPostfixes(string owner, params HarmonyMethod[] methods)
+		internal void AddPostfixes(string owner, params HarmonyExMethod[] methods)
 		{
 			postfixes = Add(owner, methods, postfixes);
 		}
@@ -208,7 +208,7 @@ namespace HarmonyEx
 		[Obsolete("This method only exists for backwards compatibility since the class is public.")]
 		public void AddPostfix(MethodInfo patch, string owner, int priority, string[] before, string[] after, bool debug)
 		{
-			AddPostfixes(owner, new HarmonyMethod(patch, priority, before, after, debug));
+			AddPostfixes(owner, new HarmonyExMethod(patch, priority, before, after, debug));
 		}
 
 		/// <summary>Removes postfixes</summary>
@@ -220,10 +220,10 @@ namespace HarmonyEx
 		}
 
 		/// <summary>Adds transpilers</summary>
-		/// <param name="owner">An owner (Harmony ID)</param>
+		/// <param name="owner">An owner (HarmonyEx ID)</param>
 		/// <param name="methods">The patch methods</param>
 		///
-		internal void AddTranspilers(string owner, params HarmonyMethod[] methods)
+		internal void AddTranspilers(string owner, params HarmonyExMethod[] methods)
 		{
 			transpilers = Add(owner, methods, transpilers);
 		}
@@ -232,7 +232,7 @@ namespace HarmonyEx
 		[Obsolete("This method only exists for backwards compatibility since the class is public.")]
 		public void AddTranspiler(MethodInfo patch, string owner, int priority, string[] before, string[] after, bool debug)
 		{
-			AddTranspilers(owner, new HarmonyMethod(patch, priority, before, after, debug));
+			AddTranspilers(owner, new HarmonyExMethod(patch, priority, before, after, debug));
 		}
 
 		/// <summary>Removes transpilers</summary>
@@ -244,10 +244,10 @@ namespace HarmonyEx
 		}
 
 		/// <summary>Adds finalizers</summary>
-		/// <param name="owner">An owner (Harmony ID)</param>
+		/// <param name="owner">An owner (HarmonyEx ID)</param>
 		/// <param name="methods">The patch methods</param>
 		///
-		internal void AddFinalizers(string owner, params HarmonyMethod[] methods)
+		internal void AddFinalizers(string owner, params HarmonyExMethod[] methods)
 		{
 			finalizers = Add(owner, methods, finalizers);
 		}
@@ -256,7 +256,7 @@ namespace HarmonyEx
 		[Obsolete("This method only exists for backwards compatibility since the class is public.")]
 		public void AddFinalizer(MethodInfo patch, string owner, int priority, string[] before, string[] after, bool debug)
 		{
-			AddFinalizers(owner, new HarmonyMethod(patch, priority, before, after, debug));
+			AddFinalizers(owner, new HarmonyExMethod(patch, priority, before, after, debug));
 		}
 
 		/// <summary>Removes finalizers</summary>
@@ -290,11 +290,11 @@ namespace HarmonyEx
         }
 
         /// <summary>Gets a concatenated list of patches</summary>
-        /// <param name="owner">The Harmony instance ID adding the new patches</param>
+        /// <param name="owner">The HarmonyEx instance ID adding the new patches</param>
         /// <param name="add">The patches to add</param>
         /// <param name="current">The current patches</param>
         ///
-        private static Patch[] Add(string owner, HarmonyMethod[] add, Patch[] current)
+        private static Patch[] Add(string owner, HarmonyExMethod[] add, Patch[] current)
 		{
 			// avoid copy if no patch added
 			if (add.Length == 0)
@@ -335,7 +335,7 @@ namespace HarmonyEx
 		///
 		public readonly int index;
 
-		/// <summary>The owner (Harmony ID)</summary>
+		/// <summary>The owner (HarmonyEx ID)</summary>
 		///
 		public readonly string owner;
 
@@ -343,11 +343,11 @@ namespace HarmonyEx
 		///
 		public readonly int priority;
 
-		/// <summary>Keep this patch before the patches indicated in the list of Harmony IDs</summary>
+		/// <summary>Keep this patch before the patches indicated in the list of HarmonyEx IDs</summary>
 		///
 		public readonly string[] before;
 
-		/// <summary>Keep this patch after the patches indicated in the list of Harmony IDs</summary>
+		/// <summary>Keep this patch after the patches indicated in the list of HarmonyEx IDs</summary>
 		///
 		public readonly string[] after;
 
@@ -390,15 +390,15 @@ namespace HarmonyEx
 		/// <summary>Creates a patch</summary>
 		/// <param name="patch">The method of the patch</param>
 		/// <param name="index">Zero-based index</param>
-		/// <param name="owner">An owner (Harmony ID)</param>
+		/// <param name="owner">An owner (HarmonyEx ID)</param>
 		/// <param name="priority">The priority, see <see cref="Priority"/></param>
-		/// <param name="before">A list of Harmony IDs for patches that should run after this patch</param>
-		/// <param name="after">A list of Harmony IDs for patches that should run before this patch</param>
+		/// <param name="before">A list of HarmonyEx IDs for patches that should run after this patch</param>
+		/// <param name="after">A list of HarmonyEx IDs for patches that should run before this patch</param>
 		/// <param name="debug">A flag that will log the replacement method via <see cref="FileLog"/> every time this patch is used to build the replacement, even in the future</param>
 		///
 		public Patch(MethodInfo patch, int index, string owner, int priority, string[] before, string[] after, bool debug)
 		{
-			if (patch is DynamicMethod) throw new Exception($"Cannot directly reference dynamic method \"{patch.FullDescription()}\" in Harmony. Use a factory method instead that will return the dynamic method.");
+			if (patch is DynamicMethod) throw new Exception($"Cannot directly reference dynamic method \"{patch.FullDescription()}\" in HarmonyEx. Use a factory method instead that will return the dynamic method.");
 
 			this.index = index;
 			this.owner = owner;
@@ -412,8 +412,8 @@ namespace HarmonyEx
 		/// <summary>Creates a patch</summary>
 		/// <param name="method">The method of the patch</param>
 		/// <param name="index">Zero-based index</param>
-		/// <param name="owner">An owner (Harmony ID)</param>
-		public Patch(HarmonyMethod method, int index, string owner)
+		/// <param name="owner">An owner (HarmonyEx ID)</param>
+		public Patch(HarmonyExMethod method, int index, string owner)
 			: this(method.method, index, owner, method.priority, method.before, method.after, method.debug ?? false) { }
 
 		internal Patch(int index, string owner, int priority, string[] before, string[] after, bool debug, int methodToken, string moduleGUID)

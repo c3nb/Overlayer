@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
-	/// <summary>Under Mono, HarmonyException wraps IL compile errors with detailed information about the failure</summary>
+	/// <summary>Under Mono, HarmonyExLibception wraps IL compile errors with detailed information about the failure</summary>
 	/// 
 	[Serializable]
-	public class HarmonyException : Exception
+	public class HarmonyExLibception : Exception
 	{
 		Dictionary<int, CodeInstruction> instructions;
 		int errorOffset;
 
-		internal HarmonyException() { }
-		internal HarmonyException(string message) : base(message) { }
-		internal HarmonyException(string message, Exception innerException) : base(message, innerException) { }
+		internal HarmonyExLibception() { }
+		internal HarmonyExLibception(string message) : base(message) { }
+		internal HarmonyExLibception(string message, Exception innerException) : base(message, innerException) { }
 
 		/// <summary>Default serialization constructor (not implemented)</summary>
 		/// <param name="serializationInfo">The info</param>
 		/// <param name="streamingContext">The context</param>
 		/// 
-		protected HarmonyException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
+		protected HarmonyExLibception(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal HarmonyException(Exception innerException, Dictionary<int, CodeInstruction> instructions, int errorOffset) : base("IL Compile Error", innerException)
+		internal HarmonyExLibception(Exception innerException, Dictionary<int, CodeInstruction> instructions, int errorOffset) : base("IL Compile Error", innerException)
 		{
 			this.instructions = instructions;
 			this.errorOffset = errorOffset;
@@ -39,13 +39,13 @@ namespace HarmonyEx
 
 			var offset = int.Parse(match.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
 			_ = Regex.Replace(match.Groups[2].Value, " {2,}", " ");
-			if (ex is HarmonyException hEx)
+			if (ex is HarmonyExLibception hEx)
 			{
 				hEx.instructions = finalInstructions;
 				hEx.errorOffset = offset;
 				return hEx;
 			}
-			return new HarmonyException(ex, finalInstructions, offset);
+			return new HarmonyExLibception(ex, finalInstructions, offset);
 		}
 
 		/// <summary>Get a list of IL instructions in pairs of offset+code</summary>

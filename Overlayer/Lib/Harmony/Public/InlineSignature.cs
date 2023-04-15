@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>
 	/// A mutable representation of an inline signature, similar to Mono.Cecil's CallSite.

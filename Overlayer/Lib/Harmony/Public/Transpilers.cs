@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A collection of commonly used transpilers</summary>
 	/// 

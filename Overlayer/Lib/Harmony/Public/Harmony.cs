@@ -5,26 +5,26 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
-	/// <summary>The Harmony instance is the main entry to Harmony. After creating one with an unique identifier, it is used to patch and query the current application domain</summary>
+	/// <summary>The HarmonyEx instance is the main entry to HarmonyEx. After creating one with an unique identifier, it is used to patch and query the current application domain</summary>
 	/// 
-	public class Harmony
+	public class HarmonyEx
 	{
 		/// <summary>The unique identifier</summary>
 		/// 
 		public string Id { get; private set; }
 
-		/// <summary>Set to true before instantiating Harmony to debug Harmony or use an environment variable to set HARMONY_DEBUG to '1' like this: cmd /C "set HARMONY_DEBUG=1 &amp;&amp; game.exe"</summary>
-		/// <remarks>This is for full debugging. To debug only specific patches, use the <see cref="HarmonyDebug"/> attribute</remarks>
+		/// <summary>Set to true before instantiating HarmonyEx to debug HarmonyEx or use an environment variable to set HARMONY_DEBUG to '1' like this: cmd /C "set HARMONY_DEBUG=1 &amp;&amp; game.exe"</summary>
+		/// <remarks>This is for full debugging. To debug only specific patches, use the <see cref="HarmonyExDebug"/> attribute</remarks>
 		/// 
 		public static bool DEBUG;
 
-		/// <summary>Creates a new Harmony instance</summary>
+		/// <summary>Creates a new HarmonyEx instance</summary>
 		/// <param name="id">A unique identifier (you choose your own)</param>
-		/// <returns>A Harmony instance</returns>
+		/// <returns>A HarmonyEx instance</returns>
 		///
-		public Harmony(string id)
+		public HarmonyEx(string id)
 		{
 			if (string.IsNullOrEmpty(id)) throw new ArgumentException($"{nameof(id)} cannot be null or empty");
 
@@ -43,7 +43,7 @@ namespace HarmonyEx
 
 			if (DEBUG)
 			{
-				var assembly = typeof(Harmony).Assembly;
+				var assembly = typeof(HarmonyEx).Assembly;
 				var version = assembly.GetName().Version;
 				var location = assembly.Location;
 				var environment = Environment.Version.ToString();
@@ -53,7 +53,7 @@ namespace HarmonyEx
 #endif
 				var ptr_runtime = IntPtr.Size;
 				var ptr_env = PlatformHelper.Current;
-				FileLog.Log($"### Harmony id={id}, version={version}, location={location}, env/clr={environment}, platform={platform}, ptrsize:runtime/env={ptr_runtime}/{ptr_env}");
+				FileLog.Log($"### HarmonyEx id={id}, version={version}, location={location}, env/clr={environment}, platform={platform}, ptrsize:runtime/env={ptr_runtime}/{ptr_env}");
 				var callingMethod = AccessTools.GetOutsideCaller();
 				if (callingMethod.DeclaringType is object)
 				{
@@ -70,7 +70,7 @@ namespace HarmonyEx
 			Id = id;
 		}
 
-		/// <summary>Searches the current assembly for Harmony annotations and uses them to create patches</summary>
+		/// <summary>Searches the current assembly for HarmonyEx annotations and uses them to create patches</summary>
 		/// <remarks>This method can fail to use the correct assembly when being inlined. It calls StackTrace.GetFrame(1) which can point to the wrong method/assembly. If you are unsure or run into problems, use <code>PatchAll(Assembly.GetExecutingAssembly())</code> instead.</remarks>
 		/// 
 		public void PatchAll()
@@ -100,15 +100,15 @@ namespace HarmonyEx
 
 		/// <summary>Creates a reverse patcher for one of your stub methods</summary>
 		/// <param name="original">The original method/constructor</param>
-		/// <param name="standin">The stand-in stub method as <see cref="HarmonyMethod"/></param>
+		/// <param name="standin">The stand-in stub method as <see cref="HarmonyExMethod"/></param>
 		/// <returns>A new <see cref="ReversePatcher"/> instance</returns>
 		///
-		public ReversePatcher CreateReversePatcher(MethodBase original, HarmonyMethod standin)
+		public ReversePatcher CreateReversePatcher(MethodBase original, HarmonyExMethod standin)
 		{
 			return new ReversePatcher(this, original, standin);
 		}
 
-		/// <summary>Searches an assembly for Harmony annotations and uses them to create patches</summary>
+		/// <summary>Searches an assembly for HarmonyEx annotations and uses them to create patches</summary>
 		/// <param name="assembly">The assembly</param>
 		/// 
 		public void PatchAll(Assembly assembly)
@@ -116,12 +116,12 @@ namespace HarmonyEx
 			AccessTools.GetTypesFromAssembly(assembly).Do(type => CreateClassProcessor(type).Patch(out _));
 		}
 
-        /// <summary>Searches an assembly for Harmony annotations and uses them to create patches</summary>
+        /// <summary>Searches an assembly for HarmonyEx annotations and uses them to create patches</summary>
         /// <param name="assembly">The assembly</param>
         /// 
-        public void PatchAll(Assembly assembly, out List<HarmonyMethod> cannotPatch)
+        public void PatchAll(Assembly assembly, out List<HarmonyExMethod> cannotPatch)
         {
-			var notPatchedList = new List<HarmonyMethod>();
+			var notPatchedList = new List<HarmonyExMethod>();
             AccessTools.GetTypesFromAssembly(assembly).Do(type =>
 			{
 				CreateClassProcessor(type).Patch(out var cannotPatchList);
@@ -130,7 +130,7 @@ namespace HarmonyEx
 			cannotPatch = notPatchedList;
         }
 
-        /// <summary>Searches an assembly for Harmony-annotated classes without category annotations and uses them to create patches</summary>
+        /// <summary>Searches an assembly for HarmonyEx-annotated classes without category annotations and uses them to create patches</summary>
         /// 
         public void PatchAllUncategorized()
 		{
@@ -139,7 +139,7 @@ namespace HarmonyEx
 			PatchAllUncategorized(assembly);
 		}
 
-		/// <summary>Searches an assembly for Harmony-annotated classes without category annotations and uses them to create patches</summary>
+		/// <summary>Searches an assembly for HarmonyEx-annotated classes without category annotations and uses them to create patches</summary>
 		/// <param name="assembly">The assembly</param>
 		/// 
 		public void PatchAllUncategorized(Assembly assembly)
@@ -148,7 +148,7 @@ namespace HarmonyEx
 			patchClasses.DoIf((patchClass => String.IsNullOrEmpty(patchClass.Category)), (patchClass => patchClass.Patch(out _)));
 		}
 
-		/// <summary>Searches an assembly for Harmony annotations with a specific category and uses them to create patches</summary>
+		/// <summary>Searches an assembly for HarmonyEx annotations with a specific category and uses them to create patches</summary>
 		/// <param name="category">Name of patch category</param>
 		/// 
 		public void PatchCategory(string category)
@@ -158,7 +158,7 @@ namespace HarmonyEx
 			PatchCategory(assembly, category);
 		}
 
-		/// <summary>Searches an assembly for Harmony annotations with a specific category and uses them to create patches</summary>
+		/// <summary>Searches an assembly for HarmonyEx annotations with a specific category and uses them to create patches</summary>
 		/// <param name="assembly">The assembly</param>
 		/// <param name="category">Name of patch category</param>
 		/// 
@@ -170,13 +170,13 @@ namespace HarmonyEx
 
 		/// <summary>Creates patches by manually specifying the methods</summary>
 		/// <param name="original">The original method/constructor</param>
-		/// <param name="prefix">An optional prefix method wrapped in a <see cref="HarmonyMethod"/> object</param>
-		/// <param name="postfix">An optional postfix method wrapped in a <see cref="HarmonyMethod"/> object</param>
-		/// <param name="transpiler">An optional transpiler method wrapped in a <see cref="HarmonyMethod"/> object</param>
-		/// <param name="finalizer">An optional finalizer method wrapped in a <see cref="HarmonyMethod"/> object</param>
+		/// <param name="prefix">An optional prefix method wrapped in a <see cref="HarmonyExMethod"/> object</param>
+		/// <param name="postfix">An optional postfix method wrapped in a <see cref="HarmonyExMethod"/> object</param>
+		/// <param name="transpiler">An optional transpiler method wrapped in a <see cref="HarmonyExMethod"/> object</param>
+		/// <param name="finalizer">An optional finalizer method wrapped in a <see cref="HarmonyExMethod"/> object</param>
 		/// <returns>The replacement method that was created to patch the original method</returns>
 		///
-		public MethodInfo Patch(MethodBase original, HarmonyMethod prefix = null, HarmonyMethod postfix = null, HarmonyMethod transpiler = null, HarmonyMethod finalizer = null)
+		public MethodInfo Patch(MethodBase original, HarmonyExMethod prefix = null, HarmonyExMethod postfix = null, HarmonyExMethod transpiler = null, HarmonyExMethod finalizer = null)
 		{
 			var processor = CreateProcessor(original);
 			_ = processor.AddPrefix(prefix);
@@ -188,17 +188,17 @@ namespace HarmonyEx
 
 		/// <summary>Patches a foreign method onto a stub method of yours and optionally applies transpilers during the process</summary>
 		/// <param name="original">The original method/constructor you want to duplicate</param>
-		/// <param name="standin">Your stub method as <see cref="HarmonyMethod"/> that will become the original. Needs to have the correct signature (either original or whatever your transpilers generates)</param>
+		/// <param name="standin">Your stub method as <see cref="HarmonyExMethod"/> that will become the original. Needs to have the correct signature (either original or whatever your transpilers generates)</param>
 		/// <param name="transpiler">An optional transpiler as method that will be applied during the process</param>
 		/// <returns>The replacement method that was created to patch the stub method</returns>
 		/// 
-		public static MethodInfo ReversePatch(MethodBase original, HarmonyMethod standin, MethodInfo transpiler = null)
+		public static MethodInfo ReversePatch(MethodBase original, HarmonyExMethod standin, MethodInfo transpiler = null)
 		{
 			return PatchFunctions.ReversePatch(standin, original, transpiler);
 		}
 
 		/// <summary>Unpatches methods by patching them with zero patches. Fully unpatching is not supported. Be careful, unpatching is global</summary>
-		/// <param name="harmonyID">The optional Harmony ID to restrict unpatching to a specific Harmony instance</param>
+		/// <param name="harmonyID">The optional HarmonyEx ID to restrict unpatching to a specific HarmonyEx instance</param>
 		/// <remarks>This method could be static if it wasn't for the fact that unpatching creates a new replacement method that contains your harmony ID</remarks>
 		///
 		public void UnpatchAll(string harmonyID = null)
@@ -223,10 +223,10 @@ namespace HarmonyEx
 
 		/// <summary>Unpatches a method by patching it with zero patches. Fully unpatching is not supported. Be careful, unpatching is global</summary>
 		/// <param name="original">The original method/constructor</param>
-		/// <param name="type">The <see cref="HarmonyPatchType"/></param>
-		/// <param name="harmonyID">The optional Harmony ID to restrict unpatching to a specific Harmony instance</param>
+		/// <param name="type">The <see cref="HarmonyExPatchType"/></param>
+		/// <param name="harmonyID">The optional HarmonyEx ID to restrict unpatching to a specific HarmonyEx instance</param>
 		///
-		public void Unpatch(MethodBase original, HarmonyPatchType type, string harmonyID = "*")
+		public void Unpatch(MethodBase original, HarmonyExPatchType type, string harmonyID = "*")
 		{
 			var processor = CreateProcessor(original);
 			_ = processor.Unpatch(type, harmonyID);
@@ -242,8 +242,8 @@ namespace HarmonyEx
 			_ = processor.Unpatch(patch);
 		}
 
-		/// <summary>Test for patches from a specific Harmony ID</summary>
-		/// <param name="harmonyID">The Harmony ID</param>
+		/// <summary>Test for patches from a specific HarmonyEx ID</summary>
+		/// <param name="harmonyID">The HarmonyEx ID</param>
 		/// <returns>True if patches for this ID exist</returns>
 		///
 		public static bool HasAnyPatches(string harmonyID)
@@ -286,7 +286,7 @@ namespace HarmonyEx
 		public static MethodBase GetOriginalMethod(MethodInfo replacement)
 		{
 			if (replacement == null) throw new ArgumentNullException(nameof(replacement));
-			return HarmonySharedState.GetOriginal(replacement);
+			return HarmonyExSharedState.GetOriginal(replacement);
 		}
 
 		/// <summary>Tries to get the method from a stackframe including dynamic replacement methods</summary>
@@ -296,7 +296,7 @@ namespace HarmonyEx
 		public static MethodBase GetMethodFromStackframe(StackFrame frame)
 		{
 			if (frame == null) throw new ArgumentNullException(nameof(frame));
-			return HarmonySharedState.FindReplacement(frame) ?? frame.GetMethod();
+			return HarmonyExSharedState.FindReplacement(frame) ?? frame.GetMethod();
 		}
 
 		/// <summary>Gets the original method from the stackframe and uses original if method is a dynamic replacement</summary>
@@ -310,9 +310,9 @@ namespace HarmonyEx
 			return member;
 		}
 
-		/// <summary>Gets Harmony version for all active Harmony instances</summary>
-		/// <param name="currentVersion">[out] The current Harmony version</param>
-		/// <returns>A dictionary containing assembly versions keyed by Harmony IDs</returns>
+		/// <summary>Gets HarmonyEx version for all active HarmonyEx instances</summary>
+		/// <param name="currentVersion">[out] The current HarmonyEx version</param>
+		/// <returns>A dictionary containing assembly versions keyed by HarmonyEx IDs</returns>
 		///
 		public static Dictionary<string, Version> VersionInfo(out Version currentVersion)
 		{

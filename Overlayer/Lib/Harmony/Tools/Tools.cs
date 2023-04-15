@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using static HarmonyEx.AccessTools;
+using static HarmonyExLib.AccessTools;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal class Tools
 	{
-		public static List<HarmonyMethod> DistinctPatches(Patch[] patches, IEnumerable<HarmonyMethod> methods)
+		public static List<HarmonyExMethod> DistinctPatches(Patch[] patches, IEnumerable<HarmonyExMethod> methods)
 		{
-			List<HarmonyMethod> newMethods = new List<HarmonyMethod>();
-			foreach (HarmonyMethod method in methods)
+			List<HarmonyExMethod> newMethods = new List<HarmonyExMethod>();
+			foreach (HarmonyExMethod method in methods)
 				if (!patches.Any(p => p.PatchMethod == method.method))
 					newMethods.Add(method);
 			return newMethods;

@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A reflection helper to read and write private elements</summary>
 	/// <typeparam name="T">The result type defined by GetValue()</typeparam>

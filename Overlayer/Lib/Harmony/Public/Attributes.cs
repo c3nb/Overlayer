@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>Specifies the type of method</summary>
 	///
@@ -41,7 +41,7 @@ namespace HarmonyEx
 
 	/// <summary>Specifies the type of patch</summary>
 	///
-	public enum HarmonyPatchType
+	public enum HarmonyExPatchType
 	{
 		/// <summary>Any patch</summary>
 		All,
@@ -59,7 +59,7 @@ namespace HarmonyEx
 
 	/// <summary>Specifies the type of reverse patch</summary>
 	///
-	public enum HarmonyReversePatchType
+	public enum HarmonyExReversePatchType
 	{
 		/// <summary>Use the unmodified original method (directly from IL)</summary>
 		Original,
@@ -102,43 +102,43 @@ namespace HarmonyEx
 		Call
 	}
 
-	/// <summary>The base class for all Harmony annotations (not meant to be used directly)</summary>
+	/// <summary>The base class for all HarmonyEx annotations (not meant to be used directly)</summary>
 	///
-	public class HarmonyAttribute : Attribute
+	public class HarmonyExAttribute : Attribute
 	{
 		/// <summary>The common information for all attributes</summary>
-		public HarmonyMethod info = new();
+		public HarmonyExMethod info = new();
 	}
 
 	/// <summary>Annotation to define a category for use with PatchCategory</summary>
 	///
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-	public class HarmonyPatchCategory : HarmonyAttribute
+	public class HarmonyExPatchCategory : HarmonyExAttribute
 	{
 		/// <summary>Annotation specifying the category</summary>
 		/// <param name="category">Name of patch category</param>
 		///
-		public HarmonyPatchCategory(string category)
+		public HarmonyExPatchCategory(string category)
 		{
 			info.category = category;
 		}
 	}
 
-	/// <summary>Annotation to define your Harmony patch methods</summary>
+	/// <summary>Annotation to define your HarmonyEx patch methods</summary>
 	///
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Delegate | AttributeTargets.Method, AllowMultiple = true)]
-	public class HarmonyPatch : HarmonyAttribute
+	public class HarmonyExPatch : HarmonyExAttribute
 	{
 		/// <summary>An empty annotation can be used together with TargetMethod(s)</summary>
 		///
-		public HarmonyPatch()
+		public HarmonyExPatch()
 		{
 		}
 
 		/// <summary>An annotation that specifies a class to patch</summary>
 		/// <param name="declaringType">The declaring class/type</param>
 		///
-		public HarmonyPatch(Type declaringType)
+		public HarmonyExPatch(Type declaringType)
 		{
 			info.declaringType = declaringType;
 		}
@@ -147,7 +147,7 @@ namespace HarmonyEx
 		/// <param name="declaringType">The declaring class/type</param>
 		/// <param name="argumentTypes">The argument types of the method or constructor to patch</param>
 		///
-		public HarmonyPatch(Type declaringType, Type[] argumentTypes)
+		public HarmonyExPatch(Type declaringType, Type[] argumentTypes)
 		{
 			info.declaringType = declaringType;
 			info.argumentTypes = argumentTypes;
@@ -157,7 +157,7 @@ namespace HarmonyEx
 		/// <param name="declaringType">The declaring class/type</param>
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		///
-		public HarmonyPatch(Type declaringType, string methodName)
+		public HarmonyExPatch(Type declaringType, string methodName)
 		{
 			info.declaringType = declaringType;
 			info.methodName = methodName;
@@ -168,7 +168,7 @@ namespace HarmonyEx
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyPatch(Type declaringType, string methodName, params Type[] argumentTypes)
+		public HarmonyExPatch(Type declaringType, string methodName, params Type[] argumentTypes)
 		{
 			info.declaringType = declaringType;
 			info.methodName = methodName;
@@ -181,7 +181,7 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">Array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyPatch(Type declaringType, string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExPatch(Type declaringType, string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations)
 		{
 			info.declaringType = declaringType;
 			info.methodName = methodName;
@@ -192,7 +192,7 @@ namespace HarmonyEx
 		/// <param name="declaringType">The declaring class/type</param>
 		/// <param name="methodType">The <see cref="MethodType"/></param>
 		///
-		public HarmonyPatch(Type declaringType, MethodType methodType)
+		public HarmonyExPatch(Type declaringType, MethodType methodType)
 		{
 			info.declaringType = declaringType;
 			info.methodType = methodType;
@@ -203,7 +203,7 @@ namespace HarmonyEx
 		/// <param name="methodType">The <see cref="MethodType"/></param>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyPatch(Type declaringType, MethodType methodType, params Type[] argumentTypes)
+		public HarmonyExPatch(Type declaringType, MethodType methodType, params Type[] argumentTypes)
 		{
 			info.declaringType = declaringType;
 			info.methodType = methodType;
@@ -216,7 +216,7 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">Array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyPatch(Type declaringType, MethodType methodType, Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExPatch(Type declaringType, MethodType methodType, Type[] argumentTypes, ArgumentType[] argumentVariations)
 		{
 			info.declaringType = declaringType;
 			info.methodType = methodType;
@@ -228,7 +228,7 @@ namespace HarmonyEx
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="methodType">The <see cref="MethodType"/></param>
 		///
-		public HarmonyPatch(Type declaringType, string methodName, MethodType methodType)
+		public HarmonyExPatch(Type declaringType, string methodName, MethodType methodType)
 		{
 			info.declaringType = declaringType;
 			info.methodName = methodName;
@@ -238,7 +238,7 @@ namespace HarmonyEx
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		///
-		public HarmonyPatch(string methodName)
+		public HarmonyExPatch(string methodName)
 		{
 			info.methodName = methodName;
 		}
@@ -247,7 +247,7 @@ namespace HarmonyEx
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyPatch(string methodName, params Type[] argumentTypes)
+		public HarmonyExPatch(string methodName, params Type[] argumentTypes)
 		{
 			info.methodName = methodName;
 			info.argumentTypes = argumentTypes;
@@ -258,7 +258,7 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">An array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyPatch(string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExPatch(string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations)
 		{
 			info.methodName = methodName;
 			ParseSpecialArguments(argumentTypes, argumentVariations);
@@ -268,7 +268,7 @@ namespace HarmonyEx
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="methodType">The <see cref="MethodType"/></param>
 		///
-		public HarmonyPatch(string methodName, MethodType methodType)
+		public HarmonyExPatch(string methodName, MethodType methodType)
 		{
 			info.methodName = methodName;
 			info.methodType = methodType;
@@ -277,7 +277,7 @@ namespace HarmonyEx
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="methodType">The <see cref="MethodType"/></param>
 		///
-		public HarmonyPatch(MethodType methodType)
+		public HarmonyExPatch(MethodType methodType)
 		{
 			info.methodType = methodType;
 		}
@@ -286,7 +286,7 @@ namespace HarmonyEx
 		/// <param name="methodType">The <see cref="MethodType"/></param>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyPatch(MethodType methodType, params Type[] argumentTypes)
+		public HarmonyExPatch(MethodType methodType, params Type[] argumentTypes)
 		{
 			info.methodType = methodType;
 			info.argumentTypes = argumentTypes;
@@ -297,7 +297,7 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">An array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyPatch(MethodType methodType, Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExPatch(MethodType methodType, Type[] argumentTypes, ArgumentType[] argumentVariations)
 		{
 			info.methodType = methodType;
 			ParseSpecialArguments(argumentTypes, argumentVariations);
@@ -306,7 +306,7 @@ namespace HarmonyEx
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyPatch(Type[] argumentTypes)
+		public HarmonyExPatch(Type[] argumentTypes)
 		{
 			info.argumentTypes = argumentTypes;
 		}
@@ -315,7 +315,7 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">An array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyPatch(Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExPatch(Type[] argumentTypes, ArgumentType[] argumentVariations)
 		{
 			ParseSpecialArguments(argumentTypes, argumentVariations);
 		}
@@ -325,7 +325,7 @@ namespace HarmonyEx
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="methodType">The <see cref="MethodType"/></param>
 		///
-		public HarmonyPatch(string typeName, string methodName, MethodType methodType = MethodType.Normal)
+		public HarmonyExPatch(string typeName, string methodName, MethodType methodType = MethodType.Normal)
 		{
 			info.declaringType = AccessTools.TypeByName(typeName);
 			info.methodName = methodName;
@@ -368,26 +368,26 @@ namespace HarmonyEx
 	/// <summary>Annotation to define the original method for delegate injection</summary>
 	///
 	[AttributeUsage(AttributeTargets.Delegate, AllowMultiple = true)]
-	public class HarmonyDelegate : HarmonyPatch
+	public class HarmonyExDelegate : HarmonyExPatch
 	{
 		/// <summary>An annotation that specifies a class to patch</summary>
 		/// <param name="declaringType">The declaring class/type</param>
 		///
-		public HarmonyDelegate(Type declaringType)
+		public HarmonyExDelegate(Type declaringType)
 			: base(declaringType) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="declaringType">The declaring class/type</param>
 		/// <param name="argumentTypes">The argument types of the method or constructor to patch</param>
 		///
-		public HarmonyDelegate(Type declaringType, Type[] argumentTypes)
+		public HarmonyExDelegate(Type declaringType, Type[] argumentTypes)
 			: base(declaringType, argumentTypes) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="declaringType">The declaring class/type</param>
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		///
-		public HarmonyDelegate(Type declaringType, string methodName)
+		public HarmonyExDelegate(Type declaringType, string methodName)
 			: base(declaringType, methodName) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
@@ -395,7 +395,7 @@ namespace HarmonyEx
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyDelegate(Type declaringType, string methodName, params Type[] argumentTypes)
+		public HarmonyExDelegate(Type declaringType, string methodName, params Type[] argumentTypes)
 			: base(declaringType, methodName, argumentTypes) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
@@ -404,14 +404,14 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">Array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyDelegate(Type declaringType, string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExDelegate(Type declaringType, string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations)
 			: base(declaringType, methodName, argumentTypes, argumentVariations) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="declaringType">The declaring class/type</param>
 		/// <param name="methodDispatchType">The <see cref="MethodDispatchType"/></param>
 		///
-		public HarmonyDelegate(Type declaringType, MethodDispatchType methodDispatchType)
+		public HarmonyExDelegate(Type declaringType, MethodDispatchType methodDispatchType)
 			: base(declaringType, MethodType.Normal)
 		{
 			info.nonVirtualDelegate = methodDispatchType == MethodDispatchType.Call;
@@ -422,7 +422,7 @@ namespace HarmonyEx
 		/// <param name="methodDispatchType">The <see cref="MethodDispatchType"/></param>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyDelegate(Type declaringType, MethodDispatchType methodDispatchType, params Type[] argumentTypes)
+		public HarmonyExDelegate(Type declaringType, MethodDispatchType methodDispatchType, params Type[] argumentTypes)
 			: base(declaringType, MethodType.Normal, argumentTypes)
 		{
 			info.nonVirtualDelegate = methodDispatchType == MethodDispatchType.Call;
@@ -434,7 +434,7 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">Array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyDelegate(Type declaringType, MethodDispatchType methodDispatchType, Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExDelegate(Type declaringType, MethodDispatchType methodDispatchType, Type[] argumentTypes, ArgumentType[] argumentVariations)
 			: base(declaringType, MethodType.Normal, argumentTypes, argumentVariations)
 		{
 			info.nonVirtualDelegate = methodDispatchType == MethodDispatchType.Call;
@@ -445,7 +445,7 @@ namespace HarmonyEx
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="methodDispatchType">The <see cref="MethodDispatchType"/></param>
 		///
-		public HarmonyDelegate(Type declaringType, string methodName, MethodDispatchType methodDispatchType)
+		public HarmonyExDelegate(Type declaringType, string methodName, MethodDispatchType methodDispatchType)
 			: base(declaringType, methodName, MethodType.Normal)
 		{
 			info.nonVirtualDelegate = methodDispatchType == MethodDispatchType.Call;
@@ -454,14 +454,14 @@ namespace HarmonyEx
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		///
-		public HarmonyDelegate(string methodName)
+		public HarmonyExDelegate(string methodName)
 			: base(methodName) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyDelegate(string methodName, params Type[] argumentTypes)
+		public HarmonyExDelegate(string methodName, params Type[] argumentTypes)
 			: base(methodName, argumentTypes) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
@@ -469,14 +469,14 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">An array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyDelegate(string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExDelegate(string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations)
 			: base(methodName, argumentTypes, argumentVariations) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="methodName">The name of the method, property or constructor to patch</param>
 		/// <param name="methodDispatchType">The <see cref="MethodDispatchType"/></param>
 		///
-		public HarmonyDelegate(string methodName, MethodDispatchType methodDispatchType)
+		public HarmonyExDelegate(string methodName, MethodDispatchType methodDispatchType)
 			: base(methodName, MethodType.Normal)
 		{
 			info.nonVirtualDelegate = methodDispatchType == MethodDispatchType.Call;
@@ -485,7 +485,7 @@ namespace HarmonyEx
 		/// <summary>An annotation that specifies call dispatching mechanics for the delegate</summary>
 		/// <param name="methodDispatchType">The <see cref="MethodDispatchType"/></param>
 		///
-		public HarmonyDelegate(MethodDispatchType methodDispatchType)
+		public HarmonyExDelegate(MethodDispatchType methodDispatchType)
 		{
 			info.nonVirtualDelegate = methodDispatchType == MethodDispatchType.Call;
 		}
@@ -494,7 +494,7 @@ namespace HarmonyEx
 		/// <param name="methodDispatchType">The <see cref="MethodDispatchType"/></param>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyDelegate(MethodDispatchType methodDispatchType, params Type[] argumentTypes)
+		public HarmonyExDelegate(MethodDispatchType methodDispatchType, params Type[] argumentTypes)
 			: base(MethodType.Normal, argumentTypes)
 		{
 			info.nonVirtualDelegate = methodDispatchType == MethodDispatchType.Call;
@@ -505,7 +505,7 @@ namespace HarmonyEx
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">An array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyDelegate(MethodDispatchType methodDispatchType, Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExDelegate(MethodDispatchType methodDispatchType, Type[] argumentTypes, ArgumentType[] argumentVariations)
 			: base(MethodType.Normal, argumentTypes, argumentVariations)
 		{
 			info.nonVirtualDelegate = methodDispatchType == MethodDispatchType.Call;
@@ -514,86 +514,86 @@ namespace HarmonyEx
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		///
-		public HarmonyDelegate(Type[] argumentTypes)
+		public HarmonyExDelegate(Type[] argumentTypes)
 			: base(argumentTypes) { }
 
 		/// <summary>An annotation that specifies a method, property or constructor to patch</summary>
 		/// <param name="argumentTypes">An array of argument types to target overloads</param>
 		/// <param name="argumentVariations">An array of <see cref="ArgumentType"/></param>
 		///
-		public HarmonyDelegate(Type[] argumentTypes, ArgumentType[] argumentVariations)
+		public HarmonyExDelegate(Type[] argumentTypes, ArgumentType[] argumentVariations)
 			: base(argumentTypes, argumentVariations) { }
 	}
 
 	/// <summary>Annotation to define your standin methods for reverse patching</summary>
 	///
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-	public class HarmonyReversePatch : HarmonyAttribute
+	public class HarmonyExReversePatch : HarmonyExAttribute
 	{
 		/// <summary>An annotation that specifies the type of reverse patching</summary>
-		/// <param name="type">The <see cref="HarmonyReversePatchType"/> of the reverse patch</param>
+		/// <param name="type">The <see cref="HarmonyExReversePatchType"/> of the reverse patch</param>
 		///
-		public HarmonyReversePatch(HarmonyReversePatchType type = HarmonyReversePatchType.Original)
+		public HarmonyExReversePatch(HarmonyExReversePatchType type = HarmonyExReversePatchType.Original)
 		{
 			info.reversePatchType = type;
 		}
 	}
 
-	/// <summary>A Harmony annotation to define that all methods in a class are to be patched</summary>
+	/// <summary>A HarmonyEx annotation to define that all methods in a class are to be patched</summary>
 	///
 	[AttributeUsage(AttributeTargets.Class)]
-	public class HarmonyPatchAll : HarmonyAttribute
+	public class HarmonyExPatchAll : HarmonyExAttribute
 	{
 	}
 
-	/// <summary>A Harmony annotation</summary>
+	/// <summary>A HarmonyEx annotation</summary>
 	///
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-	public class HarmonyPriority : HarmonyAttribute
+	public class HarmonyExPriority : HarmonyExAttribute
 	{
-		/// <summary>A Harmony annotation to define patch priority</summary>
+		/// <summary>A HarmonyEx annotation to define patch priority</summary>
 		/// <param name="priority">The priority</param>
 		///
-		public HarmonyPriority(int priority)
+		public HarmonyExPriority(int priority)
 		{
 			info.priority = priority;
 		}
 	}
 
-	/// <summary>A Harmony annotation</summary>
+	/// <summary>A HarmonyEx annotation</summary>
 	///
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-	public class HarmonyBefore : HarmonyAttribute
+	public class HarmonyExBefore : HarmonyExAttribute
 	{
-		/// <summary>A Harmony annotation to define that a patch comes before another patch</summary>
+		/// <summary>A HarmonyEx annotation to define that a patch comes before another patch</summary>
 		/// <param name="before">The array of harmony IDs of the other patches</param>
 		///
-		public HarmonyBefore(params string[] before)
+		public HarmonyExBefore(params string[] before)
 		{
 			info.before = before;
 		}
 	}
 
-	/// <summary>A Harmony annotation</summary>
+	/// <summary>A HarmonyEx annotation</summary>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-	public class HarmonyAfter : HarmonyAttribute
+	public class HarmonyExAfter : HarmonyExAttribute
 	{
-		/// <summary>A Harmony annotation to define that a patch comes after another patch</summary>
+		/// <summary>A HarmonyEx annotation to define that a patch comes after another patch</summary>
 		/// <param name="after">The array of harmony IDs of the other patches</param>
 		///
-		public HarmonyAfter(params string[] after)
+		public HarmonyExAfter(params string[] after)
 		{
 			info.after = after;
 		}
 	}
 
-	/// <summary>A Harmony annotation</summary>
+	/// <summary>A HarmonyEx annotation</summary>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-	public class HarmonyDebug : HarmonyAttribute
+	public class HarmonyExDebug : HarmonyExAttribute
 	{
-		/// <summary>A Harmony annotation to debug a patch (output uses <see cref="FileLog"/> to log to your Desktop)</summary>
+		/// <summary>A HarmonyEx annotation to debug a patch (output uses <see cref="FileLog"/> to log to your Desktop)</summary>
 		///
-		public HarmonyDebug()
+		public HarmonyExDebug()
 		{
 			info.debug = true;
 		}
@@ -602,63 +602,63 @@ namespace HarmonyEx
 	/// <summary>Specifies the Prepare function in a patch class</summary>
 	///
 	[AttributeUsage(AttributeTargets.Method)]
-	public class HarmonyPrepare : Attribute
+	public class HarmonyExPrepare : Attribute
 	{
 	}
 
 	/// <summary>Specifies the Cleanup function in a patch class</summary>
 	///
 	[AttributeUsage(AttributeTargets.Method)]
-	public class HarmonyCleanup : Attribute
+	public class HarmonyExCleanup : Attribute
 	{
 	}
 
 	/// <summary>Specifies the TargetMethod function in a patch class</summary>
 	///
 	[AttributeUsage(AttributeTargets.Method)]
-	public class HarmonyTargetMethod : Attribute
+	public class HarmonyExTargetMethod : Attribute
 	{
 	}
 
 	/// <summary>Specifies the TargetMethods function in a patch class</summary>
 	///
 	[AttributeUsage(AttributeTargets.Method)]
-	public class HarmonyTargetMethods : Attribute
+	public class HarmonyExTargetMethods : Attribute
 	{
 	}
 
 	/// <summary>Specifies the Prefix function in a patch class</summary>
 	///
 	[AttributeUsage(AttributeTargets.Method)]
-	public class HarmonyPrefix : Attribute
+	public class HarmonyExPrefix : Attribute
 	{
 	}
 
 	/// <summary>Specifies the Postfix function in a patch class</summary>
 	///
 	[AttributeUsage(AttributeTargets.Method)]
-	public class HarmonyPostfix : Attribute
+	public class HarmonyExPostfix : Attribute
 	{
 	}
 
 	/// <summary>Specifies the Transpiler function in a patch class</summary>
 	///
 	[AttributeUsage(AttributeTargets.Method)]
-	public class HarmonyTranspiler : Attribute
+	public class HarmonyExTranspiler : Attribute
 	{
 	}
 
 	/// <summary>Specifies the Finalizer function in a patch class</summary>
 	///
 	[AttributeUsage(AttributeTargets.Method)]
-	public class HarmonyFinalizer : Attribute
+	public class HarmonyExFinalizer : Attribute
 	{
 	}
 
-	/// <summary>A Harmony annotation</summary>
+	/// <summary>A HarmonyEx annotation</summary>
 	///
 	[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-	public class HarmonyArgument : Attribute
+	public class HarmonyExArgument : Attribute
 	{
 		/// <summary>The name of the original argument</summary>
 		///
@@ -674,14 +674,14 @@ namespace HarmonyEx
 
 		/// <summary>An annotation to declare injected arguments by name</summary>
 		///
-		public HarmonyArgument(string originalName) : this(originalName, null)
+		public HarmonyExArgument(string originalName) : this(originalName, null)
 		{
 		}
 
 		/// <summary>An annotation to declare injected arguments by index</summary>
 		/// <param name="index">Zero-based index</param>
 		///
-		public HarmonyArgument(int index) : this(index, null)
+		public HarmonyExArgument(int index) : this(index, null)
 		{
 		}
 
@@ -689,7 +689,7 @@ namespace HarmonyEx
 		/// <param name="originalName">Name of the original argument</param>
 		/// <param name="newName">New name</param>
 		///
-		public HarmonyArgument(string originalName, string newName)
+		public HarmonyExArgument(string originalName, string newName)
 		{
 			OriginalName = originalName;
 			Index = -1;
@@ -700,7 +700,7 @@ namespace HarmonyEx
 		/// <param name="index">Zero-based index</param>
 		/// <param name="name">New name</param>
 		///
-		public HarmonyArgument(int index, string name)
+		public HarmonyExArgument(int index, string name)
 		{
 			OriginalName = null;
 			Index = index;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal class ILInstruction
 	{

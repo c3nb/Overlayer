@@ -1,7 +1,7 @@
 #pragma warning disable CS1591
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	public static class Code
 	{

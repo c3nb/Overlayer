@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A helper class for reflection related functions</summary>
 	///
@@ -537,7 +537,7 @@ namespace HarmonyEx
 					result = FindIncludingBaseTypes(type, t => t.GetMethod(name, all, null, new Type[0], modifiers));
 					if (result is null)
 					{
-						throw new AmbiguousMatchException($"Ambiguous match in Harmony patch for {type}:{name}", ex);
+						throw new AmbiguousMatchException($"Ambiguous match in HarmonyEx patch for {type}:{name}", ex);
 					}
 				}
 			}
@@ -1729,24 +1729,24 @@ namespace HarmonyEx
 
 		}
 
-		/// <summary>Creates a delegate for a given delegate definition, attributed with [<see cref="HarmonyEx.HarmonyDelegate"/>]</summary>
-		/// <typeparam name="DelegateType">The delegate Type, attributed with [<see cref="HarmonyEx.HarmonyDelegate"/>]</typeparam>
+		/// <summary>Creates a delegate for a given delegate definition, attributed with [<see cref="HarmonyExLib.HarmonyExDelegate"/>]</summary>
+		/// <typeparam name="DelegateType">The delegate Type, attributed with [<see cref="HarmonyExLib.HarmonyExDelegate"/>]</typeparam>
 		/// <param name="instance">
 		/// Only applies for instance methods. If <c>null</c> (default), returned delegate is an open (a.k.a. unbound) instance delegate
 		/// where an instance is supplied as the first argument to the delegate invocation; else, delegate is a closed (a.k.a. bound)
 		/// instance delegate where the delegate invocation always applies to the given <paramref name="instance"/>.
 		/// </param>
-		/// <returns>A delegate of given <typeparamref name="DelegateType"/> to the method specified via [<see cref="HarmonyEx.HarmonyDelegate"/>]
+		/// <returns>A delegate of given <typeparamref name="DelegateType"/> to the method specified via [<see cref="HarmonyExLib.HarmonyExDelegate"/>]
 		/// attributes on <typeparamref name="DelegateType"/></returns>
 		/// <remarks>
 		/// This calls <see cref="MethodDelegate{DelegateType}(MethodInfo, object, bool)"/> with the <c>method</c> and <c>virtualCall</c> arguments
-		/// determined from the [<see cref="HarmonyEx.HarmonyDelegate"/>] attributes on <typeparamref name="DelegateType"/>,
+		/// determined from the [<see cref="HarmonyExLib.HarmonyExDelegate"/>] attributes on <typeparamref name="DelegateType"/>,
 		/// and the given <paramref name="instance"/> (for closed instance delegates).
 		/// </remarks>
 		///
-		public static DelegateType HarmonyDelegate<DelegateType>(object instance = null) where DelegateType : Delegate
+		public static DelegateType HarmonyExDelegate<DelegateType>(object instance = null) where DelegateType : Delegate
 		{
-			var harmonyMethod = HarmonyMethodExtensions.GetMergedFromType(typeof(DelegateType));
+			var harmonyMethod = HarmonyExMethodExtensions.GetMergedFromType(typeof(DelegateType));
 			if (harmonyMethod.methodType is null) // MethodType default is Normal
 				harmonyMethod.methodType = MethodType.Normal;
 			var method = harmonyMethod.GetOriginalMethod() as MethodInfo;
@@ -1764,7 +1764,7 @@ namespace HarmonyEx
 			foreach (var frame in trace.GetFrames())
 			{
 				var method = frame.GetMethod();
-				if (method.DeclaringType?.Namespace != typeof(Harmony).Namespace)
+				if (method.DeclaringType?.Namespace != typeof(HarmonyEx).Namespace)
 					return method;
 			}
 			throw new Exception("Unexpected end of stack trace");

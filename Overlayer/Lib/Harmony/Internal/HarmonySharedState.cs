@@ -8,18 +8,18 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
-	// This class uses some unconventional tricks to get a shared state across multiple Assembly versions of Harmony
+	// This class uses some unconventional tricks to get a shared state across multiple Assembly versions of HarmonyEx
 	// The motivation for this is that we have two cases that can occur:
 	//
-	// 1) Multiple users use different versions of Harmony and thus we end up with multiple loaded Harmony assemblies
+	// 1) Multiple users use different versions of HarmonyEx and thus we end up with multiple loaded HarmonyEx assemblies
 	//    The types in those assemblies might have the same name but are different. Thus using or locking static fields
 	//    on those types would not make them share the information.
 	//
 	// 2) Even more weird, Unity's Mono is known to NOT load two versions of a dll but only the first one. Both users
-	//    would assume that their version of Harmony is loaded when in fact only the FIRST is loaded and used for both.
-	//    As a result, the public API in Harmony must be backwards compatible or else the second mod expecting an older
+	//    would assume that their version of HarmonyEx is loaded when in fact only the FIRST is loaded and used for both.
+	//    As a result, the public API in HarmonyEx must be backwards compatible or else the second mod expecting an older
 	//    (or newer) API will fail at runtime.
 	//
 	// The solution here is to create a "dynamic singleton Type" that is created if not existing during the static
@@ -31,11 +31,11 @@ namespace HarmonyEx
 	// did not have, in fact don't exist. In that case, we init them with local only copies that will not really share - the
 	// best we can do in that situation.
 
-	internal static class HarmonySharedState
+	internal static class HarmonyExSharedState
 	{
-		//const string name = "HarmonySharedState";
-		const string name = "HarmonyExSharedState";
-		internal const int internalVersion = 102; // bump this if the layout of the HarmonySharedState type changes
+		//const string name = "HarmonyExSharedState";
+		const string name = "HarmonyExLibSharedState";
+		internal const int internalVersion = 102; // bump this if the layout of the HarmonyExSharedState type changes
 
 		// state/originals/methodStarts are set to instances stored in the global dynamic types static fields with the same name
 		static readonly Dictionary<MethodBase, byte[]> state;
@@ -46,7 +46,7 @@ namespace HarmonyEx
 		
 		internal static readonly int actualVersion;
 
-		static HarmonySharedState()
+		static HarmonyExSharedState()
 		{
 			// create singleton type
 			var type = GetOrCreateSharedStateType();

@@ -1,4 +1,4 @@
-﻿using HarmonyEx;
+﻿using HarmonyExLib;
 using System;
 using Overlayer.Tags;
 using System.Linq;
@@ -30,7 +30,7 @@ namespace Overlayer.Patches
         public static float bpm = 0, pitch = 0, playbackSpeed = 1;
         public static bool beforedt = false;
         public static double beforebpm = 0;
-        [HarmonyPatch(typeof(CustomLevel), "Play")]
+        [HarmonyExPatch(typeof(CustomLevel), "Play")]
         public static class CustomLevelStart
         {
             public static void Postfix(CustomLevel __instance)
@@ -40,7 +40,7 @@ namespace Overlayer.Patches
                 Init(scrController.instance);
             }
         }
-        [HarmonyPatch(typeof(scrPressToStart), "ShowText")]
+        [HarmonyExPatch(typeof(scrPressToStart), "ShowText")]
         public static class BossLevelStart
         {
             public static void Postfix(scrPressToStart __instance)
@@ -51,7 +51,7 @@ namespace Overlayer.Patches
                 Variables.StartProg = scrController.instance.percentComplete * 100;
             }
         }
-        [HarmonyPatch(typeof(scrPlanet), "MoveToNextFloor")]
+        [HarmonyExPatch(typeof(scrPlanet), "MoveToNextFloor")]
         public static class MoveToNextFloorPatch
         {
             public static void Postfix(scrPlanet __instance, scrFloor floor)

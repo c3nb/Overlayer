@@ -1,6 +1,6 @@
 using System;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>Exception block types</summary>
 	/// 

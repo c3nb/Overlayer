@@ -1,4 +1,4 @@
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A patch priority</summary>
 	/// 

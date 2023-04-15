@@ -1,10 +1,10 @@
-﻿using HarmonyEx;
+﻿using HarmonyExLib;
 using System;
 using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
-    [HarmonyPatch(typeof(scrPlanet), "SwitchChosen")]
+    [HarmonyExPatch(typeof(scrPlanet), "SwitchChosen")]
     public static class TimingUpdater
     {
         public static void Prefix(scrPlanet __instance)

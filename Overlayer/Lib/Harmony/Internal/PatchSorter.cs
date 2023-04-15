@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal class PatchSorter
 	{

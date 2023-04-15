@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A group of patches</summary>
 	/// 
@@ -24,7 +24,7 @@ namespace HarmonyEx
 		/// 
 		public readonly ReadOnlyCollection<Patch> Finalizers;
 
-		/// <summary>Gets all owners (Harmony IDs) or all known patches</summary>
+		/// <summary>Gets all owners (HarmonyEx IDs) or all known patches</summary>
 		/// <value>The patch owners</value>
 		///
 		public ReadOnlyCollection<string> Owners

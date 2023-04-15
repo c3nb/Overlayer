@@ -3,40 +3,40 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal static class PatchArgumentExtensions
 	{
-		static HarmonyArgument[] AllHarmonyArguments(object[] attributes)
+		static HarmonyExArgument[] AllHarmonyExArguments(object[] attributes)
 		{
 			return attributes.Select(attr =>
 			{
-				if (attr.GetType().Name != nameof(HarmonyArgument)) return null;
-				return AccessTools.MakeDeepCopy<HarmonyArgument>(attr);
+				if (attr.GetType().Name != nameof(HarmonyExArgument)) return null;
+				return AccessTools.MakeDeepCopy<HarmonyExArgument>(attr);
 			})
 			.Where(harg => harg is object)
 			.ToArray();
 		}
 
-		static HarmonyArgument GetArgumentAttribute(this ParameterInfo parameter)
+		static HarmonyExArgument GetArgumentAttribute(this ParameterInfo parameter)
 		{
 			var attributes = parameter.GetCustomAttributes(false);
-			return AllHarmonyArguments(attributes).FirstOrDefault();
+			return AllHarmonyExArguments(attributes).FirstOrDefault();
 		}
 
-		static HarmonyArgument[] GetArgumentAttributes(this MethodInfo method)
+		static HarmonyExArgument[] GetArgumentAttributes(this MethodInfo method)
 		{
 			if (method is null || method is DynamicMethod)
 				return default;
 
 			var attributes = method.GetCustomAttributes(false);
-			return AllHarmonyArguments(attributes);
+			return AllHarmonyExArguments(attributes);
 		}
 
-		static HarmonyArgument[] GetArgumentAttributes(this Type type)
+		static HarmonyExArgument[] GetArgumentAttributes(this Type type)
 		{
 			var attributes = type.GetCustomAttributes(false);
-			return AllHarmonyArguments(attributes);
+			return AllHarmonyExArguments(attributes);
 		}
 
 		static string GetOriginalArgumentName(this ParameterInfo parameter, string[] originalParameterNames)
@@ -55,7 +55,7 @@ namespace HarmonyEx
 			return null;
 		}
 
-		static string GetOriginalArgumentName(HarmonyArgument[] attributes, string name, string[] originalParameterNames)
+		static string GetOriginalArgumentName(HarmonyExArgument[] attributes, string name, string[] originalParameterNames)
 		{
 			if ((attributes?.Length ?? 0) <= 0)
 				return null;

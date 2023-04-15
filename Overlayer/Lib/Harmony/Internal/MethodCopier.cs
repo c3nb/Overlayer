@@ -9,7 +9,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal class MethodCopier
 	{
@@ -56,7 +56,7 @@ namespace HarmonyEx
 			var copier = new MethodCopier(method, generator, originalVariables);
 			copier.SetArgumentShift(useStructReturnBuffer);
 
-			var info = Harmony.GetPatchInfo(method);
+			var info = HarmonyEx.GetPatchInfo(method);
 			if (info is object)
 			{
 				var sortedTranspilers = PatchFunctions.GetSortedPatchMethods(method, info.Transpilers.ToArray(), false);

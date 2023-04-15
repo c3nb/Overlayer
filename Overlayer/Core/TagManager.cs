@@ -1,6 +1,6 @@
 ﻿using AdofaiMapConverter;
 using BLINDED_AM_ME;
-using HarmonyEx;
+using HarmonyExLib;
 using Mono.Cecil;
 using Overlayer.Core.Tags;
 using System;
@@ -29,10 +29,10 @@ namespace Overlayer.Core
                 foreach (var (patch, tags) in Patches)
                 {
                     if (tags.All(t => !t.Referenced))
-                        patch.Unpatch(Main.Harmony);
+                        patch.Unpatch(Main.HarmonyEx);
                     else
                     {
-                        var dead = !patch.Patch(Main.Harmony);
+                        var dead = !patch.Patch(Main.HarmonyEx);
                         tags.ForEach(t => t.Dead = dead);
                     }
                 }

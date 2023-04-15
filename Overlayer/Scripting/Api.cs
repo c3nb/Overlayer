@@ -1,4 +1,4 @@
-﻿using HarmonyEx;
+﻿using HarmonyExLib;
 using JSEngine.Library;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace Overlayer.Scripting
                     yield return method;
             }
         }
-        public static Harmony harmony = new Harmony("Overlayer.Scripting.Api");
+        public static HarmonyEx harmony = new HarmonyEx("Overlayer.Scripting.Api");
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();
         [Api("Log Object")]
         public static void Log(object obj) => Main.Logger.Log(OverlayerDebug.Log(obj).ToString());
@@ -35,7 +35,7 @@ namespace Overlayer.Scripting
             var wrap = func.Wrap(target, true);
             if (wrap == null)
                 return false;
-            harmony.Patch(target, new HarmonyMethod(wrap));
+            harmony.Patch(target, new HarmonyExMethod(wrap));
             return true;
         }
         [Api("Postfix Method", SupportScript = ScriptType.JavaScript)]
@@ -45,7 +45,7 @@ namespace Overlayer.Scripting
             var wrap = func.Wrap(target, false);
             if (wrap == null)
                 return false;
-            harmony.Patch(target, postfix: new HarmonyMethod(wrap));
+            harmony.Patch(target, postfix: new HarmonyExMethod(wrap));
             return true;
         }
         [Api("Get Global Variable")]

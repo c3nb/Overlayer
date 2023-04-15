@@ -1,11 +1,11 @@
-﻿using HarmonyEx;
+﻿using HarmonyExLib;
 using System;
 using UnityEngine;
 using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
-    [HarmonyPatch(typeof(scrMisc), "GetHitMargin")]
+    [HarmonyExPatch(typeof(scrMisc), "GetHitMargin")]
     public static class GetHitMarginFixer
     {
         public static bool Prefix(float hitangle, float refangle, bool isCW, float bpmTimesSpeed, float conductorPitch, double marginScale, ref HitMargin __result)

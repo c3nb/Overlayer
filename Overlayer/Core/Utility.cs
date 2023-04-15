@@ -8,7 +8,7 @@ using UnityEngine;
 using Random = System.Random;
 using System.Reflection.Emit;
 using System.Reflection;
-using HarmonyEx;
+using HarmonyExLib;
 using System.Runtime.InteropServices;
 using static UnityModManagerNet.UnityModManager.UI;
 using TMPro;
@@ -442,10 +442,10 @@ namespace Overlayer.Core
             t.GetField("function").SetValue(null, del);
             return t.GetMethod("Wrapper");
         }
-        public static MethodInfo Prefix<T>(this Harmony harmony, MethodBase target, T del) where T : Delegate
-            => harmony.Patch(target, new HarmonyMethod(Wrap(del)));
-        public static MethodInfo Postfix<T>(this Harmony harmony, MethodBase target, T del) where T : Delegate
-            => harmony.Patch(target, postfix: new HarmonyMethod(Wrap(del)));
+        public static MethodInfo Prefix<T>(this HarmonyEx harmony, MethodBase target, T del) where T : Delegate
+            => harmony.Patch(target, new HarmonyExMethod(Wrap(del)));
+        public static MethodInfo Postfix<T>(this HarmonyEx harmony, MethodBase target, T del) where T : Delegate
+            => harmony.Patch(target, postfix: new HarmonyExMethod(Wrap(del)));
         static readonly HashSet<string> accessIgnored = new HashSet<string>();
         internal static void IgnoreAccessCheck(Type type)
         {

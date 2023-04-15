@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A CodeInstruction match</summary>
 	public class CodeMatch : CodeInstruction
@@ -27,7 +27,7 @@ namespace HarmonyEx
 		/// <summary>The match predicate</summary>
 		public Func<CodeInstruction, bool> predicate;
 
-		// used by HarmonyEx.Code
+		// used by HarmonyExLib.Code
 		internal CodeMatch Set(object operand, string name)
 		{
 			this.operand ??= operand;

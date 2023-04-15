@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal static class InlineSignatureParser
 	{

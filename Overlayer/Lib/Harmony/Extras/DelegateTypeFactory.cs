@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A factory to create delegate types</summary>
 	public class DelegateTypeFactory
@@ -15,9 +15,9 @@ namespace HarmonyEx
 		public DelegateTypeFactory()
 		{
 			counter++;
-			var name = $"HarmonyDTFAssembly{counter}";
+			var name = $"HarmonyExLibDTFAssembly{counter}";
 			var assembly = PatchTools.DefineDynamicAssembly(name);
-			module = assembly.DefineDynamicModule($"HarmonyDTFModule{counter}");
+			module = assembly.DefineDynamicModule($"HarmonyExLibDTFModule{counter}");
 		}
 
 		/// <summary>Creates a delegate type for a method</summary>
@@ -27,7 +27,7 @@ namespace HarmonyEx
 		public Type CreateDelegateType(MethodInfo method)
 		{
 			var attr = TypeAttributes.Sealed | TypeAttributes.Public;
-			var typeBuilder = module.DefineType($"HarmonyDTFType{counter}", attr, typeof(MulticastDelegate));
+			var typeBuilder = module.DefineType($"HarmonyExLibDTFType{counter}", attr, typeof(MulticastDelegate));
 
 			var constructor = typeBuilder.DefineConstructor(
 				MethodAttributes.RTSpecialName | MethodAttributes.HideBySig | MethodAttributes.Public,

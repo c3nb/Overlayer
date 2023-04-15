@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>General extensions for common cases</summary>
 	///

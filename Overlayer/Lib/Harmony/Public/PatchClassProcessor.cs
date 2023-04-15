@@ -3,36 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
-    /// <summary>A PatchClassProcessor used to turn <see cref="HarmonyAttribute"/> on a class/type into patches</summary>
+    /// <summary>A PatchClassProcessor used to turn <see cref="HarmonyExAttribute"/> on a class/type into patches</summary>
     /// 
     public class PatchClassProcessor
     {
-        public readonly Harmony instance;
+        public readonly HarmonyEx instance;
 
         readonly Type containerType;
-        readonly HarmonyMethod containerAttributes;
+        readonly HarmonyExMethod containerAttributes;
         readonly Dictionary<Type, MethodInfo> auxilaryMethods;
 
         readonly List<AttributePatch> patchMethods;
 
         static readonly List<Type> auxilaryTypes = new()
         {
-            typeof(HarmonyPrepare),
-            typeof(HarmonyCleanup),
-            typeof(HarmonyTargetMethod),
-            typeof(HarmonyTargetMethods)
+            typeof(HarmonyExPrepare),
+            typeof(HarmonyExCleanup),
+            typeof(HarmonyExTargetMethod),
+            typeof(HarmonyExTargetMethods)
         };
 
         /// <summary name="Category">Name of the patch class's category</summary>
         public string Category { get; set; }
 
         /// <summary>Creates a patch class processor by pointing out a class. Similar to PatchAll() but without searching through all classes.</summary>
-        /// <param name="instance">The Harmony instance</param>
-        /// <param name="type">The class to process (need to have at least a [HarmonyPatch] attribute)</param>
+        /// <param name="instance">The HarmonyEx instance</param>
+        /// <param name="type">The class to process (need to have at least a [HarmonyExPatch] attribute)</param>
         ///
-        public PatchClassProcessor(Harmony instance, Type type)
+        public PatchClassProcessor(HarmonyEx instance, Type type)
         {
             if (instance is null)
                 throw new ArgumentNullException(nameof(instance));
@@ -42,11 +42,11 @@ namespace HarmonyEx
             this.instance = instance;
             containerType = type;
 
-            var harmonyAttributes = HarmonyMethodExtensions.GetFromType(type);
+            var harmonyAttributes = HarmonyExMethodExtensions.GetFromType(type);
             if (harmonyAttributes is null || harmonyAttributes.Count == 0)
                 return;
 
-            containerAttributes = HarmonyMethod.Merge(harmonyAttributes);
+            containerAttributes = HarmonyExMethod.Merge(harmonyAttributes);
             if (containerAttributes.methodType is null) // MethodType default is Normal
                 containerAttributes.methodType = MethodType.Normal;
 
@@ -70,18 +70,18 @@ namespace HarmonyEx
         /// <summary>Applies the patches</summary>
         /// <returns>A list of all created replacement methods or null if patch class is not annotated</returns>
         ///
-        public List<MethodInfo> Patch(out List<HarmonyMethod> cannotPatch)
+        public List<MethodInfo> Patch(out List<HarmonyExMethod> cannotPatch)
         {
-            cannotPatch = new List<HarmonyMethod>();
+            cannotPatch = new List<HarmonyExMethod>();
             if (containerAttributes is null)
                 return null;
 
             Exception exception = null;
 
-            var mainPrepareResult = RunMethod<HarmonyPrepare, bool>(true, false);
+            var mainPrepareResult = RunMethod<HarmonyExPrepare, bool>(true, false);
             if (mainPrepareResult is false)
             {
-                RunMethod<HarmonyCleanup>(ref exception);
+                RunMethod<HarmonyExCleanup>(ref exception);
                 ReportException(exception, null);
                 return new List<MethodInfo>();
             }
@@ -103,7 +103,7 @@ namespace HarmonyEx
                 exception = ex;
             }
 
-            RunMethod<HarmonyCleanup>(ref exception, exception);
+            RunMethod<HarmonyExCleanup>(ref exception, exception);
             ReportException(exception, lastOriginal);
             return replacements;
         }
@@ -118,7 +118,7 @@ namespace HarmonyEx
             for (var i = 0; i < patchMethods.Count; i++)
             {
                 var patchMethod = patchMethods[i];
-                if (patchMethod.type == HarmonyPatchType.ReversePatch)
+                if (patchMethod.type == HarmonyExPatchType.ReversePatch)
                 {
                     var annotatedOriginal = patchMethod.info.GetOriginalMethod();
                     if (annotatedOriginal is object)
@@ -169,7 +169,7 @@ namespace HarmonyEx
                 var job = jobs.GetJob(lastOriginal);
                 foreach (var patchMethod in patchMethods)
                 {
-                    const string note = "You cannot combine TargetMethod, TargetMethods or [HarmonyPatchAll] with individual annotations";
+                    const string note = "You cannot combine TargetMethod, TargetMethods or [HarmonyExPatchAll] with individual annotations";
                     var info = patchMethod.info;
                     if (info.methodName is object)
                         throw new ArgumentException($"{note} [{info.methodName}]");
@@ -189,9 +189,9 @@ namespace HarmonyEx
             return jobs.GetReplacements();
         }
 
-        List<MethodInfo> PatchWithAttributes(ref MethodBase lastOriginal, out List<HarmonyMethod> notFound)
+        List<MethodInfo> PatchWithAttributes(ref MethodBase lastOriginal, out List<HarmonyExMethod> notFound)
         {
-            notFound = new List<HarmonyMethod>();
+            notFound = new List<HarmonyExMethod>();
             jobs = new PatchJobs<MethodInfo>();
             foreach (var patchMethod in patchMethods)
             {
@@ -218,7 +218,7 @@ namespace HarmonyEx
         {
             MethodInfo replacement = default;
 
-            var individualPrepareResult = RunMethod<HarmonyPrepare, bool>(true, false, null, job.original);
+            var individualPrepareResult = RunMethod<HarmonyExPrepare, bool>(true, false, null, job.original);
             Exception exception = null;
             if (individualPrepareResult)
             {
@@ -226,14 +226,14 @@ namespace HarmonyEx
                 {
                     try
                     {
-                        var patchInfo = HarmonySharedState.GetPatchInfo(job.original) ?? new PatchInfo();
+                        var patchInfo = HarmonyExSharedState.GetPatchInfo(job.original) ?? new PatchInfo();
                         patchInfo.AddPrefixes(instance.Id, Tools.DistinctPatches(patchInfo.prefixes, job.prefixes).ToArray());
                         patchInfo.AddPostfixes(instance.Id, Tools.DistinctPatches(patchInfo.postfixes, job.postfixes).ToArray());
                         patchInfo.AddTranspilers(instance.Id, Tools.DistinctPatches(patchInfo.transpilers, job.transpilers).ToArray());
                         patchInfo.AddFinalizers(instance.Id, Tools.DistinctPatches(patchInfo.finalizers, job.finalizers).ToArray());
 
                         replacement = PatchFunctions.UpdateWrapper(job.original, patchInfo);
-                        HarmonySharedState.UpdatePatchInfo(job.original, replacement, patchInfo);
+                        HarmonyExSharedState.UpdatePatchInfo(job.original, replacement, patchInfo);
                     }
                     catch (Exception ex)
                     {
@@ -241,7 +241,7 @@ namespace HarmonyEx
                     }
                 }
             }
-            RunMethod<HarmonyCleanup>(ref exception, job.original, exception);
+            RunMethod<HarmonyExCleanup>(ref exception, job.original, exception);
             ReportException(exception, job.original);
             job.replacement = replacement;
         }
@@ -253,10 +253,10 @@ namespace HarmonyEx
             {
                 try
                 {
-                    var patchInfo = HarmonySharedState.GetPatchInfo(job.original) ?? new PatchInfo();
+                    var patchInfo = HarmonyExSharedState.GetPatchInfo(job.original) ?? new PatchInfo();
                     patchInfo.RemovePatches(job.prefixes.Concat(job.postfixes).Concat(job.transpilers).Concat(job.finalizers).Select(m => m.method).ToArray());
                     replacement = PatchFunctions.UpdateWrapper(job.original, patchInfo);
-                    HarmonySharedState.UpdatePatchInfo(job.original, replacement, patchInfo);
+                    HarmonyExSharedState.UpdatePatchInfo(job.original, replacement, patchInfo);
                 }
                 catch (Exception ex)
                 {
@@ -268,12 +268,12 @@ namespace HarmonyEx
         }
         public List<MethodBase> GetBulkMethods()
         {
-            var isPatchAll = containerType.GetCustomAttributes(true).Any(a => a.GetType().FullName == typeof(HarmonyPatchAll).FullName);
+            var isPatchAll = containerType.GetCustomAttributes(true).Any(a => a.GetType().FullName == typeof(HarmonyExPatchAll).FullName);
             if (isPatchAll)
             {
                 var type = containerAttributes.declaringType;
                 if (type is null)
-                    throw new ArgumentException($"Using {typeof(HarmonyPatchAll).FullName} requires an additional attribute for specifying the Class/Type");
+                    throw new ArgumentException($"Using {typeof(HarmonyExPatchAll).FullName} requires an additional attribute for specifying the Class/Type");
 
                 var list = new List<MethodBase>();
                 list.AddRange(AccessTools.GetDeclaredConstructors(type).Cast<MethodBase>());
@@ -290,12 +290,12 @@ namespace HarmonyEx
                 if (res.Any(m => m is null)) return "some element was null";
                 return null;
             }
-            var targetMethods = RunMethod<HarmonyTargetMethods, IEnumerable<MethodBase>>(null, null, FailOnResult);
+            var targetMethods = RunMethod<HarmonyExTargetMethods, IEnumerable<MethodBase>>(null, null, FailOnResult);
             if (targetMethods is object)
                 return targetMethods.ToList();
 
             var result = new List<MethodBase>();
-            var targetMethod = RunMethod<HarmonyTargetMethod, MethodBase>(null, null, method => method is null ? "null" : null);
+            var targetMethod = RunMethod<HarmonyExTargetMethod, MethodBase>(null, null, method => method is null ? "null" : null);
             if (targetMethod is object)
                 result.Add(targetMethod);
             return result;
@@ -304,16 +304,16 @@ namespace HarmonyEx
         void ReportException(Exception exception, MethodBase original)
         {
             if (exception is null) return;
-            if ((containerAttributes.debug ?? false) || Harmony.DEBUG)
+            if ((containerAttributes.debug ?? false) || HarmonyEx.DEBUG)
             {
-                _ = Harmony.VersionInfo(out var currentVersion);
+                _ = HarmonyEx.VersionInfo(out var currentVersion);
 
                 FileLog.indentLevel = 0;
-                FileLog.Log($"### Exception from user \"{instance.Id}\", Harmony v{currentVersion}");
+                FileLog.Log($"### Exception from user \"{instance.Id}\", HarmonyEx v{currentVersion}");
                 FileLog.Log($"### Original: {(original?.FullDescription() ?? "NULL")}");
                 FileLog.Log($"### Patch class: {containerType.FullDescription()}");
                 var logException = exception;
-                if (logException is HarmonyException hEx) logException = hEx.InnerException;
+                if (logException is HarmonyExLibception hEx) logException = hEx.InnerException;
                 var exStr = logException.ToString();
                 while (exStr.Contains("\n\n"))
                     exStr = exStr.Replace("\n\n", "\n");
@@ -321,8 +321,8 @@ namespace HarmonyEx
                 FileLog.Log(exStr.Trim());
             }
 
-            if (exception is HarmonyException) throw exception; // assume HarmonyException already wraps the actual exception
-            throw new HarmonyException($"Patching exception in method {original.FullDescription()}", exception);
+            if (exception is HarmonyExLibception) throw exception; // assume HarmonyExLibception already wraps the actual exception
+            throw new HarmonyExLibception($"Patching exception in method {original.FullDescription()}", exception);
         }
 
         T RunMethod<S, T>(T defaultIfNotExisting, T defaultIfFailing, Func<T, string> failOnResult = null, params object[] parameters)

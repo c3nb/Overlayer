@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal class LeaveTry
 	{

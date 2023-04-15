@@ -1,11 +1,11 @@
-﻿using HarmonyEx;
+﻿using HarmonyExLib;
 using System;
 using UnityEngine;
 using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
-    [HarmonyPatch(typeof(scrController), "PlayerControl_Update")]
+    [HarmonyExPatch(typeof(scrController), "PlayerControl_Update")]
     public static class Updater
     {
         public static void Prefix(scrController __instance)

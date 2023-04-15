@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal static class PatchTools
 	{
@@ -28,7 +28,7 @@ namespace HarmonyEx
 			if (method is null)
 			{
 				// not-found is common and normal case, don't use AccessTools which will generate not-found warnings
-				var methodName = attributeName.Replace("HarmonyEx.Harmony", "");
+				var methodName = attributeName.Replace("HarmonyExLib.HarmonyEx", "");
 				method = patchType.GetMethod(methodName, AccessTools.all);
 			}
 			return method;
@@ -52,7 +52,7 @@ namespace HarmonyEx
 				.ToList();
 		}
 
-		public static MethodBase GetOriginalMethod(this HarmonyMethod attr)
+		public static MethodBase GetOriginalMethod(this HarmonyExMethod attr)
 		{
 			try
 			{
@@ -98,7 +98,7 @@ namespace HarmonyEx
 			}
 			catch (AmbiguousMatchException ex)
 			{
-				throw new HarmonyException($"Ambiguous match for HarmonyMethod[{attr.Description()}]", ex.InnerException ?? ex);
+				throw new HarmonyExLibception($"Ambiguous match for HarmonyExMethod[{attr.Description()}]", ex.InnerException ?? ex);
 			}
 
 			return null;

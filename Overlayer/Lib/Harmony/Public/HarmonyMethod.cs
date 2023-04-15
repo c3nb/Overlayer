@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 
 	/// <summary>A wrapper around a method to use it as a patch (for example a Prefix)</summary>
 	/// 
-	public class HarmonyMethod
+	public class HarmonyExMethod
 	{
 		/// <summary>The original method</summary>
 		/// 
@@ -38,30 +38,30 @@ namespace HarmonyEx
 		/// 
 		public int priority = -1;
 
-		/// <summary>Install this patch before patches with these Harmony IDs</summary>
+		/// <summary>Install this patch before patches with these HarmonyEx IDs</summary>
 		/// 
 		public string[] before;
 
-		/// <summary>Install this patch after patches with these Harmony IDs</summary>
+		/// <summary>Install this patch after patches with these HarmonyEx IDs</summary>
 		/// 
 		public string[] after;
 
-		/// <summary>Reverse patch type, see <see cref="HarmonyReversePatchType"/></summary>
+		/// <summary>Reverse patch type, see <see cref="HarmonyExReversePatchType"/></summary>
 		/// 
-		public HarmonyReversePatchType? reversePatchType;
+		public HarmonyExReversePatchType? reversePatchType;
 
 		/// <summary>Create debug output for this patch</summary>
 		/// 
 		public bool? debug;
 
 		/// <summary>Whether to use <see cref="MethodDispatchType.Call"/> (<c>true</c>) or <see cref="MethodDispatchType.VirtualCall"/> (<c>false</c>) mechanics
-		/// for <see cref="HarmonyDelegate"/>-attributed delegate</summary>
+		/// for <see cref="HarmonyExDelegate"/>-attributed delegate</summary>
 		/// 
 		public bool nonVirtualDelegate;
 
 		/// <summary>Default constructor</summary>
 		/// 
-		public HarmonyMethod()
+		public HarmonyExMethod()
 		{
 		}
 
@@ -70,7 +70,7 @@ namespace HarmonyEx
 			method = theMethod;
 			if (method is object)
 			{
-				var infos = HarmonyMethodExtensions.GetFromMethod(method);
+				var infos = HarmonyExMethodExtensions.GetFromMethod(method);
 				if (infos is object)
 					Merge(infos).CopyTo(this);
 			}
@@ -79,7 +79,7 @@ namespace HarmonyEx
 		/// <summary>Creates a patch from a given method</summary>
 		/// <param name="method">The original method</param>
 		///
-		public HarmonyMethod(MethodInfo method)
+		public HarmonyExMethod(MethodInfo method)
 		{
 			if (method is null)
 				throw new ArgumentNullException(nameof(method));
@@ -89,7 +89,7 @@ namespace HarmonyEx
 		/// <summary>Creates a patch from a given method</summary>
 		/// <param name="delegate">The original method</param>
 		///
-		public HarmonyMethod(Delegate @delegate)
+		public HarmonyExMethod(Delegate @delegate)
 			: this(@delegate.Method)
 		{ }
 
@@ -100,7 +100,7 @@ namespace HarmonyEx
 		/// <param name="after">A list of harmony IDs that should come before this patch</param>
 		/// <param name="debug">Set to true to generate debug output</param>
 		///
-		public HarmonyMethod(MethodInfo method, int priority = -1, string[] before = null, string[] after = null, bool? debug = null)
+		public HarmonyExMethod(MethodInfo method, int priority = -1, string[] before = null, string[] after = null, bool? debug = null)
 		{
 			if (method is null)
 				throw new ArgumentNullException(nameof(method));
@@ -118,7 +118,7 @@ namespace HarmonyEx
 		/// <param name="after">A list of harmony IDs that should come before this patch</param>
 		/// <param name="debug">Set to true to generate debug output</param>
 		///
-		public HarmonyMethod(Delegate @delegate, int priority = -1, string[] before = null, string[] after = null, bool? debug = null)
+		public HarmonyExMethod(Delegate @delegate, int priority = -1, string[] before = null, string[] after = null, bool? debug = null)
 			: this(@delegate.Method, priority, before, after, debug)
 		{ }
 
@@ -127,7 +127,7 @@ namespace HarmonyEx
 		/// <param name="methodName">The patch method name</param>
 		/// <param name="argumentTypes">The optional argument types of the patch method (for overloaded methods)</param>
 		///
-		public HarmonyMethod(Type methodType, string methodName, Type[] argumentTypes = null)
+		public HarmonyExMethod(Type methodType, string methodName, Type[] argumentTypes = null)
 		{
 			var result = AccessTools.Method(methodType, methodName, argumentTypes);
 			if (result is null)
@@ -138,34 +138,34 @@ namespace HarmonyEx
 		/// <summary>Gets the names of all internal patch info fields</summary>
 		/// <returns>A list of field names</returns>
 		///
-		public static List<string> HarmonyFields()
+		public static List<string> HarmonyExFields()
 		{
 			return AccessTools
-				.GetFieldNames(typeof(HarmonyMethod))
+				.GetFieldNames(typeof(HarmonyExMethod))
 				.Where(s => s != "method")
 				.ToList();
 		}
 
 		/// <summary>Merges annotations</summary>
-		/// <param name="attributes">The list of <see cref="HarmonyMethod"/> to merge</param>
-		/// <returns>The merged <see cref="HarmonyMethod"/></returns>
+		/// <param name="attributes">The list of <see cref="HarmonyExMethod"/> to merge</param>
+		/// <returns>The merged <see cref="HarmonyExMethod"/></returns>
 		///
-		public static HarmonyMethod Merge(List<HarmonyMethod> attributes)
+		public static HarmonyExMethod Merge(List<HarmonyExMethod> attributes)
 		{
-			var result = new HarmonyMethod();
+			var result = new HarmonyExMethod();
 			if (attributes is null) return result;
 			var resultTrv = Traverse.Create(result);
 			attributes.ForEach(attribute =>
 			{
 				var trv = Traverse.Create(attribute);
-				HarmonyFields().ForEach(f =>
+				HarmonyExFields().ForEach(f =>
 				{
 					var val = trv.Field(f).GetValue();
 					// The second half of this if is needed because priority defaults to -1
-					// This causes the value of a HarmonyPriority attribute to be overriden by the next attribute if it is not merged last
+					// This causes the value of a HarmonyExPriority attribute to be overriden by the next attribute if it is not merged last
 					// should be removed by making priority nullable and default to null at some point
-					if (val is object && (f != nameof(HarmonyMethod.priority) || (int)val != -1))
-						HarmonyMethodExtensions.SetValue(resultTrv, f, val);
+					if (val is object && (f != nameof(HarmonyExMethod.priority) || (int)val != -1))
+						HarmonyExMethodExtensions.SetValue(resultTrv, f, val);
 				});
 			});
 			return result;
@@ -178,12 +178,12 @@ namespace HarmonyEx
 		{
 			var result = "";
 			var trv = Traverse.Create(this);
-			HarmonyFields().ForEach(f =>
+			HarmonyExFields().ForEach(f =>
 			{
 				if (result.Length > 0) result += ", ";
 				result += $"{f}={trv.Field(f).GetValue()}";
 			});
-			return $"HarmonyMethod[{result}]";
+			return $"HarmonyExMethod[{result}]";
 		}
 
 		// used for error reporting
@@ -199,29 +199,29 @@ namespace HarmonyEx
 		/// <summary>Creates a patch from a given method</summary>
 		/// <param name="method">The original method</param>
 		///
-		public static implicit operator HarmonyMethod(MethodInfo method)
+		public static implicit operator HarmonyExMethod(MethodInfo method)
 		{
-			return new HarmonyMethod(method);
+			return new HarmonyExMethod(method);
 		}
 
 		/// <summary>Creates a patch from a given method</summary>
 		/// <param name="delegate">The original method</param>
 		///
-		public static implicit operator HarmonyMethod(Delegate @delegate)
+		public static implicit operator HarmonyExMethod(Delegate @delegate)
 		{
-			return new HarmonyMethod(@delegate);
+			return new HarmonyExMethod(@delegate);
 		}
 	}
 
 	/// <summary>Annotation extensions</summary>
 	/// 
-	public static class HarmonyMethodExtensions
+	public static class HarmonyExMethodExtensions
 	{
 		internal static void SetValue(Traverse trv, string name, object val)
 		{
 			if (val is null) return;
 			var fld = trv.Field(name);
-			if (name == nameof(HarmonyMethod.methodType) || name == nameof(HarmonyMethod.reversePatchType))
+			if (name == nameof(HarmonyExMethod.methodType) || name == nameof(HarmonyExMethod.reversePatchType))
 			{
 				var enumType = Nullable.GetUnderlyingType(fld.GetValueType());
 				val = Enum.ToObject(enumType, (int)val);
@@ -230,15 +230,15 @@ namespace HarmonyEx
 		}
 
 		/// <summary>Copies annotation information</summary>
-		/// <param name="from">The source <see cref="HarmonyMethod"/></param>
-		/// <param name="to">The destination <see cref="HarmonyMethod"/></param>
+		/// <param name="from">The source <see cref="HarmonyExMethod"/></param>
+		/// <param name="to">The destination <see cref="HarmonyExMethod"/></param>
 		///
-		public static void CopyTo(this HarmonyMethod from, HarmonyMethod to)
+		public static void CopyTo(this HarmonyExMethod from, HarmonyExMethod to)
 		{
 			if (to is null) return;
 			var fromTrv = Traverse.Create(from);
 			var toTrv = Traverse.Create(to);
-			HarmonyMethod.HarmonyFields().ForEach(f =>
+			HarmonyExMethod.HarmonyExFields().ForEach(f =>
 			{
 				var val = fromTrv.Field(f).GetValue();
 				if (val is object)
@@ -247,90 +247,90 @@ namespace HarmonyEx
 		}
 
 		/// <summary>Clones an annotation</summary>
-		/// <param name="original">The <see cref="HarmonyMethod"/> to clone</param>
-		/// <returns>A copied <see cref="HarmonyMethod"/></returns>
+		/// <param name="original">The <see cref="HarmonyExMethod"/> to clone</param>
+		/// <returns>A copied <see cref="HarmonyExMethod"/></returns>
 		///
-		public static HarmonyMethod Clone(this HarmonyMethod original)
+		public static HarmonyExMethod Clone(this HarmonyExMethod original)
 		{
-			var result = new HarmonyMethod();
+			var result = new HarmonyExMethod();
 			original.CopyTo(result);
 			return result;
 		}
 
 		/// <summary>Merges annotations</summary>
-		/// <param name="master">The master <see cref="HarmonyMethod"/></param>
-		/// <param name="detail">The detail <see cref="HarmonyMethod"/></param>
-		/// <returns>A new, merged <see cref="HarmonyMethod"/></returns>
+		/// <param name="master">The master <see cref="HarmonyExMethod"/></param>
+		/// <param name="detail">The detail <see cref="HarmonyExMethod"/></param>
+		/// <returns>A new, merged <see cref="HarmonyExMethod"/></returns>
 		///
-		public static HarmonyMethod Merge(this HarmonyMethod master, HarmonyMethod detail)
+		public static HarmonyExMethod Merge(this HarmonyExMethod master, HarmonyExMethod detail)
 		{
 			if (detail is null) return master;
-			var result = new HarmonyMethod();
+			var result = new HarmonyExMethod();
 			var resultTrv = Traverse.Create(result);
 			var masterTrv = Traverse.Create(master);
 			var detailTrv = Traverse.Create(detail);
-			HarmonyMethod.HarmonyFields().ForEach(f =>
+			HarmonyExMethod.HarmonyExFields().ForEach(f =>
 			{
 				var baseValue = masterTrv.Field(f).GetValue();
 				var detailValue = detailTrv.Field(f).GetValue();
 				// This if is needed because priority defaults to -1
-				// This causes the value of a HarmonyPriority attribute to be overriden by the next attribute if it is not merged last
+				// This causes the value of a HarmonyExPriority attribute to be overriden by the next attribute if it is not merged last
 				// should be removed by making priority nullable and default to null at some point
-				if (f != nameof(HarmonyMethod.priority) || (int)detailValue != -1)
+				if (f != nameof(HarmonyExMethod.priority) || (int)detailValue != -1)
 					SetValue(resultTrv, f, detailValue ?? baseValue);
 			});
 			return result;
 		}
 
-		static HarmonyMethod GetHarmonyMethodInfo(object attribute)
+		static HarmonyExMethod GetHarmonyExMethodInfo(object attribute)
 		{
-			var f_info = attribute.GetType().GetField(nameof(HarmonyAttribute.info), AccessTools.all);
+			var f_info = attribute.GetType().GetField(nameof(HarmonyExAttribute.info), AccessTools.all);
 			if (f_info is null) return null;
-			if (f_info.FieldType.FullName != typeof(HarmonyMethod).FullName) return null;
+			if (f_info.FieldType.FullName != typeof(HarmonyExMethod).FullName) return null;
 			var info = f_info.GetValue(attribute);
-			return AccessTools.MakeDeepCopy<HarmonyMethod>(info);
+			return AccessTools.MakeDeepCopy<HarmonyExMethod>(info);
 		}
 
 		/// <summary>Gets all annotations on a class/type</summary>
 		/// <param name="type">The class/type</param>
-		/// <returns>A list of all <see cref="HarmonyMethod"/></returns>
+		/// <returns>A list of all <see cref="HarmonyExMethod"/></returns>
 		///
-		public static List<HarmonyMethod> GetFromType(Type type)
+		public static List<HarmonyExMethod> GetFromType(Type type)
 		{
 			return type.GetCustomAttributes(true)
-						.Select(attr => GetHarmonyMethodInfo(attr))
+						.Select(attr => GetHarmonyExMethodInfo(attr))
 						.Where(info => info is object)
 						.ToList();
 		}
 
 		/// <summary>Gets merged annotations on a class/type</summary>
 		/// <param name="type">The class/type</param>
-		/// <returns>The merged <see cref="HarmonyMethod"/></returns>
+		/// <returns>The merged <see cref="HarmonyExMethod"/></returns>
 		///
-		public static HarmonyMethod GetMergedFromType(Type type)
+		public static HarmonyExMethod GetMergedFromType(Type type)
 		{
-			return HarmonyMethod.Merge(GetFromType(type));
+			return HarmonyExMethod.Merge(GetFromType(type));
 		}
 
 		/// <summary>Gets all annotations on a method</summary>
 		/// <param name="method">The method/constructor</param>
-		/// <returns>A list of <see cref="HarmonyMethod"/></returns>
+		/// <returns>A list of <see cref="HarmonyExMethod"/></returns>
 		///
-		public static List<HarmonyMethod> GetFromMethod(MethodBase method)
+		public static List<HarmonyExMethod> GetFromMethod(MethodBase method)
 		{
 			return method.GetCustomAttributes(true)
-						.Select(attr => GetHarmonyMethodInfo(attr))
+						.Select(attr => GetHarmonyExMethodInfo(attr))
 						.Where(info => info is object)
 						.ToList();
 		}
 
 		/// <summary>Gets merged annotations on a method</summary>
 		/// <param name="method">The method/constructor</param>
-		/// <returns>The merged <see cref="HarmonyMethod"/></returns>
+		/// <returns>The merged <see cref="HarmonyExMethod"/></returns>
 		///
-		public static HarmonyMethod GetMergedFromMethod(MethodBase method)
+		public static HarmonyExMethod GetMergedFromMethod(MethodBase method)
 		{
-			return HarmonyMethod.Merge(GetFromMethod(method));
+			return HarmonyExMethod.Merge(GetFromMethod(method));
 		}
 	}
 }

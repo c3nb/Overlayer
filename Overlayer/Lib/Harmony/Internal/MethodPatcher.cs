@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	internal class MethodPatcher
 	{
@@ -625,7 +625,7 @@ namespace HarmonyEx
 					idx = patch.GetArgumentIndex(originalParameterNames, patchParam);
 					if (idx == -1)
 					{
-						var harmonyMethod = HarmonyMethodExtensions.GetMergedFromType(patchParam.ParameterType);
+						var harmonyMethod = HarmonyExMethodExtensions.GetMergedFromType(patchParam.ParameterType);
 						if (harmonyMethod.methodType is null) // MethodType default is Normal
 							harmonyMethod.methodType = MethodType.Normal;
 						var delegateOriginal = harmonyMethod.GetOriginalMethod();

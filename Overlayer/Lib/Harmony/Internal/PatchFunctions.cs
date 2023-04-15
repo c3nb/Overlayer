@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>Patch function helpers</summary>
 	internal static class PatchFunctions
@@ -26,7 +26,7 @@ namespace HarmonyEx
 		///
 		internal static MethodInfo UpdateWrapper(MethodBase original, PatchInfo patchInfo)
 		{
-			var debug = patchInfo.Debugging || Harmony.DEBUG;
+			var debug = patchInfo.Debugging || HarmonyEx.DEBUG;
 
 			var sortedPrefixes = GetSortedPatchMethods(original, patchInfo.prefixes, debug);
 			var sortedPostfixes = GetSortedPatchMethods(original, patchInfo.postfixes, debug);
@@ -43,7 +43,7 @@ namespace HarmonyEx
 			}
 			catch (Exception ex)
 			{
-				throw HarmonyException.Create(ex, finalInstructions);
+				throw HarmonyExLibception.Create(ex, finalInstructions);
 			}
 			return replacement;
 		}
@@ -68,19 +68,19 @@ namespace HarmonyEx
 			}
 		}
 
-		internal static MethodInfo ReversePatch(HarmonyMethod standin, MethodBase original, MethodInfo postTranspiler)
+		internal static MethodInfo ReversePatch(HarmonyExMethod standin, MethodBase original, MethodInfo postTranspiler)
 		{
 			if (standin is null)
 				throw new ArgumentNullException(nameof(standin));
 			if (standin.method is null)
 				throw new ArgumentNullException(nameof(standin), $"{nameof(standin)}.{nameof(standin.method)} is NULL");
 
-			var debug = (standin.debug ?? false) || Harmony.DEBUG;
+			var debug = (standin.debug ?? false) || HarmonyEx.DEBUG;
 
 			var transpilers = new List<MethodInfo>();
-			if (standin.reversePatchType == HarmonyReversePatchType.Snapshot)
+			if (standin.reversePatchType == HarmonyExReversePatchType.Snapshot)
 			{
-				var info = Harmony.GetPatchInfo(original);
+				var info = HarmonyEx.GetPatchInfo(original);
 				transpilers.AddRange(GetSortedPatchMethods(original, info.Transpilers.ToArray(), debug));
 			}
 			if (postTranspiler is object) transpilers.Add(postTranspiler);
@@ -98,7 +98,7 @@ namespace HarmonyEx
 			}
 			catch (Exception ex)
 			{
-				throw HarmonyException.Create(ex, finalInstructions);
+				throw HarmonyExLibception.Create(ex, finalInstructions);
 			}
 
 			PatchTools.RememberObject(standin.method, replacement);

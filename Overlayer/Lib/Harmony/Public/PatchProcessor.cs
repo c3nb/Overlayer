@@ -5,37 +5,37 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A PatchProcessor handles patches on a method/constructor</summary>
 	/// 
 	public class PatchProcessor
 	{
-		readonly Harmony instance;
+		readonly HarmonyEx instance;
 		readonly MethodBase original;
 
-		HarmonyMethod prefix;
-		HarmonyMethod postfix;
-		HarmonyMethod transpiler;
-		HarmonyMethod finalizer;
+		HarmonyExMethod prefix;
+		HarmonyExMethod postfix;
+		HarmonyExMethod transpiler;
+		HarmonyExMethod finalizer;
 
 		internal static readonly object locker = new();
 
 		/// <summary>Creates an empty patch processor</summary>
-		/// <param name="instance">The Harmony instance</param>
+		/// <param name="instance">The HarmonyEx instance</param>
 		/// <param name="original">The original method/constructor</param>
 		///
-		public PatchProcessor(Harmony instance, MethodBase original)
+		public PatchProcessor(HarmonyEx instance, MethodBase original)
 		{
 			this.instance = instance;
 			this.original = original;
 		}
 
 		/// <summary>Adds a prefix</summary>
-		/// <param name="prefix">The prefix as a <see cref="HarmonyMethod"/></param>
+		/// <param name="prefix">The prefix as a <see cref="HarmonyExMethod"/></param>
 		/// <returns>A <see cref="PatchProcessor"/> for chaining calls</returns>
 		///
-		public PatchProcessor AddPrefix(HarmonyMethod prefix)
+		public PatchProcessor AddPrefix(HarmonyExMethod prefix)
 		{
 			this.prefix = prefix;
 			return this;
@@ -47,15 +47,15 @@ namespace HarmonyEx
 		///
 		public PatchProcessor AddPrefix(MethodInfo fixMethod)
 		{
-			prefix = new HarmonyMethod(fixMethod);
+			prefix = new HarmonyExMethod(fixMethod);
 			return this;
 		}
 
 		/// <summary>Adds a postfix</summary>
-		/// <param name="postfix">The postfix as a <see cref="HarmonyMethod"/></param>
+		/// <param name="postfix">The postfix as a <see cref="HarmonyExMethod"/></param>
 		/// <returns>A <see cref="PatchProcessor"/> for chaining calls</returns>
 		///
-		public PatchProcessor AddPostfix(HarmonyMethod postfix)
+		public PatchProcessor AddPostfix(HarmonyExMethod postfix)
 		{
 			this.postfix = postfix;
 			return this;
@@ -67,15 +67,15 @@ namespace HarmonyEx
 		///
 		public PatchProcessor AddPostfix(MethodInfo fixMethod)
 		{
-			postfix = new HarmonyMethod(fixMethod);
+			postfix = new HarmonyExMethod(fixMethod);
 			return this;
 		}
 
 		/// <summary>Adds a transpiler</summary>
-		/// <param name="transpiler">The transpiler as a <see cref="HarmonyMethod"/></param>
+		/// <param name="transpiler">The transpiler as a <see cref="HarmonyExMethod"/></param>
 		/// <returns>A <see cref="PatchProcessor"/> for chaining calls</returns>
 		///
-		public PatchProcessor AddTranspiler(HarmonyMethod transpiler)
+		public PatchProcessor AddTranspiler(HarmonyExMethod transpiler)
 		{
 			this.transpiler = transpiler;
 			return this;
@@ -87,15 +87,15 @@ namespace HarmonyEx
 		///
 		public PatchProcessor AddTranspiler(MethodInfo fixMethod)
 		{
-			transpiler = new HarmonyMethod(fixMethod);
+			transpiler = new HarmonyExMethod(fixMethod);
 			return this;
 		}
 
 		/// <summary>Adds a finalizer</summary>
-		/// <param name="finalizer">The finalizer as a <see cref="HarmonyMethod"/></param>
+		/// <param name="finalizer">The finalizer as a <see cref="HarmonyExMethod"/></param>
 		/// <returns>A <see cref="PatchProcessor"/> for chaining calls</returns>
 		///
-		public PatchProcessor AddFinalizer(HarmonyMethod finalizer)
+		public PatchProcessor AddFinalizer(HarmonyExMethod finalizer)
 		{
 			this.finalizer = finalizer;
 			return this;
@@ -107,7 +107,7 @@ namespace HarmonyEx
 		///
 		public PatchProcessor AddFinalizer(MethodInfo fixMethod)
 		{
-			finalizer = new HarmonyMethod(fixMethod);
+			finalizer = new HarmonyExMethod(fixMethod);
 			return this;
 		}
 
@@ -118,7 +118,7 @@ namespace HarmonyEx
 		{
 			lock (locker)
 			{
-				return HarmonySharedState.GetPatchedMethods();
+				return HarmonyExSharedState.GetPatchedMethods();
 			}
 		}
 
@@ -138,7 +138,7 @@ namespace HarmonyEx
 
 			lock (locker)
 			{
-				var patchInfo = HarmonySharedState.GetPatchInfo(original) ?? new PatchInfo();
+				var patchInfo = HarmonyExSharedState.GetPatchInfo(original) ?? new PatchInfo();
 
 				if (!patchInfo.prefixes.Any(p => p.PatchMethod == prefix?.method))
 					patchInfo.AddPrefixes(instance.Id, prefix);
@@ -151,34 +151,34 @@ namespace HarmonyEx
 
 				var replacement = PatchFunctions.UpdateWrapper(original, patchInfo);
 
-				HarmonySharedState.UpdatePatchInfo(original, replacement, patchInfo);
+				HarmonyExSharedState.UpdatePatchInfo(original, replacement, patchInfo);
 				return replacement;
 			}
 		}
 
-		/// <summary>Unpatches patches of a given type and/or Harmony ID</summary>
-		/// <param name="type">The <see cref="HarmonyPatchType"/> patch type</param>
-		/// <param name="harmonyID">Harmony ID or <c>*</c> for any</param>
+		/// <summary>Unpatches patches of a given type and/or HarmonyEx ID</summary>
+		/// <param name="type">The <see cref="HarmonyExPatchType"/> patch type</param>
+		/// <param name="harmonyID">HarmonyEx ID or <c>*</c> for any</param>
 		/// <returns>A <see cref="PatchProcessor"/> for chaining calls</returns>
 		///
-		public PatchProcessor Unpatch(HarmonyPatchType type, string harmonyID)
+		public PatchProcessor Unpatch(HarmonyExPatchType type, string harmonyID)
 		{
 			lock (locker)
 			{
-				var patchInfo = HarmonySharedState.GetPatchInfo(original);
+				var patchInfo = HarmonyExSharedState.GetPatchInfo(original);
 				if (patchInfo is null) patchInfo = new PatchInfo();
 
-				if (type == HarmonyPatchType.All || type == HarmonyPatchType.Prefix)
+				if (type == HarmonyExPatchType.All || type == HarmonyExPatchType.Prefix)
 					patchInfo.RemovePrefix(harmonyID);
-				if (type == HarmonyPatchType.All || type == HarmonyPatchType.Postfix)
+				if (type == HarmonyExPatchType.All || type == HarmonyExPatchType.Postfix)
 					patchInfo.RemovePostfix(harmonyID);
-				if (type == HarmonyPatchType.All || type == HarmonyPatchType.Transpiler)
+				if (type == HarmonyExPatchType.All || type == HarmonyExPatchType.Transpiler)
 					patchInfo.RemoveTranspiler(harmonyID);
-				if (type == HarmonyPatchType.All || type == HarmonyPatchType.Finalizer)
+				if (type == HarmonyExPatchType.All || type == HarmonyExPatchType.Finalizer)
 					patchInfo.RemoveFinalizer(harmonyID);
 				var replacement = PatchFunctions.UpdateWrapper(original, patchInfo);
 
-				HarmonySharedState.UpdatePatchInfo(original, replacement, patchInfo);
+				HarmonyExSharedState.UpdatePatchInfo(original, replacement, patchInfo);
 				return this;
 			}
 		}
@@ -191,13 +191,13 @@ namespace HarmonyEx
 		{
 			lock (locker)
 			{
-				var patchInfo = HarmonySharedState.GetPatchInfo(original);
+				var patchInfo = HarmonyExSharedState.GetPatchInfo(original);
 				if (patchInfo is null) patchInfo = new PatchInfo();
 
 				patchInfo.RemovePatch(patch);
 				var replacement = PatchFunctions.UpdateWrapper(original, patchInfo);
 
-				HarmonySharedState.UpdatePatchInfo(original, replacement, patchInfo);
+				HarmonyExSharedState.UpdatePatchInfo(original, replacement, patchInfo);
 				return this;
 			}
 		}
@@ -209,7 +209,7 @@ namespace HarmonyEx
 		public static Patches GetPatchInfo(MethodBase method)
 		{
 			PatchInfo patchInfo;
-			lock (locker) { patchInfo = HarmonySharedState.GetPatchInfo(method); }
+			lock (locker) { patchInfo = HarmonyExSharedState.GetPatchInfo(method); }
 			if (patchInfo is null) return null;
 			return new Patches(patchInfo.prefixes, patchInfo.postfixes, patchInfo.transpilers, patchInfo.finalizers);
 		}
@@ -224,18 +224,18 @@ namespace HarmonyEx
 			return PatchFunctions.GetSortedPatchMethods(original, patches, false);
 		}
 
-		/// <summary>Gets Harmony version for all active Harmony instances</summary>
-		/// <param name="currentVersion">[out] The current Harmony version</param>
-		/// <returns>A dictionary containing assembly version keyed by Harmony ID</returns>
+		/// <summary>Gets HarmonyEx version for all active HarmonyEx instances</summary>
+		/// <param name="currentVersion">[out] The current HarmonyEx version</param>
+		/// <returns>A dictionary containing assembly version keyed by HarmonyEx ID</returns>
 		///
 		public static Dictionary<string, Version> VersionInfo(out Version currentVersion)
 		{
-			currentVersion = typeof(Harmony).Assembly.GetName().Version;
+			currentVersion = typeof(HarmonyEx).Assembly.GetName().Version;
 			var assemblies = new Dictionary<string, Assembly>();
 			GetAllPatchedMethods().Do(method =>
 			{
 				PatchInfo info;
-				lock (locker) { info = HarmonySharedState.GetPatchInfo(method); }
+				lock (locker) { info = HarmonyExSharedState.GetPatchInfo(method); }
 				info.prefixes.Do(fix => assemblies[fix.owner] = fix.PatchMethod.DeclaringType.Assembly);
 				info.postfixes.Do(fix => assemblies[fix.owner] = fix.PatchMethod.DeclaringType.Assembly);
 				info.transpilers.Do(fix => assemblies[fix.owner] = fix.PatchMethod.DeclaringType.Assembly);
@@ -245,7 +245,7 @@ namespace HarmonyEx
 			var result = new Dictionary<string, Version>();
 			assemblies.Do(info =>
 			{
-				var assemblyName = info.Value.GetReferencedAssemblies().FirstOrDefault(a => a.FullName.StartsWith("0Harmony, Version", StringComparison.Ordinal));
+				var assemblyName = info.Value.GetReferencedAssemblies().FirstOrDefault(a => a.FullName.StartsWith("0HarmonyEx, Version", StringComparison.Ordinal));
 				if (assemblyName is object)
 					result[info.Key] = assemblyName.Version;
 			});

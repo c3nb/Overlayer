@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	// PatchJobs holds the information during correlation
 	// of methods and patches while processing attribute patches
@@ -14,25 +14,25 @@ namespace HarmonyEx
 		{
 			internal MethodBase original;
 			internal T replacement;
-			internal List<HarmonyMethod> prefixes = new();
-			internal List<HarmonyMethod> postfixes = new();
-			internal List<HarmonyMethod> transpilers = new();
-			internal List<HarmonyMethod> finalizers = new();
+			internal List<HarmonyExMethod> prefixes = new();
+			internal List<HarmonyExMethod> postfixes = new();
+			internal List<HarmonyExMethod> transpilers = new();
+			internal List<HarmonyExMethod> finalizers = new();
 
 			internal void AddPatch(AttributePatch patch)
 			{
 				switch (patch.type)
 				{
-					case HarmonyPatchType.Prefix:
+					case HarmonyExPatchType.Prefix:
 						prefixes.Add(patch.info);
 						break;
-					case HarmonyPatchType.Postfix:
+					case HarmonyExPatchType.Postfix:
 						postfixes.Add(patch.info);
 						break;
-					case HarmonyPatchType.Transpiler:
+					case HarmonyExPatchType.Transpiler:
 						transpilers.Add(patch.info);
 						break;
-					case HarmonyPatchType.Finalizer:
+					case HarmonyExPatchType.Finalizer:
 						finalizers.Add(patch.info);
 						break;
 				}
@@ -72,18 +72,18 @@ namespace HarmonyEx
 	//
 	internal class AttributePatch
 	{
-		static readonly HarmonyPatchType[] allPatchTypes = new[] {
-			HarmonyPatchType.Prefix,
-			HarmonyPatchType.Postfix,
-			HarmonyPatchType.Transpiler,
-			HarmonyPatchType.Finalizer,
-			HarmonyPatchType.ReversePatch,
+		static readonly HarmonyExPatchType[] allPatchTypes = new[] {
+			HarmonyExPatchType.Prefix,
+			HarmonyExPatchType.Postfix,
+			HarmonyExPatchType.Transpiler,
+			HarmonyExPatchType.Finalizer,
+			HarmonyExPatchType.ReversePatch,
 		};
 
-		internal HarmonyMethod info;
-		internal HarmonyPatchType? type;
+		internal HarmonyExMethod info;
+		internal HarmonyExPatchType? type;
 
-		static readonly string harmonyAttributeName = typeof(HarmonyAttribute).FullName;
+		static readonly string harmonyAttributeName = typeof(HarmonyExAttribute).FullName;
 		internal static AttributePatch Create(MethodInfo patch)
 		{
 			if (patch is null)
@@ -95,35 +95,35 @@ namespace HarmonyEx
 			if (type is null)
 				return null;
 
-			if (type != HarmonyPatchType.ReversePatch && patch.IsStatic is false)
+			if (type != HarmonyExPatchType.ReversePatch && patch.IsStatic is false)
 				throw new ArgumentException("Patch method " + patch.FullDescription() + " must be static");
 
 			var list = allAttributes
 				.Where(attr => attr.GetType().BaseType.FullName == harmonyAttributeName)
 				.Select(attr =>
 				{
-					var f_info = AccessTools.Field(attr.GetType(), nameof(HarmonyAttribute.info));
+					var f_info = AccessTools.Field(attr.GetType(), nameof(HarmonyExAttribute.info));
 					return f_info.GetValue(attr);
 				})
-				.Select(harmonyInfo => AccessTools.MakeDeepCopy<HarmonyMethod>(harmonyInfo))
+				.Select(harmonyInfo => AccessTools.MakeDeepCopy<HarmonyExMethod>(harmonyInfo))
 				.ToList();
-			var info = HarmonyMethod.Merge(list);
+			var info = HarmonyExMethod.Merge(list);
 			info.method = patch;
 
 			return new AttributePatch() { info = info, type = type };
 		}
 
-		static HarmonyPatchType? GetPatchType(string methodName, object[] allAttributes)
+		static HarmonyExPatchType? GetPatchType(string methodName, object[] allAttributes)
 		{
 			var harmonyAttributes = new HashSet<string>(allAttributes
 				.Select(attr => attr.GetType().FullName)
-				.Where(name => name.StartsWith("Harmony")));
+				.Where(name => name.StartsWith("HarmonyEx")));
 
-			HarmonyPatchType? type = null;
+			HarmonyExPatchType? type = null;
 			foreach (var patchType in allPatchTypes)
 			{
 				var name = patchType.ToString();
-				if (name == methodName || harmonyAttributes.Contains($"HarmonyEx.Harmony{name}"))
+				if (name == methodName || harmonyAttributes.Contains($"HarmonyExLib.HarmonyEx{name}"))
 				{
 					type = patchType;
 					break;

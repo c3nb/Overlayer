@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A reverse patcher</summary>
 	/// 
 	public class ReversePatcher
 	{
-		readonly Harmony instance;
+		readonly HarmonyEx instance;
 		readonly MethodBase original;
-		readonly HarmonyMethod standin;
+		readonly HarmonyExMethod standin;
 
 		/// <summary>Creates a reverse patcher</summary>
-		/// <param name="instance">The Harmony instance</param>
+		/// <param name="instance">The HarmonyEx instance</param>
 		/// <param name="original">The original method/constructor</param>
-		/// <param name="standin">Your stand-in stub method as <see cref="HarmonyMethod"/></param>
+		/// <param name="standin">Your stand-in stub method as <see cref="HarmonyExMethod"/></param>
 		///
-		public ReversePatcher(Harmony instance, MethodBase original, HarmonyMethod standin)
+		public ReversePatcher(HarmonyEx instance, MethodBase original, HarmonyExMethod standin)
 		{
 			this.instance = instance;
 			this.original = original;
@@ -26,10 +26,10 @@ namespace HarmonyEx
 		}
 
 		/// <summary>Applies the patch</summary>
-		/// <param name="type">The type of patch, see <see cref="HarmonyReversePatchType"/></param>
+		/// <param name="type">The type of patch, see <see cref="HarmonyExReversePatchType"/></param>
 		/// <returns>The generated replacement method</returns>
 		///
-		public MethodInfo Patch(HarmonyReversePatchType type = HarmonyReversePatchType.Original)
+		public MethodInfo Patch(HarmonyExReversePatchType type = HarmonyExReversePatchType.Original)
 		{
 			if (original is null)
 				throw new NullReferenceException($"Null method for {instance.Id}");

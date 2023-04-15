@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace HarmonyEx
+namespace HarmonyExLib
 {
 	/// <summary>A file log for debugging</summary>
 	///
@@ -15,7 +15,7 @@ namespace HarmonyEx
 		private static bool _logPathInited;
 		private static string _logPath;
 
-		/// <summary>Set this to make Harmony write its log content to this stream</summary>
+		/// <summary>Set this to make HarmonyEx write its log content to this stream</summary>
 		///
 		public static StreamWriter LogWriter { get; set; }
 
@@ -172,12 +172,12 @@ namespace HarmonyEx
 			}
 		}
 
-		/// <summary>Log a string directly to disk if Harmony.DEBUG is true. Slower method that prevents missing information in case of a crash</summary>
+		/// <summary>Log a string directly to disk if HarmonyEx.DEBUG is true. Slower method that prevents missing information in case of a crash</summary>
 		/// <param name="str">The string to log.</param>
 		///
 		public static void Debug(string str)
 		{
-			if (Harmony.DEBUG) Log(str);
+			if (HarmonyEx.DEBUG) Log(str);
 		}
 
 		/// <summary>Resets and deletes the log</summary>
