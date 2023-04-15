@@ -31,7 +31,7 @@ namespace Overlayer.Tags
         public static int FailCount = 0;
         [FieldTag("StartProgress", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.StartProgUpdater:Prefix")]
         public static double StartProg = 0;
-        [FieldTag("BestProgress", Round = true, RelatedPatches = "Overlayer.Patches.AttemptsCounter:FAPostfix|Overlayer.Patches.TimingUpdater:Prefix")]
+        [FieldTag("BestProgress", Round = true, RelatedPatches = "Overlayer.Patches.AttemptsCounter:FAPostfix|Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double BestProg = 0;
         [FieldTag("CurTile", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
         public static int CurrentTile;

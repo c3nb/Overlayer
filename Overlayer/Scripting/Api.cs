@@ -1,4 +1,4 @@
-﻿using HarmonyExLib;
+﻿using HarmonyLib;
 using JSEngine.Library;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace Overlayer.Scripting
                     yield return method;
             }
         }
-        public static HarmonyEx harmony = new HarmonyEx("Overlayer.Scripting.Api");
+        public static Harmony harmony = new Harmony("Overlayer.Scripting.Api");
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();
         [Api("Log Object")]
         public static void Log(object obj) => Main.Logger.Log(OverlayerDebug.Log(obj).ToString());
@@ -35,7 +35,7 @@ namespace Overlayer.Scripting
             var wrap = func.Wrap(target, true);
             if (wrap == null)
                 return false;
-            harmony.Patch(target, new HarmonyExMethod(wrap));
+            harmony.Patch(target, new HarmonyMethod(wrap));
             return true;
         }
         [Api("Postfix Method", SupportScript = ScriptType.JavaScript)]
@@ -45,7 +45,7 @@ namespace Overlayer.Scripting
             var wrap = func.Wrap(target, false);
             if (wrap == null)
                 return false;
-            harmony.Patch(target, postfix: new HarmonyExMethod(wrap));
+            harmony.Patch(target, postfix: new HarmonyMethod(wrap));
             return true;
         }
         [Api("Get Global Variable")]
@@ -103,7 +103,7 @@ namespace Overlayer.Scripting
         [Api("Resolve CLR Type", SupportScript = ScriptType.JavaScript, Flags = (int)JSFunctionFlags.HasEngineParameter)]
         public static ObjectInstance Resolve(ScriptEngine engine, string clrType)
         {
-            return ClrStaticTypeWrapper.FromCache(engine, AccessTools.TypeByName(clrType));
+            return ClrStaticTypeWrapper.FromCache(engine, Utility.TypeByName(clrType));
         }
         static readonly FieldInfo py_func_codeCtx = typeof(PythonFunction).GetField("_context", AccessTools.all);
     }

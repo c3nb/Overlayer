@@ -24,7 +24,6 @@ namespace Overlayer.Core.Tags
         internal int ReferencedCount = 0;
         // For CustomTag
         public string SourcePath = null;
-        public bool Dead = false;
         public Tag(string name, TagConfig config = null)
         {
             Name = name;

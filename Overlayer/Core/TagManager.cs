@@ -1,6 +1,6 @@
 ﻿using AdofaiMapConverter;
 using BLINDED_AM_ME;
-using HarmonyExLib;
+using HarmonyLib;
 using Mono.Cecil;
 using Overlayer.Core.Tags;
 using System;
@@ -29,12 +29,8 @@ namespace Overlayer.Core
                 foreach (var (patch, tags) in Patches)
                 {
                     if (tags.All(t => !t.Referenced))
-                        patch.Unpatch(Main.HarmonyEx);
-                    else
-                    {
-                        var dead = !patch.Patch(Main.HarmonyEx);
-                        tags.ForEach(t => t.Dead = dead);
-                    }
+                        patch.Unpatch(Main.Harmony);
+                    else patch.Patch(Main.Harmony);
                 }
             }
         }
@@ -148,14 +144,11 @@ namespace Overlayer.Core
             foreach (string patch in patches)
             {
                 PatchInfo pInfo;
-                var type = AccessTools.TypeByName(patch);
-                if (type != null)
+                string[] split = patch.Split2(':');
+                var type = Utility.TypeByName(split[0]);
+                if (split.Length < 2)
                     pInfo = new PatchInfo(type);
-                else
-                {
-                    string[] split = patch.Split2(':');
-                    pInfo = new PatchInfo(AccessTools.TypeByName(split[0]).GetMethod(split[1], AccessTools.all));
-                }
+                else pInfo = new PatchInfo(type.GetMethod(split[1], AccessTools.all));
                 pInfos.Add(pInfo);
             }
             return pInfos;

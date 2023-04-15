@@ -1,10 +1,10 @@
 ﻿using ADOFAI;
-using HarmonyExLib;
+using HarmonyLib;
 using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
-    [HarmonyExPatch(typeof(LevelData), "LoadLevel")]
+    [HarmonyPatch(typeof(LevelData), "LoadLevel")]
     public static class DataInit
     {
         public static void Postfix(LevelData __instance)

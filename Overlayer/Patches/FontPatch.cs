@@ -1,4 +1,4 @@
-﻿using HarmonyExLib;
+﻿using HarmonyLib;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine;
@@ -9,7 +9,7 @@ namespace Overlayer.Patches
 {
     public static class FontPatch
     {
-        [HarmonyExPatch(typeof(RDString), "GetFontDataForLanguage")]
+        [HarmonyPatch(typeof(RDString), "GetFontDataForLanguage")]
         public static class ChangeFontPatch
         {
             public static bool Prefix(ref FontData __result)
@@ -26,7 +26,7 @@ namespace Overlayer.Patches
                 return false;
             }
         }
-        [HarmonyExPatch(typeof(scrController), "Update")]
+        [HarmonyPatch(typeof(scrController), "Update")]
         public static class FontAttacher
         {
             public static void Postfix(scrController __instance)

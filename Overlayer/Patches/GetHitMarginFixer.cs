@@ -1,11 +1,11 @@
-﻿using HarmonyExLib;
+﻿using HarmonyLib;
 using System;
 using UnityEngine;
 using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
-    [HarmonyExPatch(typeof(scrMisc), "GetHitMargin")]
+    [HarmonyPatch(typeof(scrMisc), "GetHitMargin")]
     public static class GetHitMarginFixer
     {
         public static bool Prefix(float hitangle, float refangle, bool isCW, float bpmTimesSpeed, float conductorPitch, double marginScale, ref HitMargin __result)
@@ -15,8 +15,8 @@ namespace Overlayer.Patches
             {
                 if (controller.currFloor.freeroam)
                     return true;
-                if (!controller.noFail)
-                    Variables.BestProg = Math.Max(Variables.BestProg, scrController.instance.percentComplete * 100);
+                if (controller.gameworld && !controller.noFail)
+                    Variables.BestProg = Math.Max(Variables.BestProg, controller.percentComplete * 100);
             }
             Variables.Lenient = GetHitMargin(Difficulty.Lenient, hitangle, refangle, isCW, bpmTimesSpeed, conductorPitch, marginScale);
             Variables.Normal = GetHitMargin(Difficulty.Normal, hitangle, refangle, isCW, bpmTimesSpeed, conductorPitch, marginScale);

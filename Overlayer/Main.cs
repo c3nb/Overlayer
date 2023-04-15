@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using HarmonyExLib;
+using HarmonyLib;
 using static UnityModManagerNet.UnityModManager.ModEntry;
 using static UnityModManagerNet.UnityModManager;
 using System.IO;
@@ -25,7 +25,7 @@ namespace Overlayer
         public static bool HasScripts { get; private set; }
         public static ModEntry Mod { get; private set; }
         public static ModLogger Logger { get; private set; }
-        public static HarmonyEx HarmonyEx { get; private set; }
+        public static Harmony Harmony { get; private set; }
         public static string ScriptPath => Path.Combine(Mod.Path, "Scripts");
         public static Language Language { get; private set; }
         public static Settings Settings { get; private set; }
@@ -61,8 +61,8 @@ namespace Overlayer
                 Settings.Load();
                 UpdateLanguage();
                 Assembly ass = Assembly.GetExecutingAssembly();
-                HarmonyEx = new HarmonyEx(modEntry.Info.Id);
-                HarmonyEx.PatchAll(ass);
+                Harmony = new Harmony(modEntry.Info.Id);
+                Harmony.PatchAll(ass);
                 Performance.Init();
                 try
                 {
@@ -81,8 +81,8 @@ namespace Overlayer
                 ExceptionCatcher.Drop();
                 OverlayerDebug.Term();
                 SceneManager.activeSceneChanged -= SceneChanged;
-                HarmonyEx.UnpatchAll(HarmonyEx.Id);
-                HarmonyEx = null;
+                Harmony.UnpatchAll(Harmony.Id);
+                Harmony = null;
                 TextManager.Save();
                 TextManager.Release();
                 TagManager.Release();
@@ -222,7 +222,7 @@ namespace Overlayer
                 }
                 if (!HasScripts)
                 {
-                    HarmonyEx.PatchAll(Assembly.GetExecutingAssembly());
+                    Harmony.PatchAll(Assembly.GetExecutingAssembly());
                     HasScripts = true;
                 }
             }

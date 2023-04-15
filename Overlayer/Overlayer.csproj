@@ -37,6 +37,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\UnityModManager\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -566,50 +570,6 @@
     <Compile Include="Core\Tags\TagConfig.cs" />
     <Compile Include="Core\TextManager.cs" />
     <Compile Include="FastDateTime.cs" />
-    <Compile Include="Lib\Harmony\Extras\DelegateTypeFactory.cs" />
-    <Compile Include="Lib\Harmony\Extras\FastAccess.cs" />
-    <Compile Include="Lib\Harmony\Extras\MethodInvoker.cs" />
-    <Compile Include="Lib\Harmony\GlobalSuppressions.cs" />
-    <Compile Include="Lib\Harmony\Internal\AccessCache.cs" />
-    <Compile Include="Lib\Harmony\Internal\ByteBuffer.cs" />
-    <Compile Include="Lib\Harmony\Internal\CodeTranspiler.cs" />
-    <Compile Include="Lib\Harmony\Internal\Emitter.cs" />
-    <Compile Include="Lib\Harmony\Internal\HarmonySharedState.cs" />
-    <Compile Include="Lib\Harmony\Internal\ILInstruction.cs" />
-    <Compile Include="Lib\Harmony\Internal\InlineSignatureParser.cs" />
-    <Compile Include="Lib\Harmony\Internal\Memory.cs" />
-    <Compile Include="Lib\Harmony\Internal\MethodCopier.cs" />
-    <Compile Include="Lib\Harmony\Internal\MethodPatcher.cs" />
-    <Compile Include="Lib\Harmony\Internal\PatchArgumentExtensions.cs" />
-    <Compile Include="Lib\Harmony\Internal\PatchFunctions.cs" />
-    <Compile Include="Lib\Harmony\Internal\PatchModels.cs" />
-    <Compile Include="Lib\Harmony\Internal\PatchSorter.cs" />
-    <Compile Include="Lib\Harmony\Internal\PatchTools.cs" />
-    <Compile Include="Lib\Harmony\Internal\StructReturnBufferCheck.cs" />
-    <Compile Include="Lib\Harmony\Public\Attributes.cs" />
-    <Compile Include="Lib\Harmony\Public\CodeInstruction.cs" />
-    <Compile Include="Lib\Harmony\Public\ExceptionBlock.cs" />
-    <Compile Include="Lib\Harmony\Public\Harmony.cs" />
-    <Compile Include="Lib\Harmony\Public\HarmonyException.cs" />
-    <Compile Include="Lib\Harmony\Public\HarmonyMethod.cs" />
-    <Compile Include="Lib\Harmony\Public\InlineSignature.cs" />
-    <Compile Include="Lib\Harmony\Public\Patch.cs" />
-    <Compile Include="Lib\Harmony\Public\PatchClassProcessor.cs" />
-    <Compile Include="Lib\Harmony\Public\Patches.cs" />
-    <Compile Include="Lib\Harmony\Public\PatchJsonConverter.cs" />
-    <Compile Include="Lib\Harmony\Public\PatchProcessor.cs" />
-    <Compile Include="Lib\Harmony\Public\Priority.cs" />
-    <Compile Include="Lib\Harmony\Public\ReversePatcher.cs" />
-    <Compile Include="Lib\Harmony\Public\Transpilers.cs" />
-    <Compile Include="Lib\Harmony\Tools\AccessTools.cs" />
-    <Compile Include="Lib\Harmony\Tools\Code.cs" />
-    <Compile Include="Lib\Harmony\Tools\CodeMatch.cs" />
-    <Compile Include="Lib\Harmony\Tools\CodeMatcher.cs" />
-    <Compile Include="Lib\Harmony\Tools\Extensions.cs" />
-    <Compile Include="Lib\Harmony\Tools\FileLog.cs" />
-    <Compile Include="Lib\Harmony\Tools\SymbolExtensions.cs" />
-    <Compile Include="Lib\Harmony\Tools\Tools.cs" />
-    <Compile Include="Lib\Harmony\Tools\Traverse.cs" />
     <Compile Include="Lib\JSEngine\Compiler\Binders\Binder.cs" />
     <Compile Include="Lib\JSEngine\Compiler\Binders\BinderMethod.cs" />
     <Compile Include="Lib\JSEngine\Compiler\Binders\BinderUtilities.cs" />
@@ -851,7 +811,6 @@
     <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetConstructor.g.cs" />
     <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetInstance.cs" />
     <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetInstance.g.cs" />
-    <Compile Include="Lib\Mono.cs" />
     <Compile Include="Lib\NeoLua\Exceptions.cs" />
     <Compile Include="Lib\NeoLua\Extern\printf.cs" />
     <Compile Include="Lib\NeoLua\Lua.Binder.cs" />
@@ -1289,6 +1248,7 @@
     <Compile Include="Patches\AttemptsCounter.cs" />
     <Compile Include="Patches\BpmUpdater.cs" />
     <Compile Include="Patches\DataInit.cs" />
+    <Compile Include="Patches\DistinctHarmonyPatches.cs" />
     <Compile Include="Patches\FontPatch.cs" />
     <Compile Include="Patches\GetHitMarginFixer.cs" />
     <Compile Include="Patches\MultipressDetectPatch.cs" />

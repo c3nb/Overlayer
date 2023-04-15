@@ -5,9 +5,8 @@ using JSEngine.Compiler;
 using JSEngine.Library;
 using System.Linq;
 using System.Reflection;
-using HarmonyExLib;
 using System.Collections.Generic;
-using Overlayer;
+using Overlayer.Core;
 
 namespace JSEngine
 {
@@ -106,7 +105,7 @@ namespace JSEngine
                     var firstLine = reader.ReadLine();
                     if (firstLine == null) return;
                     if (firstLine.EndsWith(" Proxy"))
-                        ProxyType = AccessTools.TypeByName(firstLine.Split(' ')[1]);
+                        ProxyType = Utility.TypeByName(firstLine.Split(' ')[1]);
                 }
             }
             public override string Path { get; }

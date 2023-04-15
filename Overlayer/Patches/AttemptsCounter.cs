@@ -1,4 +1,4 @@
-﻿using HarmonyExLib;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using Overlayer.Core.Tags;
@@ -6,12 +6,12 @@ using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
-    [HarmonyExPatch]
+    [HarmonyPatch]
     public static class AttemptsCounter
     {
         public static Dictionary<string, int> Attempts = new Dictionary<string, int>();
-        [HarmonyExPatch(typeof(CustomLevel), "FinishCustomLevelLoading")]
-        [HarmonyExPostfix]
+        [HarmonyPatch(typeof(CustomLevel), "FinishCustomLevelLoading")]
+        [HarmonyPostfix]
         public static void FCLLPostfix()
         {
             if (!GCS.useNoFail)
@@ -25,14 +25,14 @@ namespace Overlayer.Patches
                 Persistence.IncrementCustomWorldAttempts(PlaytimeCounter.MapID);
             }
         }
-        [HarmonyExPatch(typeof(scrController), "Start")]
+        [HarmonyPatch(typeof(scrController), "Start")]
         public static void Postfix(scrController __instance)
         {
             if (ADOBase.sceneName.Contains("-") && !__instance.noFail)
                 Variables.AttemptsCount = Persistence.GetWorldAttempts(scrController.currentWorld);
         }
-        [HarmonyExPatch(typeof(scrController), "FailAction")]
-        [HarmonyExPostfix]
+        [HarmonyPatch(typeof(scrController), "FailAction")]
+        [HarmonyPostfix]
         public static void FAPostfix(scrController __instance)
         {
             Variables.FailCount++;

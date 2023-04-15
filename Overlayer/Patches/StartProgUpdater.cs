@@ -1,4 +1,4 @@
-﻿using HarmonyExLib;
+﻿using HarmonyLib;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -8,7 +8,7 @@ using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
-    [HarmonyExPatch(typeof(scrCountdown), "Update")]
+    [HarmonyPatch(typeof(scrCountdown), "Update")]
     public static class StartProgUpdater
     {
         public class POFGetter<T>

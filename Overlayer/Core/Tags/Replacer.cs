@@ -117,7 +117,6 @@ namespace Overlayer.Core.Tags
             if (!t.Any()) return null;
             foreach (Tag tag in t)
             {
-                if (tag.Dead) continue;
                 int closeIndex = str.IndexOf(tag.Config.Close, index);
                 if (closeIndex < 0) continue;
                 string subStr = str.Substring(index + 1, closeIndex - index - 1);

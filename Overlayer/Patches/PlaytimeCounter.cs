@@ -1,4 +1,4 @@
-﻿using HarmonyExLib;
+﻿using HarmonyLib;
 using Overlayer.Core;
 using Overlayer.Core.Tags;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Overlayer.Patches
 {
-    [HarmonyExPatch]
+    [HarmonyPatch]
     public static class PlaytimeCounter
     {
         public static double PlayTime = 0;
@@ -35,8 +35,8 @@ namespace Overlayer.Patches
         public static Dictionary<string, float> PlayTimes = new Dictionary<string, float>();
         public static string MapID = string.Empty;
         public static string ID(string id) => id + "_PlayTime";
-        [HarmonyExPatch(typeof(scrController), "Update")]
-        [HarmonyExPostfix]
+        [HarmonyPatch(typeof(scrController), "Update")]
+        [HarmonyPostfix]
         public static void UpdatePostfix(scrController __instance)
         {
             if (__instance.gameworld && __instance.state == States.PlayerControl)
@@ -44,7 +44,7 @@ namespace Overlayer.Patches
                     PlayTime = PlayTimes[ID(MapID)] += Time.deltaTime;
                 else PlayTime = 0;
         }
-        [HarmonyExPatch]
+        [HarmonyPatch]
         public static class SetIDPatch
         {
             public static IEnumerable<MethodBase> TargetMethods()

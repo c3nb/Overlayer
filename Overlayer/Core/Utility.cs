@@ -8,7 +8,7 @@ using UnityEngine;
 using Random = System.Random;
 using System.Reflection.Emit;
 using System.Reflection;
-using HarmonyExLib;
+using HarmonyLib;
 using System.Runtime.InteropServices;
 using static UnityModManagerNet.UnityModManager.UI;
 using TMPro;
@@ -442,10 +442,10 @@ namespace Overlayer.Core
             t.GetField("function").SetValue(null, del);
             return t.GetMethod("Wrapper");
         }
-        public static MethodInfo Prefix<T>(this HarmonyEx harmony, MethodBase target, T del) where T : Delegate
-            => harmony.Patch(target, new HarmonyExMethod(Wrap(del)));
-        public static MethodInfo Postfix<T>(this HarmonyEx harmony, MethodBase target, T del) where T : Delegate
-            => harmony.Patch(target, postfix: new HarmonyExMethod(Wrap(del)));
+        public static MethodInfo Prefix<T>(this Harmony harmony, MethodBase target, T del) where T : Delegate
+            => harmony.Patch(target, new HarmonyMethod(Wrap(del)));
+        public static MethodInfo Postfix<T>(this Harmony harmony, MethodBase target, T del) where T : Delegate
+            => harmony.Patch(target, postfix: new HarmonyMethod(Wrap(del)));
         static readonly HashSet<string> accessIgnored = new HashSet<string>();
         internal static void IgnoreAccessCheck(Type type)
         {
@@ -551,6 +551,18 @@ namespace Overlayer.Core
         }
         #endregion
         #region Misc
+        static Assembly[] loadedAsss;
+        static Type[] loadedTypes;
+        public static Type TypeByName(string typeName)
+        {
+            if (loadedAsss == null)
+                loadedAsss = AppDomain.CurrentDomain.GetAssemblies();
+            if (loadedTypes == null)
+                loadedTypes = loadedAsss.SelectMany(ass => ass.GetTypes()).ToArray();
+            return Type.GetType(typeName, false) ??
+                loadedTypes.FirstOrDefault(t => t.FullName == typeName) ?? 
+                loadedTypes.FirstOrDefault(t => t.Name == typeName);
+        }
         public static void ExecuteSafe(Action exec, out Exception ex)
         {
             ex = null;
@@ -629,5 +641,17 @@ namespace Overlayer.Core
         public static readonly Type Base = typeof(T);
         public static int Size => sizeGetter();
         public static IntPtr GetAddress(ref T obj) => addrGetter(ref obj);
+    }
+}
+namespace System.Runtime.CompilerServices
+{
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public sealed class IgnoresAccessChecksToAttribute : Attribute
+    {
+        public IgnoresAccessChecksToAttribute(string assemblyName)
+        {
+            AssemblyName = assemblyName;
+        }
+        public string AssemblyName { get; }
     }
 }
