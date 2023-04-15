@@ -103,5 +103,6 @@
         public static readonly string Apply = nameof(Apply);
 
         public static readonly string AllowCollectingLevel = nameof(AllowCollectingLevel);
+        public static readonly string DebugMode = nameof(DebugMode);
     }
 }

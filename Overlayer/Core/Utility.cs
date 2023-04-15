@@ -8,7 +8,7 @@ using UnityEngine;
 using Random = System.Random;
 using System.Reflection.Emit;
 using System.Reflection;
-using HarmonyLib;
+using HarmonyEx;
 using System.Runtime.InteropServices;
 using static UnityModManagerNet.UnityModManager.UI;
 using TMPro;
@@ -477,6 +477,52 @@ namespace Overlayer.Core
             il.Emit(OpCodes.Stloc, array);
             return array;
         }
+        public static void Convert(this ILGenerator il, Type to)
+        {
+            switch (Type.GetTypeCode(to))
+            {
+                case TypeCode.Object: 
+                    il.Emit(OpCodes.Box);
+                    break;
+                case TypeCode.Char:
+                case TypeCode.Int16:
+                    il.Emit(OpCodes.Conv_I2);
+                    break;
+                case TypeCode.SByte:
+                    il.Emit(OpCodes.Conv_I1);
+                    break;
+                case TypeCode.Byte:
+                    il.Emit(OpCodes.Conv_U1);
+                    break;
+                case TypeCode.UInt16:
+                    il.Emit(OpCodes.Conv_U2);
+                    break;
+                case TypeCode.Boolean:
+                case TypeCode.Int32:
+                    il.Emit(OpCodes.Conv_I4);
+                    break;
+                case TypeCode.UInt32:
+                    il.Emit(OpCodes.Conv_U4);
+                    break;
+                case TypeCode.Int64:
+                    il.Emit(OpCodes.Conv_I8);
+                    break;
+                case TypeCode.UInt64:
+                    il.Emit(OpCodes.Conv_U8);
+                    break;
+                case TypeCode.Single:
+                    il.Emit(OpCodes.Conv_R4);
+                    break;
+                case TypeCode.Double:
+                    il.Emit(OpCodes.Conv_R8);
+                    break;
+                case TypeCode.String:
+                    il.Emit(OpCodes.Call, typeof(Convert).GetMethod("ToString", new[] { to }));
+                    break;
+                default:
+                    break;
+            }
+        }
         #endregion
         #region Misc
         public static void ExecuteSafe(Action exec, out Exception ex)
@@ -544,17 +590,5 @@ namespace Overlayer.Core
         public static readonly Type Base = typeof(T);
         public static int Size => sizeGetter();
         public static IntPtr GetAddress(ref T obj) => addrGetter(ref obj);
-    }
-}
-namespace System.Runtime.CompilerServices
-{
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public sealed class IgnoresAccessChecksToAttribute : Attribute
-    {
-        public IgnoresAccessChecksToAttribute(string assemblyName)
-        {
-            AssemblyName = assemblyName;
-        }
-        public string AssemblyName { get; }
     }
 }

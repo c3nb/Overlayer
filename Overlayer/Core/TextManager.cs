@@ -54,7 +54,9 @@ namespace Overlayer.Core
         }
         public static void Refresh()
         {
+            OverlayerDebug.Log($"Refreshing All Texts..");
             Texts.ForEach(t => t.Apply());
+            OverlayerDebug.Log($"Ordering All Texts By Name..");
             Texts = Texts.OrderBy(x => x.config.Name).ToList();
         }
         public static void GUI()

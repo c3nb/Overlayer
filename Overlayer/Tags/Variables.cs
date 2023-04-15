@@ -22,6 +22,15 @@ namespace Overlayer.Tags
         public static int StrictScore;
         [FieldTag("Score", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static int CurrentScore;
+        [FieldTag("Timing", Round = true,
+            RelatedPatches = "Overlayer.Patches.TimingUpdater:Prefix")]
+        public static double Timing = 0;
+        [FieldTag("Attempts", RelatedPatches = "Overlayer.Patches.AttemptsCounter:FCLLPostfix|Overlayer.Patches.AttemptsCounter:Postfix|Overlayer.Patches.DataInit:Postfix")]
+        public static int AttemptsCount = 0;
+        [FieldTag("FailCount", RelatedPatches = "Overlayer.Patches.AttemptsCounter:FAPostfix")]
+        public static int FailCount = 0;
+        [FieldTag("BestProgress", Round = true, RelatedPatches = "Overlayer.Patches.AttemptsCounter:FAPostfix")]
+        public static double BestProg = 0;
         public static void Reset()
         {
             foreach (HitMargin h in HitMargins)

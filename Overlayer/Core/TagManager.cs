@@ -1,13 +1,15 @@
 ﻿using AdofaiMapConverter;
 using BLINDED_AM_ME;
-using HarmonyLib;
+using HarmonyEx;
 using Mono.Cecil;
 using Overlayer.Core.Tags;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using PatchInfo = Overlayer.Core.PatchInfo;
 
 namespace Overlayer.Core
 {
@@ -16,6 +18,7 @@ namespace Overlayer.Core
         static Dictionary<string, Tag> AllTags = new Dictionary<string, Tag>();
         static Dictionary<string, Tag> NotPlayingTags = new Dictionary<string, Tag>();
         static Dictionary<string, Tag> ReferencedTags = new Dictionary<string, Tag>();
+        static Dictionary<PatchInfo, List<Tag>> Patches = new Dictionary<PatchInfo, List<Tag>>(PatchInfo.Comparer);
         public static Tag GetTag(string name) => AllTags.TryGetValue(name, out var tag) ? tag : null;
         public static Tag GetReferencedTag(string name) => ReferencedTags.TryGetValue(name, out var tag) ? tag : null;
         public static bool IsReferenced(string name) => ReferencedTags.ContainsKey(name);
@@ -24,12 +27,12 @@ namespace Overlayer.Core
             ReferencedTags = AllTags.Values.Where(t => t.Referenced).ToDictionary(t => t.Name, t => t);
             if (!Main.HasScripts)
             {
-                var relatedPatches = ReferencedTags.Values.SelectMany(t => t.RelatedPatches).Distinct(PatchInfo.Comparer.Instance);
-                relatedPatches.ForEach(p => p.Patch(Main.Harmony));
-                AllTags.Values.SelectMany(t => t.RelatedPatches)
-                    .Where(p => !relatedPatches.Contains(p, PatchInfo.Comparer.Instance))
-                    .Distinct(PatchInfo.Comparer.Instance)
-                    .ForEach(p => p.Unpatch(Main.Harmony));
+                foreach (var (patch, tags) in Patches)
+                {
+                    if (tags.All(t => !t.Referenced))
+                        patch.Unpatch(Main.Harmony);
+                    else patch.Patch(Main.Harmony);
+                }
             }
         }
         public static void AddTag(Tag tag, bool notPlaying)
@@ -52,6 +55,7 @@ namespace Overlayer.Core
             AllTags ??= new Dictionary<string, Tag>();
             NotPlayingTags??= new Dictionary<string, Tag>();
             ReferencedTags ??= new Dictionary<string, Tag>();
+            Patches ??= new Dictionary<PatchInfo, List<Tag>>(PatchInfo.Comparer);
         }
         public static void Load(Assembly assembly, TagConfig config = null)
         {
@@ -66,6 +70,7 @@ namespace Overlayer.Core
             var fields = type.GetFields(AccessTools.all);
             if (cTag != null)
             {
+                OverlayerDebug.Log($"Loading ClassTag {cTag.Name}..");
                 var def = methods.FirstOrDefault(m => m.GetCustomAttribute<TagAttribute>()?.IsDefault ?? false);
                 if (def == null) throw new InvalidOperationException("Default Tag Method Not Found.");
                 Tag tag = new Tag(cTag.Name, config);
@@ -76,140 +81,114 @@ namespace Overlayer.Core
                 if (cTag.NotPlaying)
                     NotPlayingTags.Add(cTag.Name, tag);
                 if (cTag.RelatedPatches != null)
-                    tag.RelatedPatches = ParsePatchNames(cTag.RelatedPatches);
+                    AddPatches(tag, cTag.RelatedPatches);
             }
             foreach (MethodInfo method in methods)
             {
                 TagAttribute tagAttr = method.GetCustomAttribute<TagAttribute>();
                 if (tagAttr == null) continue;
+                OverlayerDebug.Log($"Loading Tag {tagAttr.Name}..");
                 Tag tag = new Tag(tagAttr.Name, config);
                 tag.SetGetter(method).Build();
                 AllTags.Add(tagAttr.Name, tag);
                 if (tagAttr.NotPlaying)
                     NotPlayingTags.Add(tagAttr.Name, tag);
                 if (tagAttr.RelatedPatches != null)
-                    tag.RelatedPatches = ParsePatchNames(tagAttr.RelatedPatches);
+                    AddPatches(tag, tagAttr.RelatedPatches);
             }
             foreach (FieldInfo field in fields)
             {
                 FieldTagAttribute tagAttr = field.GetCustomAttribute<FieldTagAttribute>();
                 if (tagAttr == null) continue;
+                OverlayerDebug.Log($"Loading FieldTag {tagAttr.Name}..");
                 Tag tag = new Tag(tagAttr.Name, config);
-                var func = GenerateFieldTagWrapper(tagAttr, field);
+                Delegate func;
+                if (tagAttr.Processor == null)
+                    func = GenerateFieldTagWrapper(tagAttr, field, out _);
+                else
+                {
+                    MethodInfo processor = AccessTools.Method(tagAttr.Processor);
+                    func = GenerateFieldTagProcessingWrapper(tagAttr, field, processor, out _);
+                }
                 tag.SetGetter(func);
                 tag.Build();
                 AllTags.Add(tagAttr.Name, tag);
                 if (tagAttr.NotPlaying)
                     NotPlayingTags.Add(tagAttr.Name, tag);
                 if (tagAttr.RelatedPatches != null)
-                    tag.RelatedPatches = ParsePatchNames(tagAttr.RelatedPatches);
+                    AddPatches(tag, tagAttr.RelatedPatches);
             }
         }
         public static void Release()
         {
             AllTags.Values.ForEach(t => t.Dispose());
             AllTags = NotPlayingTags = ReferencedTags = null;
+            Patches = null;
+        }
+        static void AddPatches(Tag tag, string patchNames)
+        {
+            foreach (var info in ParsePatchNames(patchNames))
+            {
+                OverlayerDebug.Log($"Adding Patch {info}..");
+                if (Patches.TryGetValue(info, out var tags))
+                    tags.Add(tag);
+                else Patches.Add(info, new List<Tag> { tag });
+            }
         }
         static List<PatchInfo> ParsePatchNames(string patchNames)
         {
+            OverlayerDebug.Log($"Parsing Patch Names..");
             string[] patches = patchNames.Split('|');
-            return patches.Select(patch => new PatchInfo(AccessTools.Method(patch))).ToList();
+            List<PatchInfo> pInfos = new List<PatchInfo>();
+            foreach (string patch in patches)
+            {
+                PatchInfo pInfo;
+                var method = AccessTools.Method(patch);
+                if (method != null)
+                    pInfo = new PatchInfo(method);
+                else pInfo = new PatchInfo(AccessTools.TypeByName(patch));
+                OverlayerDebug.Log($"Parsed Patch {pInfo}");
+                pInfos.Add(pInfo);
+            }
+            return pInfos;
         }
-        static Delegate GenerateFieldTagWrapper(FieldTagAttribute fTag, FieldInfo field)
+        static Delegate GenerateFieldTagWrapper(FieldTagAttribute fTag, FieldInfo field, out DynamicMethod dm)
         {
-            DynamicMethod dm;
             ILGenerator il;
             if (fTag.Round)
             {
-                dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", typeof(string), new[] { typeof(int) });
+                dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", field.FieldType, new[] { typeof(int) });
                 il = dm.GetILGenerator();
                 il.Emit(OpCodes.Ldsfld, field);
+                if (field.FieldType != typeof(double))
+                    il.Emit(OpCodes.Conv_R8);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Call, round);
-                il.Emit(OpCodes.Call, StringConverter.GetFromConverter(field.FieldType));
+                if (field.FieldType != typeof(double))
+                    il.Convert(field.FieldType);
                 il.Emit(OpCodes.Ret);
-                return (Func<int, string>)dm.CreateDelegate(typeof(Func<int, string>));
+                return dm.CreateDelegate(Expression.GetFuncType(new[] { typeof(int), field.FieldType }));
             }
             dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper", typeof(string), Type.EmptyTypes);
             il = dm.GetILGenerator();
             il.Emit(OpCodes.Ldsfld, field);
-            if (field.FieldType != typeof(string))
-                il.Emit(OpCodes.Call, StringConverter.GetFromConverter(field.FieldType));
             il.Emit(OpCodes.Ret);
-            return (Func<string>)dm.CreateDelegate(typeof(Func<string>));
+            return dm.CreateDelegate(Expression.GetFuncType(field.FieldType));
+        }
+        static Delegate GenerateFieldTagProcessingWrapper(FieldTagAttribute fTag, FieldInfo field, MethodInfo processor, out DynamicMethod dm)
+        {
+            dm = null;
+            ILGenerator il;
+            var prms = processor.GetParameters();
+            if (prms[0].ParameterType != field.FieldType) return null;
+            dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Processor", processor.ReturnType, new[] { prms[1].ParameterType });
+            il = dm.GetILGenerator();
+            il.Emit(OpCodes.Ldsfld, field);
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Call, processor);
+            il.Emit(OpCodes.Ret);
+            return dm.CreateDelegate(Expression.GetFuncType(new[] { prms[1].ParameterType, processor.ReturnType }));
         }
         static readonly MethodInfo round = typeof(Math).GetMethod("Round", new[] { typeof(double), typeof(int) });
-    }
-    public class PatchInfo
-    {
-        public PatchInfo(MethodInfo replacement)
-        {
-            Replacement = replacement;
-            PatchType = DeterminePatchType(replacement);
-            Original = GetOriginal(replacement);
-        }
-        public HarmonyPatchType PatchType;
-        public MethodInfo Replacement;
-        public MethodBase Original;
-        public void Patch(Harmony harmony)
-        {
-            harmony.Unpatch(Original, Replacement);
-            switch (PatchType)
-            {
-                case HarmonyPatchType.Prefix:
-                    harmony.Patch(Original, prefix: new HarmonyMethod(Replacement));
-                    break;
-                case HarmonyPatchType.Postfix:
-                    harmony.Patch(Original, postfix: new HarmonyMethod(Replacement));
-                    break;
-                case HarmonyPatchType.Transpiler:
-                    harmony.Patch(Original, transpiler: new HarmonyMethod(Replacement));
-                    break;
-                case HarmonyPatchType.Finalizer:
-                    harmony.Patch(Original, finalizer: new HarmonyMethod(Replacement));
-                    break;
-                default: break;
-            }
-        }
-        public void Unpatch(Harmony harmony)
-        {
-            harmony.Unpatch(Original, Replacement);
-        }
-        static HarmonyPatchType DeterminePatchType(MethodInfo m)
-        {
-            bool isPrefix = m.Name == "Prefix" || m.GetCustomAttribute<HarmonyPrefix>() != null;
-            bool isPostfix = m.Name == "Postfix" || m.GetCustomAttribute<HarmonyPostfix>() != null;
-            bool isTranspiler = m.Name == "Transpiler" || m.GetCustomAttribute<HarmonyTranspiler>() != null;
-            bool isFinalizer = m.Name == "Finalizer" || m.GetCustomAttribute<HarmonyFinalizer>() != null;
-            bool isReversePatch = m.GetCustomAttribute<HarmonyReversePatch>() != null;
-            if (isPrefix) return HarmonyPatchType.Prefix;
-            else if (isPostfix) return HarmonyPatchType.Postfix;
-            else if (isTranspiler) return HarmonyPatchType.Transpiler;
-            else if (isFinalizer) return HarmonyPatchType.Finalizer;
-            else if (isReversePatch) return HarmonyPatchType.ReversePatch;
-            else return HarmonyPatchType.All;
-        }
-        static MethodBase GetOriginal(MethodInfo replacement)
-        {
-            Type decType = replacement.DeclaringType;
-            var tAttrs = decType.GetCustomAttributes<HarmonyPatch>(true);
-            var mAttrs = replacement.GetCustomAttributes<HarmonyPatch>(true);
-            var attrs = tAttrs.Concat(mAttrs);
-            HarmonyMethod info = HarmonyMethod.Merge((from attr in attrs
-                                                      where attr.GetType().BaseType.FullName == typeof(HarmonyAttribute).FullName
-                                                      select AccessTools.Field(attr.GetType(), "info").GetValue(attr) into harmonyInfo
-                                                      select AccessTools.MakeDeepCopy<HarmonyMethod>(harmonyInfo)).ToList());
-            info.methodType ??= MethodType.Normal;
-            return (MethodBase)getOrigMethod(null, info);
-        }
-        public override int GetHashCode() => $"Target:{Original} {PatchType} {Replacement}".GetHashCode();
-        static readonly FastInvokeHandler getOrigMethod = MethodInvoker.GetHandler(AccessTools.Method("HarmonyLib.PatchTools:GetOriginalMethod"));
-        public class Comparer : IEqualityComparer<PatchInfo>
-        {
-            public static readonly Comparer Instance = new Comparer();
-            Comparer() { }
-            bool IEqualityComparer<PatchInfo>.Equals(PatchInfo x, PatchInfo y) => x.PatchType == y.PatchType && x.Original == y.Original && x.Replacement == y.Replacement;
-            int IEqualityComparer<PatchInfo>.GetHashCode(PatchInfo obj) => obj.GetHashCode();
-        }
     }
 }

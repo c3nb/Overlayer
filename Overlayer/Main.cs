@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using HarmonyLib;
+using HarmonyEx;
 using static UnityModManagerNet.UnityModManager.ModEntry;
 using static UnityModManagerNet.UnityModManager;
 using System.IO;
@@ -15,6 +15,8 @@ using Overlayer.Scripting.Lua;
 using Overlayer.Scripting.Python;
 using UnityEngine.UI;
 using System.Diagnostics.SymbolStore;
+using UnityEngine.SceneManagement;
+using static IronPython.Modules._ast;
 
 namespace Overlayer
 {
@@ -29,6 +31,7 @@ namespace Overlayer
         public static Language Language { get; private set; }
         public static Settings Settings { get; private set; }
         public static Texture2D OverlayerV2Logo { get; private set; }
+        public static Scene ActiveScene { get; private set; }
         public static Version ModVersion { get; private set; }
         #endregion
         #region UMM Impl
@@ -49,6 +52,9 @@ namespace Overlayer
         {
             if (value)
             {
+                ExceptionCatcher.Catch();
+                OverlayerDebug.Init();
+                SceneManager.activeSceneChanged += SceneChanged;
                 Backup();
                 Settings = ModSettings.Load<Settings>(modEntry);
                 Settings.Load();
@@ -62,6 +68,9 @@ namespace Overlayer
             }
             else
             {
+                ExceptionCatcher.Drop();
+                OverlayerDebug.Term();
+                SceneManager.activeSceneChanged -= SceneChanged;
                 Harmony.UnpatchAll(Harmony.Id);
                 Harmony = null;
                 TextManager.Save();
@@ -148,13 +157,19 @@ namespace Overlayer
         }
         #endregion
         #region Functions
+        public static void SceneChanged(Scene from, Scene to)
+        {
+            ActiveScene = to;
+        }
         public static void RunScripts(string folderPath)
         {
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
+            OverlayerDebug.Log($"Generating Script Implementations..");
             File.WriteAllText(Path.Combine(folderPath, "Impl.js"), new JavaScriptImpl().Generate());
             File.WriteAllText(Path.Combine(folderPath, "Impl.lua"), new LuaImpl().Generate());
             File.WriteAllText(Path.Combine(folderPath, "Impl.py"), new PythonImpl().Generate());
+            OverlayerDebug.Log($"Preparing Executing Scripts..");
             foreach (string script in Directory.GetFiles(folderPath))
             {
                 if (Path.GetFileNameWithoutExtension(script) == "Impl") continue;
@@ -162,7 +177,7 @@ namespace Overlayer
                 if (sType == ScriptType.None) continue;
                 Script scr = Script.Create(script, sType);
                 Utility.ExecuteSafe(scr.Execute, out Exception e);
-                if (e != null) Logger.Log($"Error At Executing Script \"{scr.Path}\":\n{e}");
+                if (e != null) Logger.Log(OverlayerDebug.Log($"Error At Executing Script \"{scr.Path}\":\n{e}"));
                 if (!HasScripts)
                 {
                     Harmony.UnpatchAll(Harmony.Id);
@@ -170,6 +185,7 @@ namespace Overlayer
                     HasScripts = true;
                 }
             }
+            OverlayerDebug.Log($"All Scripts Have Executed.");
         }
         public static byte[] LoadManifestResource(string name)
         {

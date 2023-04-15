@@ -5,7 +5,7 @@ using JSEngine.Compiler;
 using JSEngine.Library;
 using System.Linq;
 using System.Reflection;
-using HarmonyLib;
+using HarmonyEx;
 using System.Collections.Generic;
 using Overlayer;
 

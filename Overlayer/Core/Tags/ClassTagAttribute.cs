@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using HarmonyLib;
+using HarmonyEx;
 using System.Collections.Generic;
 using System.Reflection;
 

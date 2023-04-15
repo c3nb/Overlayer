@@ -11,6 +11,7 @@ namespace Overlayer.Core.Tags
     {
         public FieldTagAttribute() : base() { }
         public FieldTagAttribute(string name) : base(name) { }
+        public string Processor { get; set; }
         public bool Round { get; set; }
     }
 }

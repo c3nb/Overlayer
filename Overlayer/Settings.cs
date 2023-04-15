@@ -1,10 +1,5 @@
 ﻿using Overlayer.Core;
 using Overlayer.Core.Translation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityModManagerNet;
@@ -37,14 +32,15 @@ namespace Overlayer
         }
         public bool AllowCollectingLevels = true;
         public bool ChangeFont = false;
+        public bool DebugMode = false;
         public FontMeta AdofaiFont = new FontMeta();
         public SystemLanguage Lang = SystemLanguage.English;
         public void Draw()
         {
-            AllowCollectingLevels = Core.Utility.RightToggle(AllowCollectingLevels, Main.Language[TranslationKeys.AllowCollectingLevel]);
-            if (ChangeFont = GUILayout.Toggle(ChangeFont, Main.Language[TranslationKeys.AdofaiFont]))
+            AllowCollectingLevels = Utility.RightToggle(AllowCollectingLevels, Main.Language[TranslationKeys.AllowCollectingLevel]);
+            if (ChangeFont = Utility.RightToggle(ChangeFont, Main.Language[TranslationKeys.AdofaiFont]))
             {
-                Core.Utility.BeginIndent();
+                Utility.BeginIndent();
                 GUILayout.BeginHorizontal();
                 GUILayout.Label(Main.Language[TranslationKeys.AdofaiFont_Font]);
                 AdofaiFont.name = GUILayout.TextField(AdofaiFont.name);
@@ -84,6 +80,7 @@ namespace Overlayer
                 GUILayout.EndHorizontal();
                 Core.Utility.EndIndent();
             }
+            DebugMode = Utility.RightToggle(DebugMode, Main.Language[TranslationKeys.DebugMode]);
         }
     }
 }
