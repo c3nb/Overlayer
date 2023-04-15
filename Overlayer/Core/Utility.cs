@@ -138,7 +138,7 @@ namespace Overlayer.Core
             GUILayout.Label(label);
             bool prev = value;
             value = GUILayout.Toggle(value, "");
-            if (prev != value) onChange(value);
+            if (prev != value) onChange?.Invoke(value);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             return value;
