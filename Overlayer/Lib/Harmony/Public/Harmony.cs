@@ -113,12 +113,26 @@ namespace HarmonyEx
 		/// 
 		public void PatchAll(Assembly assembly)
 		{
-			AccessTools.GetTypesFromAssembly(assembly).Do(type => CreateClassProcessor(type).Patch());
+			AccessTools.GetTypesFromAssembly(assembly).Do(type => CreateClassProcessor(type).Patch(out _));
 		}
 
-		/// <summary>Searches an assembly for Harmony-annotated classes without category annotations and uses them to create patches</summary>
-		/// 
-		public void PatchAllUncategorized()
+        /// <summary>Searches an assembly for Harmony annotations and uses them to create patches</summary>
+        /// <param name="assembly">The assembly</param>
+        /// 
+        public void PatchAll(Assembly assembly, out List<HarmonyMethod> cannotPatch)
+        {
+			var notPatchedList = new List<HarmonyMethod>();
+            AccessTools.GetTypesFromAssembly(assembly).Do(type =>
+			{
+				CreateClassProcessor(type).Patch(out var cannotPatchList);
+                notPatchedList.AddRange(cannotPatchList);
+            });
+			cannotPatch = notPatchedList;
+        }
+
+        /// <summary>Searches an assembly for Harmony-annotated classes without category annotations and uses them to create patches</summary>
+        /// 
+        public void PatchAllUncategorized()
 		{
 			var method = new StackTrace().GetFrame(1).GetMethod();
 			var assembly = method.ReflectedType.Assembly;
@@ -131,7 +145,7 @@ namespace HarmonyEx
 		public void PatchAllUncategorized(Assembly assembly)
 		{
 			PatchClassProcessor[] patchClasses = AccessTools.GetTypesFromAssembly(assembly).Select(CreateClassProcessor).ToArray();
-			patchClasses.DoIf((patchClass => String.IsNullOrEmpty(patchClass.Category)), (patchClass => patchClass.Patch()));
+			patchClasses.DoIf((patchClass => String.IsNullOrEmpty(patchClass.Category)), (patchClass => patchClass.Patch(out _)));
 		}
 
 		/// <summary>Searches an assembly for Harmony annotations with a specific category and uses them to create patches</summary>
@@ -151,7 +165,7 @@ namespace HarmonyEx
 		public void PatchCategory(Assembly assembly, string category)
 		{
 			PatchClassProcessor[] patchClasses = AccessTools.GetTypesFromAssembly(assembly).Select(CreateClassProcessor).ToArray();
-			patchClasses.DoIf((patchClass => patchClass.Category == category), (patchClass => patchClass.Patch()));
+			patchClasses.DoIf((patchClass => patchClass.Category == category), (patchClass => patchClass.Patch(out _)));
 		}
 
 		/// <summary>Creates patches by manually specifying the methods</summary>

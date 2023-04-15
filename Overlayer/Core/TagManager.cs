@@ -31,7 +31,12 @@ namespace Overlayer.Core
                 {
                     if (tags.All(t => !t.Referenced))
                         patch.Unpatch(Main.Harmony);
-                    else patch.Patch(Main.Harmony);
+                    else
+                    {
+                        var dead = !patch.Patch(Main.Harmony);
+                        if (dead)
+                            tags.ForEach(t => t.Dead = dead);
+                    }
                 }
             }
         }

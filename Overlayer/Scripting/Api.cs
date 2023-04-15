@@ -58,11 +58,11 @@ namespace Overlayer.Scripting
         {
             Variables[name] = obj;
         }
+        // Source Path Tracing Is Not Supported!
         [Api("Register Tag", SupportScript = ScriptType.JavaScript)]
         public static void RegisterTag(string name, UserDefinedFunction func, bool notplaying)
         {
             Tag tag = new Tag(name);
-            tag.SourcePath = func.Engine.Source.Path;
             UDFWrapper wrapper = new UDFWrapper(func);
             if (func.ArgumentNames.Count == 1)
                 tag.SetGetter((string o) => wrapper.CallGlobal(o).ToString());

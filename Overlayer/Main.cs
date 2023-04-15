@@ -19,6 +19,14 @@ using Overlayer.Patches;
 
 namespace Overlayer
 {
+    [HarmonyPatch(typeof(Harmony), "SEX")]
+    public static class test
+    {
+        public static void Postfix()
+        {
+
+        }
+    }
     public static class Main
     {
         #region Variables
@@ -61,7 +69,7 @@ namespace Overlayer
                 UpdateLanguage();
                 Assembly ass = Assembly.GetExecutingAssembly();
                 Harmony = new Harmony(modEntry.Info.Id);
-                Harmony.PatchAll(ass);
+                Harmony.PatchAll(ass, out var cannotPatch);
                 try
                 {
                     TagManager.Load(ass);

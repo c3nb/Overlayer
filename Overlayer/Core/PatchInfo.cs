@@ -26,18 +26,23 @@ namespace Overlayer.Core
         public MethodInfo PatchMethod { get; }
         public MethodBase Original { get; }
         public Type PatchType { get; }
+        public bool Dead { get; private set; }
         PatchClassProcessor proc;
-        public void Patch(Harmony harmony)
+        public bool Patch(Harmony harmony)
         {
-            if (Patched) return;
+            if (Patched) return true;
             if (TypePatch)
             {
                 if (harmony != proc?.instance)
                     proc?.Unpatch();
                 proc = harmony.CreateClassProcessor(PatchType);
-                proc.Patch();
+                proc.Patch(out var cannotPatch);
+                Dead = cannotPatch.Any();
+                OverlayerDebug.Log($"{this} Is Dead. Unavailable Patch List.");
+                foreach (var patch in cannotPatch)
+                    OverlayerDebug.Log(patch.methodName);
                 Patched = true;
-                return;
+                return !Dead;
             }
             switch (HarmonyPatchType)
             {
@@ -58,12 +63,12 @@ namespace Overlayer.Core
                     break;
                 default: break;
             }
-            Patched = true;
+            return Patched = true;
         }
         public void Unpatch(Harmony harmony)
         {
             if (!Patched) return;
-            if (TypePatch) proc.Unpatch();
+            if (TypePatch) (proc ??= harmony.CreateClassProcessor(PatchType)).Unpatch();
             else harmony.Unpatch(Original, PatchMethod);
             Patched = false;
         }
