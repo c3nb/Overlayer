@@ -38,9 +38,12 @@ namespace Overlayer.Core
                 proc = harmony.CreateClassProcessor(PatchType);
                 proc.Patch(out var cannotPatch);
                 Dead = cannotPatch.Any();
-                OverlayerDebug.Log($"{this} Is Dead. Unavailable Patch List.");
-                foreach (var patch in cannotPatch)
-                    OverlayerDebug.Log(patch.methodName);
+                if (Dead)
+                {
+                    OverlayerDebug.Log($"{this} Is Dead. Unavailable Patch List.");
+                    foreach (var patch in cannotPatch)
+                        OverlayerDebug.Log(patch.methodName);
+                }
                 Patched = true;
                 return !Dead;
             }

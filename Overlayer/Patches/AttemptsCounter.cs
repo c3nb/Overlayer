@@ -14,11 +14,11 @@ namespace Overlayer.Patches
         [HarmonyPostfix]
         public static void FCLLPostfix()
         {
-            if (!GCS.standaloneLevelMode && !GCS.useNoFail)
+            if (!GCS.useNoFail)
             {
                 if (PlaytimeCounter.MapID == null)
                     PlaytimeCounter.MapID = DataInit.MakeHash(RDString.Get("editor.author"), RDString.Get("editor.artist"), RDString.Get("editor.song"));
-                if (PlaytimeCounter.MapID == null || !Attempts.TryGetValue(PlaytimeCounter.MapID, out _))
+                if (!Attempts.TryGetValue(PlaytimeCounter.MapID, out _))
                     Attempts[PlaytimeCounter.MapID] = Persistence.GetCustomWorldAttempts(PlaytimeCounter.MapID);
                 else Attempts[PlaytimeCounter.MapID]++;
                 Variables.AttemptsCount = Attempts[PlaytimeCounter.MapID];

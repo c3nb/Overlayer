@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using PatchInfo = Overlayer.Core.PatchInfo;
 
 namespace Overlayer.Core
 {
@@ -34,17 +33,16 @@ namespace Overlayer.Core
                     else
                     {
                         var dead = !patch.Patch(Main.Harmony);
-                        if (dead)
-                            tags.ForEach(t => t.Dead = dead);
+                        tags.ForEach(t => t.Dead = dead);
                     }
                 }
             }
         }
-        public static void AddTag(Tag tag, bool notPlaying)
+        public static void SetTag(Tag tag, bool notPlaying)
         {
-            AllTags.Add(tag.Name, tag);
-            if (notPlaying) 
-                NotPlayingTags.Add(tag.Name, tag);
+            AllTags[tag.Name] = tag;
+            if (notPlaying)
+                NotPlayingTags[tag.Name] = tag;
         }
         public static bool RemoveTag(string name)
         {

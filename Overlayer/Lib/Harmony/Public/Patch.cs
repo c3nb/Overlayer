@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,13 @@ using System.Text.Json.Serialization;
 
 namespace HarmonyEx
 {
+	class PatchComparer : IEqualityComparer<Patch>
+	{
+		PatchComparer() { }
+		public static readonly IEqualityComparer<Patch> Instance = new PatchComparer();
+		public bool Equals(Patch x, Patch y) => x.PatchMethod == y.PatchMethod;
+		public int GetHashCode(Patch a) => a.PatchMethod.GetHashCode();
+    }
 	/// <summary>Patch serialization</summary>
 	///
 	internal static class PatchInfoSerialization
@@ -299,7 +307,7 @@ namespace HarmonyEx
 					add
 						.Where(method => method != null)
 						.Select((method, i) => new Patch(method, i + initialIndex, owner))
-				)
+				).Distinct(PatchComparer.Instance)
 				.ToArray();
 		}
 

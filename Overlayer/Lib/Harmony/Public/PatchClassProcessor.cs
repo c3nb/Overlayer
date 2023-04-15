@@ -109,6 +109,7 @@ namespace HarmonyEx
         }
         public void Unpatch()
         {
+            LoadJobs();
             foreach (var job in jobs.GetJobs())
                 ProcessUnpatchJob(job);
         }
@@ -131,6 +132,7 @@ namespace HarmonyEx
         PatchJobs<MethodInfo> jobs;
         void LoadJobs(List<MethodBase> originals = null)
         {
+            if (jobs != null) return;
             jobs = new PatchJobs<MethodInfo>();
             if (originals == null)
             {

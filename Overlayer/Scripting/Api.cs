@@ -66,9 +66,9 @@ namespace Overlayer.Scripting
             UDFWrapper wrapper = new UDFWrapper(func);
             if (func.ArgumentNames.Count == 1)
                 tag.SetGetter((string o) => wrapper.CallGlobal(o).ToString());
-            else tag.SetGetter(new Action(() => wrapper.CallGlobal()));
+            else tag.SetGetter(new Func<string>(() => wrapper.CallGlobal().ToString()));
             tag.Build();
-            TagManager.AddTag(tag, notplaying);
+            TagManager.SetTag(tag, notplaying);
             TextManager.Refresh();
         }
         // Source Path Tracing Is Not Supported!
@@ -81,7 +81,7 @@ namespace Overlayer.Scripting
                 tag.SetGetter((string o) => func.__call__(ctx, o).ToString());
             else tag.SetGetter(new Action(() => func.__call__(ctx).ToString()));
             tag.Build();
-            TagManager.AddTag(tag, notplaying);
+            TagManager.SetTag(tag, notplaying);
             TextManager.Refresh();
         }
         // Source Path Tracing Is Not Supported!
@@ -91,7 +91,7 @@ namespace Overlayer.Scripting
             Tag tag = new Tag(name);
             tag.SetGetter(func.Delegate);
             tag.Build();
-            TagManager.AddTag(tag, notplaying);
+            TagManager.SetTag(tag, notplaying);
             TextManager.Refresh();
         }
         [Api("Unregister Tag")]

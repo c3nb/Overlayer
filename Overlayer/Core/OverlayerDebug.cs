@@ -37,7 +37,7 @@ namespace Overlayer.Core
         public static T Log<T>(T obj, Func<T, string> toString = null)
         {
             if (!Main.Settings.DebugMode) return obj;
-            Buffer.AppendLine(toString != null ? toString(obj) : obj.ToString());
+            Buffer.AppendLine(toString != null ? toString(obj) : obj?.ToString());
             return obj;
         }
         public static T Exception<T>(T ex, string message = null) where T : Exception

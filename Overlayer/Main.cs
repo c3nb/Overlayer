@@ -19,14 +19,6 @@ using Overlayer.Patches;
 
 namespace Overlayer
 {
-    [HarmonyPatch(typeof(Harmony), "SEX")]
-    public static class test
-    {
-        public static void Postfix()
-        {
-
-        }
-    }
     public static class Main
     {
         #region Variables
@@ -60,6 +52,7 @@ namespace Overlayer
         {
             if (value)
             {
+                Variables.Reset();
                 ExceptionCatcher.Catch();
                 OverlayerDebug.Init();
                 SceneManager.activeSceneChanged += SceneChanged;
@@ -69,7 +62,7 @@ namespace Overlayer
                 UpdateLanguage();
                 Assembly ass = Assembly.GetExecutingAssembly();
                 Harmony = new Harmony(modEntry.Info.Id);
-                Harmony.PatchAll(ass, out var cannotPatch);
+                Harmony.PatchAll(ass);
                 try
                 {
                     TagManager.Load(ass);

@@ -1,8 +1,6 @@
 ﻿using HarmonyEx;
 using System;
 using Overlayer.Tags;
-using System.Collections.Generic;
-using Overlayer.Core.Tags;
 
 namespace Overlayer.Patches
 {

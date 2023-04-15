@@ -81,7 +81,6 @@ namespace Overlayer.Tags
             CurrentScore = 0;
             Combo = 0;
             FailCount = 0;
-            StartProg = BestProg = 0;
             StartTile = 0;
             TileBpm = CurBpm = RecKPS = 0;
             FrameTime = Fps = 0;
