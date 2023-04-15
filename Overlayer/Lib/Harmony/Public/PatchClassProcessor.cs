@@ -226,14 +226,14 @@ namespace HarmonyExLib
                 {
                     try
                     {
-                        var patchInfo = HarmonyExSharedState.GetPatchInfo(job.original) ?? new PatchInfo();
+                        var patchInfo = HarmonySharedState.GetPatchInfo(job.original) ?? new PatchInfo();
                         patchInfo.AddPrefixes(instance.Id, Tools.DistinctPatches(patchInfo.prefixes, job.prefixes).ToArray());
                         patchInfo.AddPostfixes(instance.Id, Tools.DistinctPatches(patchInfo.postfixes, job.postfixes).ToArray());
                         patchInfo.AddTranspilers(instance.Id, Tools.DistinctPatches(patchInfo.transpilers, job.transpilers).ToArray());
                         patchInfo.AddFinalizers(instance.Id, Tools.DistinctPatches(patchInfo.finalizers, job.finalizers).ToArray());
 
                         replacement = PatchFunctions.UpdateWrapper(job.original, patchInfo);
-                        HarmonyExSharedState.UpdatePatchInfo(job.original, replacement, patchInfo);
+                        HarmonySharedState.UpdatePatchInfo(job.original, replacement, patchInfo);
                     }
                     catch (Exception ex)
                     {
@@ -253,10 +253,10 @@ namespace HarmonyExLib
             {
                 try
                 {
-                    var patchInfo = HarmonyExSharedState.GetPatchInfo(job.original) ?? new PatchInfo();
+                    var patchInfo = HarmonySharedState.GetPatchInfo(job.original) ?? new PatchInfo();
                     patchInfo.RemovePatches(job.prefixes.Concat(job.postfixes).Concat(job.transpilers).Concat(job.finalizers).Select(m => m.method).ToArray());
                     replacement = PatchFunctions.UpdateWrapper(job.original, patchInfo);
-                    HarmonyExSharedState.UpdatePatchInfo(job.original, replacement, patchInfo);
+                    HarmonySharedState.UpdatePatchInfo(job.original, replacement, patchInfo);
                 }
                 catch (Exception ex)
                 {

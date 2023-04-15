@@ -286,7 +286,7 @@ namespace HarmonyExLib
 		public static MethodBase GetOriginalMethod(MethodInfo replacement)
 		{
 			if (replacement == null) throw new ArgumentNullException(nameof(replacement));
-			return HarmonyExSharedState.GetOriginal(replacement);
+			return HarmonySharedState.GetOriginal(replacement);
 		}
 
 		/// <summary>Tries to get the method from a stackframe including dynamic replacement methods</summary>
@@ -296,7 +296,7 @@ namespace HarmonyExLib
 		public static MethodBase GetMethodFromStackframe(StackFrame frame)
 		{
 			if (frame == null) throw new ArgumentNullException(nameof(frame));
-			return HarmonyExSharedState.FindReplacement(frame) ?? frame.GetMethod();
+			return HarmonySharedState.FindReplacement(frame) ?? frame.GetMethod();
 		}
 
 		/// <summary>Gets the original method from the stackframe and uses original if method is a dynamic replacement</summary>

@@ -15,6 +15,8 @@ namespace Overlayer.Patches
             {
                 if (controller.currFloor.freeroam)
                     return true;
+                if (!controller.noFail)
+                    Variables.BestProg = Math.Max(Variables.BestProg, scrController.instance.percentComplete * 100);
             }
             Variables.Lenient = GetHitMargin(Difficulty.Lenient, hitangle, refangle, isCW, bpmTimesSpeed, conductorPitch, marginScale);
             Variables.Normal = GetHitMargin(Difficulty.Normal, hitangle, refangle, isCW, bpmTimesSpeed, conductorPitch, marginScale);

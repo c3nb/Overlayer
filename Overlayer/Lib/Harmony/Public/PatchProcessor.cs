@@ -118,7 +118,7 @@ namespace HarmonyExLib
 		{
 			lock (locker)
 			{
-				return HarmonyExSharedState.GetPatchedMethods();
+				return HarmonySharedState.GetPatchedMethods();
 			}
 		}
 
@@ -138,7 +138,7 @@ namespace HarmonyExLib
 
 			lock (locker)
 			{
-				var patchInfo = HarmonyExSharedState.GetPatchInfo(original) ?? new PatchInfo();
+				var patchInfo = HarmonySharedState.GetPatchInfo(original) ?? new PatchInfo();
 
 				if (!patchInfo.prefixes.Any(p => p.PatchMethod == prefix?.method))
 					patchInfo.AddPrefixes(instance.Id, prefix);
@@ -151,7 +151,7 @@ namespace HarmonyExLib
 
 				var replacement = PatchFunctions.UpdateWrapper(original, patchInfo);
 
-				HarmonyExSharedState.UpdatePatchInfo(original, replacement, patchInfo);
+				HarmonySharedState.UpdatePatchInfo(original, replacement, patchInfo);
 				return replacement;
 			}
 		}
@@ -165,7 +165,7 @@ namespace HarmonyExLib
 		{
 			lock (locker)
 			{
-				var patchInfo = HarmonyExSharedState.GetPatchInfo(original);
+				var patchInfo = HarmonySharedState.GetPatchInfo(original);
 				if (patchInfo is null) patchInfo = new PatchInfo();
 
 				if (type == HarmonyExPatchType.All || type == HarmonyExPatchType.Prefix)
@@ -178,7 +178,7 @@ namespace HarmonyExLib
 					patchInfo.RemoveFinalizer(harmonyID);
 				var replacement = PatchFunctions.UpdateWrapper(original, patchInfo);
 
-				HarmonyExSharedState.UpdatePatchInfo(original, replacement, patchInfo);
+				HarmonySharedState.UpdatePatchInfo(original, replacement, patchInfo);
 				return this;
 			}
 		}
@@ -191,13 +191,13 @@ namespace HarmonyExLib
 		{
 			lock (locker)
 			{
-				var patchInfo = HarmonyExSharedState.GetPatchInfo(original);
+				var patchInfo = HarmonySharedState.GetPatchInfo(original);
 				if (patchInfo is null) patchInfo = new PatchInfo();
 
 				patchInfo.RemovePatch(patch);
 				var replacement = PatchFunctions.UpdateWrapper(original, patchInfo);
 
-				HarmonyExSharedState.UpdatePatchInfo(original, replacement, patchInfo);
+				HarmonySharedState.UpdatePatchInfo(original, replacement, patchInfo);
 				return this;
 			}
 		}
@@ -209,7 +209,7 @@ namespace HarmonyExLib
 		public static Patches GetPatchInfo(MethodBase method)
 		{
 			PatchInfo patchInfo;
-			lock (locker) { patchInfo = HarmonyExSharedState.GetPatchInfo(method); }
+			lock (locker) { patchInfo = HarmonySharedState.GetPatchInfo(method); }
 			if (patchInfo is null) return null;
 			return new Patches(patchInfo.prefixes, patchInfo.postfixes, patchInfo.transpilers, patchInfo.finalizers);
 		}
@@ -235,7 +235,7 @@ namespace HarmonyExLib
 			GetAllPatchedMethods().Do(method =>
 			{
 				PatchInfo info;
-				lock (locker) { info = HarmonyExSharedState.GetPatchInfo(method); }
+				lock (locker) { info = HarmonySharedState.GetPatchInfo(method); }
 				info.prefixes.Do(fix => assemblies[fix.owner] = fix.PatchMethod.DeclaringType.Assembly);
 				info.postfixes.Do(fix => assemblies[fix.owner] = fix.PatchMethod.DeclaringType.Assembly);
 				info.transpilers.Do(fix => assemblies[fix.owner] = fix.PatchMethod.DeclaringType.Assembly);

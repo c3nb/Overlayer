@@ -31,10 +31,9 @@ namespace HarmonyExLib
 	// did not have, in fact don't exist. In that case, we init them with local only copies that will not really share - the
 	// best we can do in that situation.
 
-	internal static class HarmonyExSharedState
+	internal static class HarmonySharedState
 	{
-		//const string name = "HarmonyExSharedState";
-		const string name = "HarmonyExLibSharedState";
+		const string name = "HarmonySharedState";
 		internal const int internalVersion = 102; // bump this if the layout of the HarmonyExSharedState type changes
 
 		// state/originals/methodStarts are set to instances stored in the global dynamic types static fields with the same name
@@ -46,7 +45,7 @@ namespace HarmonyExLib
 		
 		internal static readonly int actualVersion;
 
-		static HarmonyExSharedState()
+		static HarmonySharedState()
 		{
 			// create singleton type
 			var type = GetOrCreateSharedStateType();
