@@ -206,11 +206,20 @@ namespace Overlayer
                 if (sType == ScriptType.None) continue;
                 Script scr = Script.Create(script, sType);
                 OverlayerDebug.Log($"Executing Script {Path.GetFileName(script)}");
-                Utility.ExecuteSafe(scr.Execute, out Exception e);
-                if (e != null) Logger.Log(OverlayerDebug.Log($"Error At Executing Script \"{scr.Path}\":\n{e}"));
+                Utility.ExecuteSafe(scr.Compile, out Exception compileEx);
+                if (compileEx != null)
+                {
+                    Logger.Log(OverlayerDebug.Log($"Error At Compiling Script \"{scr.Path}\":\n{compileEx}"));
+                    continue;
+                }
+                Utility.ExecuteSafe(scr.Execute, out Exception executeEx);
+                if (executeEx != null)
+                {
+                    Logger.Log(OverlayerDebug.Log($"Error At Executing Script \"{scr.Path}\":\n{executeEx}"));
+                    continue;
+                }
                 if (!HasScripts)
                 {
-                    Harmony.UnpatchAll(Harmony.Id);
                     Harmony.PatchAll(Assembly.GetExecutingAssembly());
                     HasScripts = true;
                 }
