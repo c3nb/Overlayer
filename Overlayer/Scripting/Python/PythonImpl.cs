@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Services.Analytics;
 
 namespace Overlayer.Scripting.Python
 {
@@ -18,18 +19,17 @@ namespace Overlayer.Scripting.Python
             {
                 ParameterInfo[] tagOptions = tag.Getter.GetParameters();
                 if (tagOptions.Length > 0)
-                    sb.AppendLine($"def {tag.Name}({GetArgStr(tagOptions)}): pass");
+                    sb.AppendLine($"def {tag.Name}({GetArgStr(tagOptions)}): return Overlayer_Internal.{tag.Name}({GetCallArgStr(tagOptions)})");
                 else
-                    sb.AppendLine($"def {tag.Name}(): pass");
+                    sb.AppendLine($"def {tag.Name}(): return Overlayer_Internal.{tag.Name}()");
             }
             foreach (var api in Api.GetApi(ScriptType))
             {
-                Type rt = api.ReturnType;
                 ParameterInfo[] options = api.GetParameters();
                 if (options.Length > 0)
-                    sb.AppendLine($"def {api.Name}({GetArgStr(options)}): pass");
+                    sb.AppendLine($"def {api.Name}({GetArgStr(options)}): {(api.ReturnType != typeof(void) ? "return " : "")}Overlayer_Internal.{api.Name}({GetCallArgStr(options)})");
                 else
-                    sb.AppendLine($"def {api.Name}(): pass");
+                    sb.AppendLine($"def {api.Name}(): {(api.ReturnType != typeof(void) ? "return " : "")}Overlayer_Internal.{api.Name}()");
             }
             return sb.ToString();
         }
@@ -38,6 +38,14 @@ namespace Overlayer.Scripting.Python
             StringBuilder sb = new StringBuilder();
             foreach (var arg in args)
                 sb.Append($"{arg.Name}:{GetTypeStr(arg.ParameterType)}, ");
+            var result = sb.ToString();
+            return result.Remove(result.Length - 2);
+        }
+        static string GetCallArgStr(ParameterInfo[] args)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var arg in args)
+                sb.Append($"{arg.Name}, ");
             var result = sb.ToString();
             return result.Remove(result.Length - 2);
         }

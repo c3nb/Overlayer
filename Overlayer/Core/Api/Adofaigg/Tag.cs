@@ -1,6 +1,6 @@
 ﻿namespace Overlayer.Core.Api.Adofaigg
 {
-    public class Tag
+    public class LevelTag
     {
         public int id;
         public string name;

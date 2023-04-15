@@ -20,7 +20,11 @@ namespace Overlayer.Core
             ExceptionCatcher.Unhandled -= UnhandledException;
             ExceptionCatcher.Catched -= CatchedException;
         }
-        static void SaveLog() => File.WriteAllText(Path.Combine(Main.Mod.Path, "Debug.log"), Buffer.ToString());
+        static void SaveLog()
+        {
+            if (Main.Settings.DebugMode)
+                File.WriteAllText(Path.Combine(Main.Mod.Path, "Debug.log"), Buffer.ToString());
+        }
         static void UnhandledException(Exception e)
         {
             Log($"Unhandled Exception Has Occured.\n{e}");
@@ -29,10 +33,10 @@ namespace Overlayer.Core
         {
             Log($"Exception Has Occured. (Catched)\n{e}");
         }
-        public static T Log<T>(T obj)
+        public static T Log<T>(T obj, Func<T, string> toString = null)
         {
             if (!Main.Settings.DebugMode) return obj;
-            Buffer.AppendLine(obj.ToString());
+            Buffer.AppendLine(toString != null ? toString(obj) : obj.ToString());
             return obj;
         }
     }

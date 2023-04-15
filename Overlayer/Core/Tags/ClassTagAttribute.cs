@@ -14,6 +14,8 @@ namespace Overlayer.Core.Tags
         public string[] Threads { get; set; }
         public IEnumerable<MethodInfo> GetThreads(Type thisType)
         {
+            if (Threads == null)
+                yield break;
             foreach (var thread in Threads)
                 yield return thisType.GetMethod(thread, AccessTools.all);
         }

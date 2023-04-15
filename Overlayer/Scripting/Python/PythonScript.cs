@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using System.Linq.Expressions;
 using System.Linq;
+using IronPython.Runtime.Types;
 
 namespace Overlayer.Scripting.Python
 {
@@ -14,30 +15,28 @@ namespace Overlayer.Scripting.Python
         private ScriptSource source;
         private ScriptScope scope;
         private CompiledCode code;
-        static Dictionary<string, Delegate> apis = new Dictionary<string, Delegate>();
+        static bool internalTypeGenerated = false;
         public PythonScript(string path) : base(path)
         {
-            Engine = PythonUtils.CreateEngine(path, out source);
-            scope = Engine.CreateScope();
-            foreach (var tag in TagManager.All)
-                scope.SetVariable(tag.Name, tag.HasOption ? tag.FastInvokerOpt : tag.FastInvoker);
-            if (apis == null)
+            if (!internalTypeGenerated)
             {
-                apis = new Dictionary<string, Delegate>();
-                foreach (var api in Api.GetApi(ScriptType))
-                {
-                    Delegate del;
-                    if (api.ReturnType != typeof(void))
-                        del = api.CreateDelegate(Expression.GetFuncType(api.GetParameters().Select(p => p.ParameterType).Append(api.ReturnType).ToArray()));
-                    else del = api.CreateDelegate(Expression.GetActionType(api.GetParameters().Select(p => p.ParameterType).ToArray()));
-                    apis.Add(api.Name, del);
-                }
+                Type t = Utility.CopyMethods("Overlayer_Internal", Api.GetApi(ScriptType).Concat(TagManager.All.Select(t => t.Getter)));
+                PythonUtils.options["Overlayer_Internal"] = DynamicHelpers.GetPythonTypeFromType(t);
+                internalTypeGenerated = true;
             }
-            foreach (var api in apis)
-                scope.SetVariable(api.Key, api.Value);
         }
         public override ScriptType ScriptType => ScriptType.Python;
-        public override void Compile() => code = source.Compile();
+        public override void Compile()
+        {
+            if (Engine == null)
+            {
+                if (Path != null)
+                    Engine = PythonUtils.CreateEngine(Path, out source);
+                else Engine = PythonUtils.CreateEngineFromSource(Source, out source);
+                scope = Engine.CreateScope();
+            }
+            code = source.Compile();
+        }
         public override void Dispose()
         {
             Engine = null;

@@ -1,6 +1,6 @@
 ﻿using HarmonyEx;
 using System;
-using Overlayer.Core;
+using Overlayer.Tags;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Overlayer.Patches
         #region Tags
         public static List<scrFloor> AllCheckPoints = new List<scrFloor>();
         public static List<double> TimingList = new List<double>();
-        [Tag("TimingAvg", RelatedPatches = "Overlayer.Patches.BpmUpdater.CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater.BossLevelStart:Postfix")]
+        [Tag("TimingAvg", RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix")]
         public static double TimingAvg(double digits = -1)
         {
             if (TimingList.Any())
@@ -52,7 +52,7 @@ namespace Overlayer.Patches
             }
         }
         [HarmonyPatch(typeof(scrPlanet), "MoveToNextFloor")]
-        public static class MoveToNextFloor
+        public static class MoveToNextFloorPatch
         {
             public static void Postfix(scrPlanet __instance, scrFloor floor)
             {
@@ -120,8 +120,6 @@ namespace Overlayer.Patches
                 double speed = scrController.instance.speed;
                 cur = (float)(bpm * speed);
             }
-            if (!Settings.Instance.ApplyPitchAtBpmTags)
-                pitch = 1;
             Variables.TileBpm = cur;
             Variables.CurBpm = cur;
             Variables.RecKPS = kps;

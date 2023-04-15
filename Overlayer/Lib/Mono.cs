@@ -20093,7 +20093,7 @@ namespace MonoMod.RuntimeDetour.Platforms
 
 			// IMPORTANT: IN SOME CIRCUMSTANCES, THIS CAN FIND ThePreStub AS THE ENTRY POINT.
 
-			if (PlatformHelper.Is(Platform.ARM))
+			if (PlatformHelper.Is(MonoPlatform.ARM))
 			{
 				// TODO: Debug detouring NGEN'd methods on ARM.
 
@@ -46821,7 +46821,7 @@ namespace Microsoft.Cci.Pdb
 		internal string[] usedNamespaces;
 		internal PdbLines[] lines;
 		internal ushort[]/*?*/ usingCounts;
-		internal IEnumerable<INamespaceScope>/*?*/ namespaceScopes;
+		internal IEnumerable<INamespaceScope>/*?*/ namespaceScopes = null;
 		internal string/*?*/ iteratorClass;
 		internal List<ILocalScope>/*?*/ iteratorScopes;
 		internal PdbSynchronizationInformation/*?*/ synchronizationInformation;

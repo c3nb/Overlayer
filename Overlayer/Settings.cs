@@ -35,10 +35,26 @@ namespace Overlayer
         public bool DebugMode = false;
         public FontMeta AdofaiFont = new FontMeta();
         public SystemLanguage Lang = SystemLanguage.English;
+        public int PerfStatUpdateRate = 100;
+        public float FPSUpdateRate = 100;
+        public float FrameTimeUpdateRate = 100;
         public void Draw()
         {
             AllowCollectingLevels = Utility.RightToggle(AllowCollectingLevels, Main.Language[TranslationKeys.AllowCollectingLevel]);
-            if (ChangeFont = Utility.RightToggle(ChangeFont, Main.Language[TranslationKeys.AdofaiFont]))
+            if (ChangeFont = Utility.RightToggle(ChangeFont, Main.Language[TranslationKeys.AdofaiFont], v =>
+            {
+                if (!v)
+                {
+                    AdofaiFont.name = "Default";
+                    if (AdofaiFont.Apply(out FontData font))
+                    {
+                        FontManager.SetFont(AdofaiFont.name, font);
+                        RDString.initialized = false;
+                        RDString.Setup();
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                    }
+                }
+            }))
             {
                 Utility.BeginIndent();
                 GUILayout.BeginHorizontal();
@@ -81,6 +97,15 @@ namespace Overlayer
                 Core.Utility.EndIndent();
             }
             DebugMode = Utility.RightToggle(DebugMode, Main.Language[TranslationKeys.DebugMode]);
+            string psur = PerfStatUpdateRate.ToString();
+            if (Utility.DrawTextField(ref psur, Main.Language[TranslationKeys.PerfStatUpdateRate]))
+                PerfStatUpdateRate = StringConverter.ToInt32(psur);
+            string fur = FPSUpdateRate.ToString();
+            if (Utility.DrawTextField(ref fur, Main.Language[TranslationKeys.FPSUpdateRate]))
+                FPSUpdateRate = StringConverter.ToFloat(fur);
+            string ftur = FrameTimeUpdateRate.ToString();
+            if (Utility.DrawTextField(ref ftur, Main.Language[TranslationKeys.FrameTimeUpdateRate]))
+                FrameTimeUpdateRate = StringConverter.ToFloat(fur);
         }
     }
 }

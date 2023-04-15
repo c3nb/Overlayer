@@ -155,29 +155,41 @@ namespace Overlayer.Core.Tags
                         il.Emit(OpCodes.Ldc_R8, (double)param.DefaultValue);
                         break;
                     default:
-                        var pType = param.ParameterType;
-                        if (pType.IsValueType)
-                        {
-                            LocalBuilder defValue = il.DeclareLocal(pType);
-                            il.Emit(OpCodes.Ldloca, defValue);
-                            il.Emit(OpCodes.Initobj, defValue.LocalType);
-                            il.Emit(OpCodes.Ldloc);
-                        }
-                        else il.Emit(OpCodes.Ldnull);
-                        break;
+                        throw new NotSupportedException($"Emitting {param}'s Default Value Is Not Supported");
                 }
             }
             else
             {
-                var pType = param.ParameterType;
-                if (pType.IsValueType)
+                switch (Type.GetTypeCode(param.ParameterType))
                 {
-                    LocalBuilder defValue = il.DeclareLocal(pType);
-                    il.Emit(OpCodes.Ldloca, defValue);
-                    il.Emit(OpCodes.Initobj, defValue.LocalType);
-                    il.Emit(OpCodes.Ldloc);
+                    case TypeCode.Boolean:
+                        il.Emit(OpCodes.Ldc_I4, 0);
+                        break;
+                    case TypeCode.SByte:
+                    case TypeCode.Int16:
+                    case TypeCode.Int32:
+                        il.Emit(OpCodes.Ldc_I4, -1);
+                        break;
+                    case TypeCode.Byte:
+                    case TypeCode.UInt16:
+                    case TypeCode.UInt32:
+                        il.Emit(OpCodes.Ldc_I4, 0);
+                        break;
+                    case TypeCode.Int64:
+                        il.Emit(OpCodes.Ldc_I8, -1);
+                        break;
+                    case TypeCode.UInt64:
+                        il.Emit(OpCodes.Ldc_I8, 0);
+                        break;
+                    case TypeCode.Single:
+                        il.Emit(OpCodes.Ldc_R4, -1);
+                        break;
+                    case TypeCode.Double:
+                        il.Emit(OpCodes.Ldc_R8, -1);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Emitting {param}'s Default Value Is Not Supported");
                 }
-                else il.Emit(OpCodes.Ldnull);
             }
         }
         class TagInfo

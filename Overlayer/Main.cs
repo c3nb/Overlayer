@@ -13,10 +13,9 @@ using UnityEngine;
 using Overlayer.Scripting.JS;
 using Overlayer.Scripting.Lua;
 using Overlayer.Scripting.Python;
-using UnityEngine.UI;
-using System.Diagnostics.SymbolStore;
 using UnityEngine.SceneManagement;
-using static IronPython.Modules._ast;
+using Overlayer.Tags;
+using Overlayer.Patches;
 
 namespace Overlayer
 {
@@ -43,6 +42,7 @@ namespace Overlayer
             modEntry.OnToggle = OnToggle;
             modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
+            modEntry.OnUpdate = OnUpdate;
             var logo = LoadManifestResource("ov2Logo.png");
             Texture2D logoTexture = new Texture2D(1, 1);
             logoTexture.LoadImage(logo);
@@ -93,7 +93,7 @@ namespace Overlayer
         {
             GUILayout.BeginHorizontal();
             GUIStyle bStyle = new GUIStyle(GUI.skin.box); 
-            bool boxBtn = GUILayout.Button(OverlayerV2Logo, bStyle, GUILayout.MaxWidth(100), GUILayout.MaxHeight(100));
+            bool boxBtn = GUILayout.Button(OverlayerV2Logo, bStyle, GUILayout.Width(100), GUILayout.Height(100));
             bool boxHovering = Utility.IsMouseHovering();
             GUILayout.BeginVertical();
             GUILayout.Space(7);
@@ -152,8 +152,24 @@ namespace Overlayer
         }
         public static void OnSaveGUI(ModEntry modEntry)
         {
+            // Force Save Persistence
+            foreach (var kvp in PlaytimeCounter.PlayTimes)
+                Persistence.generalPrefs.SetFloat(kvp.Key, kvp.Value);
+            List<object> list = new List<object>();
+            foreach (CalibrationPreset calibrationPreset in scrConductor.userPresets)
+                list.Add(calibrationPreset.ToDict());
+            Persistence.generalPrefs.SetList("calibrationPresets", list);
+            PlayerPrefsJson playerPrefsJson = PlayerPrefsJson.SelectAll();
+            playerPrefsJson.deltaDict.Add("version", 101);
+            playerPrefsJson.ApplyDeltaDict();
+            PlayerPrefsJson.SaveAllFiles();
+
             ModSettings.Save(Settings, modEntry);
             TextManager.Save();
+        }
+        public static void OnUpdate(ModEntry modEntry, float deltaTime)
+        {
+            UpdateFpsTags(deltaTime);
         }
         #endregion
         #region Functions
@@ -176,6 +192,7 @@ namespace Overlayer
                 ScriptType sType = Script.GetScriptType(script);
                 if (sType == ScriptType.None) continue;
                 Script scr = Script.Create(script, sType);
+                OverlayerDebug.Log($"Executing Script {Path.GetFileName(script)}");
                 Utility.ExecuteSafe(scr.Execute, out Exception e);
                 if (e != null) Logger.Log(OverlayerDebug.Log($"Error At Executing Script \"{scr.Path}\":\n{e}"));
                 if (!HasScripts)
@@ -222,6 +239,27 @@ namespace Overlayer
         {
             foreach (var file in Directory.GetFiles(Mod.Path, "*.backup"))
                 File.WriteAllBytes(file.Remove(file.LastIndexOf(".backup"), 7), File.ReadAllBytes(file));
+        }
+        #endregion
+        #region Misc Functions
+        static float lastDeltaTime;
+        static float fpsTimer;
+        static float fpsTimeTimer;
+        public static void UpdateFpsTags(float deltaTime)
+        {
+            lastDeltaTime += (deltaTime - lastDeltaTime) * 0.1f;
+            if (fpsTimer > Settings.FPSUpdateRate / 1000.0f)
+            {
+                Variables.Fps = 1.0f / lastDeltaTime;
+                fpsTimer = 0;
+            }
+            fpsTimer += deltaTime;
+            if (fpsTimeTimer > Settings.FrameTimeUpdateRate / 1000.0f)
+            {
+                Variables.FrameTime = lastDeltaTime * 1000.0f;
+                fpsTimeTimer = 0;
+            }
+            fpsTimeTimer += deltaTime;
         }
         #endregion
     }

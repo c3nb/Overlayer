@@ -78,11 +78,12 @@ namespace HarmonyEx
 			}
 		}
 
+		static List<Type> allTypes = new List<Type>();
 		/// <summary>Enumerates all successfully loaded types in the current app domain, excluding visual studio assemblies</summary>
 		/// <returns>An enumeration of all <see cref="Type"/> in all assemblies, excluding visual studio assemblies</returns>
 		public static IEnumerable<Type> AllTypes()
 		{
-			return AllAssemblies().SelectMany(a => GetTypesFromAssembly(a));
+			return allTypes ??= AllAssemblies().SelectMany(a => GetTypesFromAssembly(a)).ToList();
 		}
 
 		/// <summary>Applies a function going up the type hierarchy and stops at the first non-<c>null</c> result</summary>

@@ -1,12 +1,10 @@
 ﻿using HarmonyEx;
-using JSEngine.CustomLibrary;
 using Newtonsoft.Json.Serialization;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.UI;
-using static Overlayer.Patches.StartProgUpdater;
+using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
@@ -26,7 +24,7 @@ namespace Overlayer.Patches
                 else if (propertyOrField is PropertyInfo p)
                 {
                     var getMethod = p.GetGetMethod(true);
-                    DynamicMethod dm = new DynamicMethod($"{p.Name}_Getter", typeof(T), new[] { typeof(object) });
+                    DynamicMethod dm = new DynamicMethod($"{p.Name}_Getter", typeof(T), new[] { typeof(object) }, true);
                     ILGenerator il = dm.GetILGenerator();
                     if (getMethod.IsStatic)
                     {
@@ -124,7 +122,6 @@ namespace Overlayer.Patches
                 Variables.StartProg = ctrl.percentComplete * 100;
                 Variables.StartTile = ctrl.currentSeqID;
                 Variables.IsStarted = false;
-                Ovlr.tiles.Clear();
             }
         }
     }

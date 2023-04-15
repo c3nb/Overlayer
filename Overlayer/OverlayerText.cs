@@ -180,23 +180,23 @@ namespace Overlayer
         }
         public void Apply()
         {
-            OverlayerDebug.Log($"Applying Config At {config.Name}..");
+            OverlayerDebug.Log($"Applying Config At \"{config.Name}\"..");
             PlayingText.Source = config.PlayingText;
             NotPlayingText.Source = config.NotPlayingText;
             ShadowPlayingText.Source = config.PlayingText.BreakRichTag();
             ShadowNotPlayingText.Source = config.NotPlayingText.BreakRichTag();
-            OverlayerDebug.Log($"Compiling Text At {config.Name}..");
+            OverlayerDebug.Log($"Compiling Text At \"{config.Name}\"..");
             PlayingText.Compile();
             NotPlayingText.Compile();
             ShadowPlayingText.Compile();
             ShadowNotPlayingText.Compile();
-            OverlayerDebug.Log($"Updating Tag Reference From Text {config.Name}..");
+            OverlayerDebug.Log($"Updating Tag Reference From Text \"{config.Name}\"..");
             TagManager.UpdateReference();
             PlayingText.SetReference(TagManager.All);
             NotPlayingText.SetReference(TagManager.NP);
             ShadowPlayingText.SetReference(TagManager.All);
             ShadowNotPlayingText.SetReference(TagManager.NP);
-            OverlayerDebug.Log($"Setting Text Option At Text {config.Name}..");
+            OverlayerDebug.Log($"Setting Text Option At Text \"{config.Name}\"..");
             Text.Main.lineSpacing = config.LineSpacing;
             Text.Shadow.lineSpacing = config.LineSpacing;
             Text.Main.lineSpacingAdjustment = config.LineSpacingAdjustment;

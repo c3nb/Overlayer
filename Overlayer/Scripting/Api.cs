@@ -27,7 +27,7 @@ namespace Overlayer.Scripting
         public static Harmony harmony = new Harmony("Overlayer.Scripting.Api");
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();
         [Api("Log Object")]
-        public static void Log(object obj) => Main.Logger.Log(obj.ToString());
+        public static void Log(object obj) => Main.Logger.Log(OverlayerDebug.Log(obj).ToString());
         [Api("Prefix Method", SupportScript = ScriptType.JavaScript)]
         public static bool Prefix(string typeColonMethodName, FunctionInstance func)
         {

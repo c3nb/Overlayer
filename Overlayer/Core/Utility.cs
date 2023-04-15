@@ -13,6 +13,7 @@ using System.Runtime.InteropServices;
 using static UnityModManagerNet.UnityModManager.UI;
 using TMPro;
 using Overlayer.Core.Translation;
+using System.Diagnostics;
 
 namespace Overlayer.Core
 {
@@ -20,7 +21,7 @@ namespace Overlayer.Core
     {
         static Utility()
         {
-            var assName = new AssemblyName("Overlayer.Core.Utils_Patch");
+            var assName = new AssemblyName("Overlayer.Utility");
             ass = AssemblyBuilder.DefineDynamicAssembly(assName, AssemblyBuilderAccess.Run);
             mod = ass.DefineDynamicModule(assName.Name);
         }
@@ -97,6 +98,7 @@ namespace Overlayer.Core
             GUILayout.BeginHorizontal(new GUILayoutOption[0]);
             GUILayout.Label(label, new GUILayoutOption[]  { GUILayout.ExpandWidth(false) });
             string text = GUILayout.TextArea(value, style ?? GUI.skin.textArea, option);
+            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             if (text != value)
             {
@@ -111,6 +113,7 @@ namespace Overlayer.Core
             GUILayout.BeginHorizontal(new GUILayoutOption[0]);
             GUILayout.Label(label, GUILayout.ExpandWidth(false));
             string text = GUILayout.TextField(value, style ?? GUI.skin.textArea, option);
+            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             if (text != value)
             {
@@ -129,11 +132,13 @@ namespace Overlayer.Core
             @enum = values[selected];
             return result;
         }
-        public static bool RightToggle(bool value, string label)
+        public static bool RightToggle(bool value, string label, Action<bool> onChange = null)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
+            bool prev = value;
             value = GUILayout.Toggle(value, "");
+            if (prev != value) onChange(value);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             return value;
@@ -399,6 +404,12 @@ namespace Overlayer.Core
         }
         public static string Escape(this string str) => str.Replace(@"\", @"\\").Replace(":", @"\:");
         public static string Unescape(this string str) => str.Replace(@"\:", ":").Replace(@"\\", @"\");
+        public static string[] Split2(this string str, char separator)
+        {
+            int index = str.IndexOf(separator);
+            if (index < 0) return new string[] { str };
+            return new string[] { str.Substring(0, index), str.Substring(index + 1, str.Length - (index + 1)) };
+        }
         #endregion
         #region Patch
         public static readonly AssemblyBuilder ass;
@@ -523,6 +534,21 @@ namespace Overlayer.Core
                     break;
             }
         }
+        public static Type CopyMethods(string typeName, IEnumerable<MethodInfo> methods)
+        {
+            TypeBuilder t = mod.DefineType(typeName, TypeAttributes.Public | TypeAttributes.Class);
+            foreach (MethodInfo method in methods)
+            {
+                var parameters = method.GetParameters();
+                MethodBuilder m = t.DefineMethod(method.Name, method.Attributes, method.CallingConvention, method.ReturnType, parameters.Select(p => p.ParameterType).ToArray());
+                ILGenerator il = m.GetILGenerator();
+                foreach (var param in parameters)
+                    il.Emit(OpCodes.Ldarg, param.Position);
+                il.Emit(OpCodes.Call);
+                il.Emit(OpCodes.Ret);
+            }
+            return t.CreateType();
+        }
         #endregion
         #region Misc
         public static void ExecuteSafe(Action exec, out Exception ex)
@@ -537,9 +563,22 @@ namespace Overlayer.Core
             try { return exec.Invoke(); }
             catch (Exception e) { ex = e; return default; }
         }
+        public static TimeSpan MeasureTime(Action a)
+        {
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            a.Invoke();
+            watch.Stop();
+            return watch.Elapsed;
+        }
         #endregion
         #region Extensions
+        public static string RemoveLast(this string s, int count) => s.Remove(s.Length - count - 1);
+        public static int Map(this int value, int fromMin, int fromMax, int toMin, int toMax) => toMin + (value - fromMin) * (toMax - toMin) / (fromMax - fromMin);
+        public static double Map(this double value, double fromMin, double fromMax, double toMin, double toMax) => toMin + (value - fromMin) * (toMax - toMin) / (fromMax - fromMin);
+        public static float Map(this float value, float fromMin, float fromMax, float toMin, float toMax) => toMin + (value - fromMin) * (toMax - toMin) / (fromMax - fromMin);
         public static double Round(this double value, int digits) => digits < 0 ? value : Math.Round(value,  digits);
+        public static float Round(this float value, int digits) => digits < 0 ? value : (float)Math.Round((double)value,  digits);
         public static void Deconstruct<T1, T2>(this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value)
         {
             key = tuple.Key;

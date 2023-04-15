@@ -11,20 +11,21 @@ namespace Overlayer.Core
         public PatchInfo(MethodInfo patchMethod)
         {
             PatchMethod = patchMethod;
-            PatchType = DeterminePatchType(patchMethod);
+            HarmonyPatchType = DeterminePatchType(patchMethod);
             Original = GetOriginal(patchMethod);
+            TypePatch = false;
         }
         public PatchInfo(Type patchType)
         {
-            OriginalType = patchType;
+            PatchType = patchType;
             TypePatch = true;
         }
         public bool TypePatch { get; private set; }
         public bool Patched { get; private set; }
-        public HarmonyPatchType PatchType { get; }
+        public HarmonyPatchType HarmonyPatchType { get; }
         public MethodInfo PatchMethod { get; }
         public MethodBase Original { get; }
-        public Type OriginalType { get; }
+        public Type PatchType { get; }
         PatchClassProcessor proc;
         public void Patch(Harmony harmony)
         {
@@ -32,13 +33,13 @@ namespace Overlayer.Core
             if (TypePatch)
             {
                 if (harmony != proc?.instance)
-                    proc.Unpatch();
-                proc = harmony.CreateClassProcessor(OriginalType);
+                    proc?.Unpatch();
+                proc = harmony.CreateClassProcessor(PatchType);
                 proc.Patch();
                 Patched = true;
                 return;
             }
-            switch (PatchType)
+            switch (HarmonyPatchType)
             {
                 case HarmonyPatchType.Prefix:
                     harmony.Patch(Original, prefix: new HarmonyMethod(PatchMethod));
@@ -93,8 +94,8 @@ namespace Overlayer.Core
             info.methodType ??= MethodType.Normal;
             return info.GetOriginalMethod();
         }
-        public override string ToString() => $"Target:{Original} {PatchType} {PatchMethod}";
-        public override int GetHashCode() => (int)PatchType | (Original.GetHashCode() + PatchMethod.GetHashCode());
+        public override string ToString() => TypePatch ? PatchType.FullName : $"Target:{Original.DeclaringType.FullName}.{Original.Name} {HarmonyPatchType} {PatchMethod.DeclaringType.FullName}.{PatchMethod.Name}";
+        public override int GetHashCode() => TypePatch ? PatchType.GetHashCode() : ((int)HarmonyPatchType | (Original.GetHashCode() + PatchMethod.GetHashCode()));
         public override bool Equals(object obj) => obj is PatchInfo p && this == p;
         public static bool operator ==(PatchInfo a, PatchInfo b) => Comparer.Equals(a, b);
         public static bool operator !=(PatchInfo a, PatchInfo b) => !Comparer.Equals(a, b);
@@ -103,7 +104,7 @@ namespace Overlayer.Core
         {
             public static readonly IEqualityComparer<PatchInfo> Instance = new PatchInfoComparer();
             PatchInfoComparer() { }
-            bool IEqualityComparer<PatchInfo>.Equals(PatchInfo x, PatchInfo y) => x.PatchType == y.PatchType && x.Original == y.Original && x.PatchMethod == y.PatchMethod;
+            bool IEqualityComparer<PatchInfo>.Equals(PatchInfo x, PatchInfo y) => x.HarmonyPatchType == y.HarmonyPatchType && x.Original == y.Original && x.PatchMethod == y.PatchMethod;
             int IEqualityComparer<PatchInfo>.GetHashCode(PatchInfo obj) => obj.GetHashCode();
         }
     }

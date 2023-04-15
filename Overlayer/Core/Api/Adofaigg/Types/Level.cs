@@ -23,7 +23,7 @@ namespace Overlayer.Core.Api.Adofaigg.Types
         public string video;
         public string download;
         public string workshop;
-        public Tag[] tags;
+        public LevelTag[] tags;
         public override string ToString()
             => JsonConvert.SerializeObject(this, Formatting.Indented);
         public static Parameter<int> Offset(int offset = 0) => new Parameter<int>("offset", offset);

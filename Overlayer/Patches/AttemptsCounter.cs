@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Overlayer.Core.Tags;
+using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
@@ -20,7 +21,7 @@ namespace Overlayer.Patches
                 if (PlaytimeCounter.MapID == null || !Attempts.TryGetValue(PlaytimeCounter.MapID, out _))
                     Attempts[PlaytimeCounter.MapID] = Persistence.GetCustomWorldAttempts(PlaytimeCounter.MapID);
                 else Attempts[PlaytimeCounter.MapID]++;
-                AttemptsCount = Attempts[PlaytimeCounter.MapID];
+                Variables.AttemptsCount = Attempts[PlaytimeCounter.MapID];
                 Persistence.IncrementCustomWorldAttempts(PlaytimeCounter.MapID);
             }
         }
@@ -28,14 +29,14 @@ namespace Overlayer.Patches
         public static void Postfix(scrController __instance)
         {
             if (ADOBase.sceneName.Contains("-") && !__instance.noFail)
-                AttemptsCount = Persistence.GetWorldAttempts(scrController.currentWorld);
+                Variables.AttemptsCount = Persistence.GetWorldAttempts(scrController.currentWorld);
         }
         [HarmonyPatch(typeof(scrController), "FailAction")]
         [HarmonyPostfix]
         public static void FAPostfix(scrController __instance)
         {
-            FailCount++;
-            BestProg = Math.Max(BestProg, __instance.percentComplete * 100);
+            Variables.FailCount++;
+            Variables.BestProg = Math.Max(Variables.BestProg, __instance.percentComplete * 100);
         }
     }
 }

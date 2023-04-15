@@ -87,6 +87,7 @@ namespace Overlayer.Core
             {
                 TagAttribute tagAttr = method.GetCustomAttribute<TagAttribute>();
                 if (tagAttr == null) continue;
+                tagAttr.Name = tagAttr.Name ?? method.Name;
                 OverlayerDebug.Log($"Loading Tag {tagAttr.Name}..");
                 Tag tag = new Tag(tagAttr.Name, config);
                 tag.SetGetter(method).Build();
@@ -100,6 +101,7 @@ namespace Overlayer.Core
             {
                 FieldTagAttribute tagAttr = field.GetCustomAttribute<FieldTagAttribute>();
                 if (tagAttr == null) continue;
+                tagAttr.Name = tagAttr.Name ?? field.Name;
                 OverlayerDebug.Log($"Loading FieldTag {tagAttr.Name}..");
                 Tag tag = new Tag(tagAttr.Name, config);
                 Delegate func;
@@ -129,10 +131,10 @@ namespace Overlayer.Core
         {
             foreach (var info in ParsePatchNames(patchNames))
             {
-                OverlayerDebug.Log($"Adding Patch {info}..");
                 if (Patches.TryGetValue(info, out var tags))
                     tags.Add(tag);
                 else Patches.Add(info, new List<Tag> { tag });
+                OverlayerDebug.Log($"Added Patch {info}..");
             }
         }
         static List<PatchInfo> ParsePatchNames(string patchNames)
@@ -143,11 +145,14 @@ namespace Overlayer.Core
             foreach (string patch in patches)
             {
                 PatchInfo pInfo;
-                var method = AccessTools.Method(patch);
-                if (method != null)
-                    pInfo = new PatchInfo(method);
-                else pInfo = new PatchInfo(AccessTools.TypeByName(patch));
-                OverlayerDebug.Log($"Parsed Patch {pInfo}");
+                var type = AccessTools.TypeByName(patch);
+                if (type != null)
+                    pInfo = new PatchInfo(type);
+                else
+                {
+                    string[] split = patch.Split2(':');
+                    pInfo = new PatchInfo(AccessTools.TypeByName(split[0]).GetMethod(split[1], AccessTools.all));
+                }
                 pInfos.Add(pInfo);
             }
             return pInfos;
@@ -157,7 +162,8 @@ namespace Overlayer.Core
             ILGenerator il;
             if (fTag.Round)
             {
-                dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", field.FieldType, new[] { typeof(int) });
+                dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Opt", field.FieldType, new[] { typeof(int) }, true);
+                dm.DefineParameter(1, System.Reflection.ParameterAttributes.None, "digits");
                 il = dm.GetILGenerator();
                 il.Emit(OpCodes.Ldsfld, field);
                 if (field.FieldType != typeof(double))
@@ -169,7 +175,7 @@ namespace Overlayer.Core
                 il.Emit(OpCodes.Ret);
                 return dm.CreateDelegate(Expression.GetFuncType(new[] { typeof(int), field.FieldType }));
             }
-            dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper", typeof(string), Type.EmptyTypes);
+            dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper", field.FieldType, Type.EmptyTypes, true);
             il = dm.GetILGenerator();
             il.Emit(OpCodes.Ldsfld, field);
             il.Emit(OpCodes.Ret);
@@ -181,7 +187,7 @@ namespace Overlayer.Core
             ILGenerator il;
             var prms = processor.GetParameters();
             if (prms[0].ParameterType != field.FieldType) return null;
-            dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Processor", processor.ReturnType, new[] { prms[1].ParameterType });
+            dm = new DynamicMethod($"{fTag.Name}Tag_Wrapper_Processor", processor.ReturnType, new[] { prms[1].ParameterType }, true);
             il = dm.GetILGenerator();
             il.Emit(OpCodes.Ldsfld, field);
             il.Emit(OpCodes.Ldarg_0);
@@ -189,6 +195,6 @@ namespace Overlayer.Core
             il.Emit(OpCodes.Ret);
             return dm.CreateDelegate(Expression.GetFuncType(new[] { prms[1].ParameterType, processor.ReturnType }));
         }
-        static readonly MethodInfo round = typeof(Math).GetMethod("Round", new[] { typeof(double), typeof(int) });
+        static readonly MethodInfo round = typeof(Utility).GetMethod("Round", new[] { typeof(double), typeof(int) });
     }
 }

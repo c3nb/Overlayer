@@ -41,8 +41,8 @@ namespace Overlayer.Scripting.JS
         public override ScriptType ScriptType => ScriptType.JavaScript;
         public override void Compile()
         {
-            exec = CompiledScript.Compile(new FileSource(Path));
-            eval = CompiledEval.Compile(new FileSource(Path));
+            exec = CompiledScript.Compile(Path != null ? new FileSource(Path) : new StringSource(Source));
+            eval = CompiledEval.Compile(Path != null ? new FileSource(Path) : new StringSource(Source));
         }
         public override void Dispose()
         {

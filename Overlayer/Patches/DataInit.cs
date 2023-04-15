@@ -1,5 +1,6 @@
 ﻿using ADOFAI;
 using HarmonyEx;
+using Overlayer.Tags;
 
 namespace Overlayer.Patches
 {
@@ -11,7 +12,7 @@ namespace Overlayer.Patches
             string hash = MakeHash(__instance.author, __instance.artist, __instance.song);
             int attempts = Persistence.GetCustomWorldAttempts(hash);
             AttemptsCounter.Attempts[hash] = attempts;
-            AttemptsCounter.AttemptsCount = attempts;
+            Variables.AttemptsCount = attempts;
             PlaytimeCounter.MapID = hash;
         }
         public static string MakeHash(string author, string artist, string song)

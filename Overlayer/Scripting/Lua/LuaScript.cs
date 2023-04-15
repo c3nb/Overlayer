@@ -41,7 +41,7 @@ namespace Overlayer.Scripting.Lua
         public override ScriptType ScriptType => ScriptType.Lua;
         public override void Compile()
         {
-            LuaChunk chunk = Engine.CompileChunk(Path, null);
+            LuaChunk chunk = Path != null ? Engine.CompileChunk(Path, null) : Engine.CompileChunk(Source, "LuaScript", null);
             exec = () => chunk.Run(env);
             eval = () => chunk.Run(env).Values[0];
         }

@@ -104,5 +104,8 @@
 
         public static readonly string AllowCollectingLevel = nameof(AllowCollectingLevel);
         public static readonly string DebugMode = nameof(DebugMode);
+        public static readonly string PerfStatUpdateRate = nameof(PerfStatUpdateRate);
+        public static readonly string FrameTimeUpdateRate = nameof(FrameTimeUpdateRate);
+        public static readonly string FPSUpdateRate = nameof(FPSUpdateRate);
     }
 }

@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DIFFICULTY_PREDICTOR</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -31,7 +31,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;DIFFICULTY_PREDICTOR</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -565,6 +565,7 @@
     <Compile Include="Core\Tags\TagAttribute.cs" />
     <Compile Include="Core\Tags\TagConfig.cs" />
     <Compile Include="Core\TextManager.cs" />
+    <Compile Include="FastDateTime.cs" />
     <Compile Include="Lib\Harmony\Extras\DelegateTypeFactory.cs" />
     <Compile Include="Lib\Harmony\Extras\FastAccess.cs" />
     <Compile Include="Lib\Harmony\Extras\MethodInvoker.cs" />
@@ -1290,6 +1291,7 @@
     <Compile Include="Patches\DataInit.cs" />
     <Compile Include="Patches\FontPatch.cs" />
     <Compile Include="Patches\GetHitMarginFixer.cs" />
+    <Compile Include="Patches\MultipressDetectPatch.cs" />
     <Compile Include="Patches\PlaytimeCounter.cs" />
     <Compile Include="Patches\RemoveFuckingUMMDummyLogPatch.cs" />
     <Compile Include="Patches\Resetter.cs" />
@@ -1312,10 +1314,15 @@
     <Compile Include="Scripting\ScriptType.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShadowText.cs" />
+    <Compile Include="Tags\Adofaigg.cs" />
     <Compile Include="Tags\CurHitTags.cs" />
+    <Compile Include="Tags\Expression.cs" />
     <Compile Include="Tags\HexCode.cs" />
     <Compile Include="Tags\LHitTags.cs" />
+    <Compile Include="Tags\Misc.cs" />
     <Compile Include="Tags\NHitTags.cs" />
+    <Compile Include="Tags\Performance.cs" />
+    <Compile Include="Tags\ProgressDeath.cs" />
     <Compile Include="Tags\SHitTags.cs" />
     <Compile Include="Tags\Variables.cs" />
     <Compile Include="TextConfig.cs" />

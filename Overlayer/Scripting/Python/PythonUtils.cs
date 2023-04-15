@@ -20,6 +20,15 @@ namespace Overlayer.Scripting.Python
             engine.SetSearchPaths(modulePaths);
             return engine;
         }
+        public static ScriptEngine CreateEngineFromSource(string src, out ScriptSource source)
+        {
+            var engine = Py.CreateEngine();
+            source = engine.CreateScriptSourceFromString(src, SourceCodeKind.AutoDetect);
+            ScriptScope scope = Py.GetBuiltinModule(engine);
+            scope.SetVariable("__import__", new ImportDelegate(ResolveImport));
+            engine.SetSearchPaths(modulePaths);
+            return engine;
+        }
         private static object ResolveImport(CodeContext context, string moduleName, PythonDictionary globals, PythonDictionary locals, PythonTuple fromlist, int level)
         {
             var builtin = IronPython.Modules.Builtin.__import__(context, moduleName, globals, locals, fromlist, level);

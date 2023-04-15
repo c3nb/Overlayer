@@ -140,13 +140,13 @@ namespace HarmonyEx
 			{
 				var patchInfo = HarmonySharedState.GetPatchInfo(original) ?? new PatchInfo();
 
-				if (!patchInfo.prefixes.Any(p => p.PatchMethod == prefix.method))
+				if (!patchInfo.prefixes.Any(p => p.PatchMethod == prefix?.method))
 					patchInfo.AddPrefixes(instance.Id, prefix);
-                if (!patchInfo.prefixes.Any(p => p.PatchMethod == postfix.method))
+                if (!patchInfo.prefixes.Any(p => p.PatchMethod == postfix?.method))
                     patchInfo.AddPostfixes(instance.Id, postfix);
-                if (!patchInfo.prefixes.Any(p => p.PatchMethod == transpiler.method))
+                if (!patchInfo.prefixes.Any(p => p.PatchMethod == transpiler?.method))
                     patchInfo.AddTranspilers(instance.Id, transpiler);
-                if (!patchInfo.prefixes.Any(p => p.PatchMethod == finalizer.method))
+                if (!patchInfo.prefixes.Any(p => p.PatchMethod == finalizer?.method))
                     patchInfo.AddFinalizers(instance.Id, finalizer);
 
 				var replacement = PatchFunctions.UpdateWrapper(original, patchInfo);

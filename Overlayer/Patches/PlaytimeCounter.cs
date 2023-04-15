@@ -14,13 +14,13 @@ namespace Overlayer.Patches
     public static class PlaytimeCounter
     {
         public static double PlayTime = 0;
-        [Tag("PlayTime", RelatedPatches = "Overlayer.Patches.PlaytimeCounter:UpdatePostfix|Overlayer.Patches.PlaytimeCounter.SetIDPatch")]
-        public static double PlayTimeTag(double playTime, string opt = "M_1")
+        [Tag("PlayTime", RelatedPatches = "Overlayer.Patches.PlaytimeCounter:UpdatePostfix|Overlayer.Patches.PlaytimeCounter+SetIDPatch")]
+        public static double PlayTimeTag(string opt = "M_1")
         {
             if (string.IsNullOrEmpty(opt))
                 opt = "M_1";
-            string[] split = opt.Split('_');
-            if (split.Length < 1) return 0;
+            string[] split = opt.Split2('_');
+            if (split.Length < 2) return 0;
             int digits = split.Length > 1 ? StringConverter.ToInt32(split[1]) : 1;
             switch (split[0])
             {
@@ -30,10 +30,10 @@ namespace Overlayer.Patches
                 case "MS": return MS().Round(digits);
                 default: return 0;
             }
-            double H() => playTime / 60 / 60;
-            double M() => playTime / 60;
-            double S() => playTime;
-            double MS() => playTime * 1000;
+            double H() => PlayTime / 60 / 60;
+            double M() => PlayTime / 60;
+            double S() => PlayTime;
+            double MS() => PlayTime * 1000;
         }
         public static Dictionary<string, float> PlayTimes = new Dictionary<string, float>();
         public static string MapID = string.Empty;
