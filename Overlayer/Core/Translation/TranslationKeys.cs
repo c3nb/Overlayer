@@ -107,5 +107,6 @@
         public static readonly string PerfStatUpdateRate = nameof(PerfStatUpdateRate);
         public static readonly string FrameTimeUpdateRate = nameof(FrameTimeUpdateRate);
         public static readonly string FPSUpdateRate = nameof(FPSUpdateRate);
+        public static readonly string ReloadScripts = nameof(ReloadScripts);
     }
 }

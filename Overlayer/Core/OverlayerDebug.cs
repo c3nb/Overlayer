@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using UnityEngine;
+using UnityModManagerNet;
 
 namespace Overlayer.Core
 {
@@ -38,6 +39,18 @@ namespace Overlayer.Core
             if (!Main.Settings.DebugMode) return obj;
             Buffer.AppendLine(toString != null ? toString(obj) : obj.ToString());
             return obj;
+        }
+        public static T Exception<T>(T ex, string message = null) where T : Exception
+        {
+            if (message != null)
+                Log(message);
+            CatchedException(ex);
+            return ex;
+        }
+        public static void OpenDebugLog()
+        {
+            SaveLog();
+            Application.OpenURL(Path.Combine(Main.Mod.Path, "Debug.log"));
         }
     }
 }

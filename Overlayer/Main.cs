@@ -62,8 +62,16 @@ namespace Overlayer
                 Assembly ass = Assembly.GetExecutingAssembly();
                 Harmony = new Harmony(modEntry.Info.Id);
                 Harmony.PatchAll(ass);
-                TagManager.Load(ass);
-                TextManager.Load();
+                try
+                {
+                    TagManager.Load(ass);
+                    TextManager.Load();
+                }
+                catch (Exception e) 
+                { 
+                    OverlayerDebug.Exception(e, "OnToggle: Loading Tag, Text");
+                    OverlayerDebug.OpenDebugLog();
+                }
                 RunScripts(ScriptPath);
             }
             else
@@ -84,6 +92,11 @@ namespace Overlayer
             OverlayerV2LogoGUI();
             LanguageSelectGUI();
             Settings.Draw();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(Language[TranslationKeys.ReloadScripts]))
+                RunScripts(ScriptPath);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
             TextManager.GUI();
         }
         static Color cacheColor = Color.white;

@@ -32,7 +32,7 @@ namespace Overlayer
         }
         public bool AllowCollectingLevels = true;
         public bool ChangeFont = false;
-        public bool DebugMode = false;
+        public bool DebugMode = true;
         public FontMeta AdofaiFont = new FontMeta();
         public SystemLanguage Lang = SystemLanguage.English;
         public int PerfStatUpdateRate = 100;
