@@ -1,12 +1,9 @@
 ﻿using HarmonyEx;
-using System;
 using Overlayer.Core;
-using System.Collections.Generic;
-using UnityEngine;
-using System.Security.Permissions;
-using System.Reflection;
 using Overlayer.Core.Tags;
-using Overlayer.Tags;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 
 namespace Overlayer.Patches
 {
