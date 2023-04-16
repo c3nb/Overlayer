@@ -410,6 +410,32 @@ namespace Overlayer.Core
             if (index < 0) return new string[] { str };
             return new string[] { str.Substring(0, index), str.Substring(index + 1, str.Length - (index + 1)) };
         }
+        public static string GetBetween(this string str, string start, string end)
+        {
+            int sIdx = str.IndexOf(start);
+            int eIdx = str.LastIndexOf(end);
+            if (sIdx < 0 || eIdx < 0) return null;
+            return str.Substring(sIdx + 1, eIdx - sIdx - 1);
+        }
+        public static string GetBefore(this string str, string before)
+        {
+            int index = str.IndexOf(before);
+            if (index < 0) return null;
+            return str.Substring(0, index);
+        }
+        public static string GetAfter(this string str, string after)
+        {
+            int index = str.IndexOf(after);
+            if (index < 0) return null;
+            return str.Substring(index + 1, str.Length - index - 1);
+        }
+        public static string TrimBetween(this string str, string start, string end)
+        {
+            int sIdx = str.IndexOf(start);
+            int eIdx = str.LastIndexOf(end);
+            if (sIdx < 0 || eIdx < 0) return null;
+            return str.Remove(sIdx + 1, eIdx - sIdx - 1);
+        }
         #endregion
         #region Patch
         public static readonly AssemblyBuilder ass;
@@ -553,6 +579,13 @@ namespace Overlayer.Core
         #region Misc
         static Assembly[] loadedAsss;
         static Type[] loadedTypes;
+        public static Assembly AssByName(string assName)
+        {
+            if (loadedAsss == null)
+                loadedAsss = AppDomain.CurrentDomain.GetAssemblies();
+            return loadedAsss.FirstOrDefault(t => t.FullName == assName) ??
+                loadedAsss.FirstOrDefault(t => t.GetName().Name == assName);
+        }
         public static Type TypeByName(string typeName)
         {
             if (loadedAsss == null)

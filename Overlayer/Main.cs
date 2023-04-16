@@ -63,6 +63,7 @@ namespace Overlayer
                 Assembly ass = Assembly.GetExecutingAssembly();
                 Harmony = new Harmony(modEntry.Info.Id);
                 Harmony.PatchAll(ass);
+                DistinctHarmonyPatches.Patch(Harmony);
                 Performance.Init();
                 try
                 {
@@ -82,6 +83,7 @@ namespace Overlayer
                 OverlayerDebug.Term();
                 SceneManager.activeSceneChanged -= SceneChanged;
                 Harmony.UnpatchAll(Harmony.Id);
+                DistinctHarmonyPatches.Unpatch(Harmony);
                 Harmony = null;
                 TextManager.Save();
                 TextManager.Release();
