@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Overlayer.Core;
 using Overlayer.Core.Tags;
 using Overlayer.Scripting;
 
@@ -13,7 +14,10 @@ namespace Overlayer.Tags
         {
             if (expressions.TryGetValue(expr, out Script script))
                 return script.Evaluate();
-            return (expressions[expr] = Script.CreateFromSource(expr, ScriptType.JavaScript)).Evaluate();
+            var scr = Script.CreateFromSource(expr, ScriptType.JavaScript);
+            Utility.ExecuteSafe(scr.Compile, out var ex);
+            if (ex != null) return "";
+            return (expressions[expr] = scr).Evaluate();
         }
     }
 }
