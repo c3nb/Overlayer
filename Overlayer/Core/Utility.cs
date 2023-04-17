@@ -14,10 +14,12 @@ using static UnityModManagerNet.UnityModManager.UI;
 using TMPro;
 using Overlayer.Core.Translation;
 using System.Diagnostics;
+using UnityEngine.Scripting;
+using System.Threading.Tasks;
 
 namespace Overlayer.Core
 {
-    public static unsafe class Utility
+    public static class Utility
     {
         static Utility()
         {
@@ -315,7 +317,7 @@ namespace Overlayer.Core
         public static char ToUpper(this char c) => c.IsUpper() ? c : (char)(c - 32);
         public static char ToLower(this char c) => c.IsLower() ? c : (char)(c + 32);
         public static char Invert(this char c) => IsUpper(c) ? c.ToLower() : c.ToUpper();
-        public static string Invert(this string s)
+        public static unsafe string Invert(this string s)
         {
             if (s == null || s.Length <= 0) return s;
             fixed (char* ptr = s)
@@ -331,7 +333,7 @@ namespace Overlayer.Core
             }
             return s;
         }
-        public static string InvertAlternately(this string s)
+        public static unsafe string InvertAlternately(this string s)
         {
             if (s == null || s.Length <= 0) return s;
             bool isLower = s[0].IsLower();
@@ -348,7 +350,7 @@ namespace Overlayer.Core
             }
             return s;
         }
-        public static string ToUpperFast(this string s)
+        public static unsafe string ToUpperFast(this string s)
         {
             fixed (char* ptr = s)
             {
@@ -363,7 +365,7 @@ namespace Overlayer.Core
             }
             return s;
         }
-        public static string ToLowerFast(this string s)
+        public static unsafe string ToLowerFast(this string s)
         {
             fixed (char* ptr = s)
             {
@@ -607,6 +609,12 @@ namespace Overlayer.Core
             ex = null;
             try { return exec.Invoke(); }
             catch (Exception e) { ex = e; return default; }
+        }
+        public static T ExecuteSafe<T>(Func<T> exec, T defaultValue, out Exception ex)
+        {
+            ex = null;
+            try { return exec.Invoke(); }
+            catch (Exception e) { ex = e; return defaultValue; }
         }
         public static TimeSpan MeasureTime(Action a)
         {

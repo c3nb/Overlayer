@@ -1244,6 +1244,7 @@
     <Compile Include="Lib\Vostok\Sys\Metrics\PerfCounters\Utilities\TimeProvider.cs" />
     <Compile Include="Lib\Vostok\Sys\Metrics\PerfCounters\Utilities\Win32ExceptionUtility.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Core\MemoryHelper.cs" />
     <Compile Include="OverlayerText.cs" />
     <Compile Include="Patches\AttemptsCounter.cs" />
     <Compile Include="Patches\BpmUpdater.cs" />

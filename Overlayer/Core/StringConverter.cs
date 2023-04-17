@@ -230,6 +230,8 @@ namespace Overlayer.Core
         }
         public static T ToEnum<T>(string s) where T : Enum => EnumHelper<T>.Parse(s);
         public static string FromEnum<T>(T e) where T : Enum => e.ToString();
+        public static bool ToBoolean(string s) => s.Equals("true", StringComparison.OrdinalIgnoreCase);
+        public static string FromBoolean(bool b) => b.ToString();
         public static MethodInfo GetToConverter(Type numType)
         {
             if (numType == typeof(sbyte)) return TInt8;
@@ -242,6 +244,7 @@ namespace Overlayer.Core
             else if (numType == typeof(ulong)) return TUInt64;
             else if (numType == typeof(float)) return TFloat;
             else if (numType == typeof(double)) return TDouble;
+            else if (numType == typeof(bool)) return TBool;
             else if (typeof(Enum).IsAssignableFrom(numType)) return TEnum.MakeGenericMethod(numType);
             else return null;
         }
@@ -257,6 +260,7 @@ namespace Overlayer.Core
             else if (numType == typeof(ulong)) return FUInt64;
             else if (numType == typeof(float)) return FFloat;
             else if (numType == typeof(double)) return FDouble;
+            else if (numType == typeof(bool)) return FBool;
             else if (typeof(Enum).IsAssignableFrom(numType)) return FEnum.MakeGenericMethod(numType);
             else return FObject;
         }
@@ -272,6 +276,7 @@ namespace Overlayer.Core
         public static readonly MethodInfo TFloat = typeof(StringConverter).GetMethod("ToFloat");
         public static readonly MethodInfo TDouble = typeof(StringConverter).GetMethod("ToDouble");
         public static readonly MethodInfo TEnum = typeof(StringConverter).GetMethod("ToEnum");
+        public static readonly MethodInfo TBool = typeof(StringConverter).GetMethod("ToBoolean");
         public static readonly MethodInfo FInt8 = typeof(StringConverter).GetMethod("FromInt8");
         public static readonly MethodInfo FInt16 = typeof(StringConverter).GetMethod("FromInt16");
         public static readonly MethodInfo FInt32 = typeof(StringConverter).GetMethod("FromInt32");
@@ -284,6 +289,7 @@ namespace Overlayer.Core
         public static readonly MethodInfo FDouble = typeof(StringConverter).GetMethod("FromDouble");
         public static readonly MethodInfo FEnum = typeof(StringConverter).GetMethod("FromEnum");
         public static readonly MethodInfo FObject = typeof(StringConverter).GetMethod("FromObject");
+        public static readonly MethodInfo FBool = typeof(StringConverter).GetMethod("FromBoolean");
     }
     public static class EnumHelper<T> where T : Enum
     {

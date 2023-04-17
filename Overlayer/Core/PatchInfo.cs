@@ -99,7 +99,6 @@ namespace Overlayer.Core
         }
         public static FastInvokeHandler getOriginalMethod = MethodInvoker.GetHandler(AccessTools.Method("HarmonyLib.PatchTools:GetOriginalMethod"));
         public static FastInvokeHandler getBulkMethods = MethodInvoker.GetHandler(AccessTools.Method("HarmonyLib.PatchClassProcessor:GetBulkMethods"));
-        public static FastInvokeHandler getPatchInfo = MethodInvoker.GetHandler(AccessTools.Method("HarmonyLib.HarmonySharedState:GetPatchInfo"));
         public static AccessTools.FieldRef<PatchClassProcessor, Harmony> pcp_instance = AccessTools.FieldRefAccess<PatchClassProcessor, Harmony>(AccessTools.Field(typeof(PatchClassProcessor), "instance"));
         public static AccessTools.FieldRef<PatchClassProcessor, object> pcp_patchMethods = AccessTools.FieldRefAccess<PatchClassProcessor, object>(AccessTools.Field(typeof(PatchClassProcessor), "patchMethods"));
         public static AccessTools.FieldRef<object, HarmonyMethod> attrPatch_info = AccessTools.FieldRefAccess<HarmonyMethod>(Utility.TypeByName("HarmonyLib.AttributePatch"), "info");
@@ -128,11 +127,9 @@ namespace Overlayer.Core
                     toUnpatch.Add(((MethodBase)getOriginalMethod(info), info));
                 }
             }
+            var harmony = pcp_instance(pcp);
             foreach (var (original, patch) in toUnpatch)
-            {
-                HarmonyLib.PatchInfo patchInfo = (HarmonyLib.PatchInfo)getPatchInfo(original);
-                patchInfo.RemovePatch(patch.method);
-            }
+                harmony.Unpatch(original, patch.method);
         }
         internal class PatchComparer : IEqualityComparer<Patch>
         {

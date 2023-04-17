@@ -61,9 +61,9 @@ namespace Overlayer.Tags
         public static double CurBpm;
         [FieldTag("RecKPS", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix")]
         public static double RecKPS;
-        [FieldTag(Round = true)]
+        [FieldTag(Round = true, NotPlaying = true)]
         public static double FrameTime;
-        [FieldTag(Round = true)]
+        [FieldTag(Round = true, NotPlaying = true)]
         public static double Fps;
         [FieldTag("Multipress")]
         public static int MultipressCount;

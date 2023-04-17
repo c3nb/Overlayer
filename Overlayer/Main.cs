@@ -88,6 +88,7 @@ namespace Overlayer
                 TextManager.Save();
                 TextManager.Release();
                 TagManager.Release();
+                MemoryHelper.Clean(CleanOption.All);
             }
             return true;
         }
@@ -183,6 +184,7 @@ namespace Overlayer
 
             ModSettings.Save(Settings, modEntry);
             TextManager.Save();
+            MemoryHelper.Clean(CleanOption.Incremental);
         }
         public static void OnUpdate(ModEntry modEntry, float deltaTime)
         {
