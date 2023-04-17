@@ -552,7 +552,8 @@
     <Compile Include="Core\Api\Api.cs" />
     <Compile Include="Core\Api\Overlayer\LevelMeta.cs" />
     <Compile Include="Core\Api\Overlayer\Overlayer.cs" />
-    <Compile Include="Core\ExceptionCatcher.cs" />
+    <Compile Include="Core\ExceptionHandling\ExceptionCatcher.cs" />
+    <Compile Include="Core\ExceptionHandling\StackTraceParser.cs" />
     <Compile Include="Core\FontManager.cs" />
     <Compile Include="Core\OverlayerDebug.cs" />
     <Compile Include="Core\PatchInfo.cs" />

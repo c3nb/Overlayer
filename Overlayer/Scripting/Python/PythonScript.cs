@@ -20,8 +20,9 @@ namespace Overlayer.Scripting.Python
         {
             if (!internalTypeGenerated)
             {
-                Type t = Utility.CopyMethods("Overlayer_Internal", Api.GetApi(ScriptType).Concat(TagManager.All.Select(t => t.Getter)));
-                PythonUtils.options["Overlayer_Internal"] = DynamicHelpers.GetPythonTypeFromType(t);
+                var delegates = Api.GetApi(ScriptType).Select(m => (m.Name, m.CreateDelegate(m.ReturnType != typeof(void) ? Expression.GetFuncType(m.GetParameters().Select(p => p.ParameterType).Append(m.ReturnType).ToArray()) : Expression.GetActionType(m.GetParameters().Select(p => p.ParameterType).ToArray())))).Concat(TagManager.All.Select(t => (t.Name, t.GetterDelegate)));
+                foreach (var (name, del) in delegates)
+                    PythonUtils.options.Add(name, del);
                 internalTypeGenerated = true;
             }
         }

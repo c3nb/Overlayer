@@ -49,7 +49,7 @@ namespace Overlayer
                     Text.Shadow.text = ShadowNotPlayingText.Replace();
                 }
             };
-            UnityEngine.Object.DontDestroyOnLoad(Text);
+            Object.DontDestroyOnLoad(Text);
             Text.Init(config);
         }
         public void GUI()
@@ -63,7 +63,7 @@ namespace Overlayer
             GUILayout.EndHorizontal();
             if (config.IsExpanded)
             {
-                Core.Utility.BeginIndent();
+                Utility.BeginIndent();
                 var active = GUILayout.Toggle(config.Active, Main.Language[TranslationKeys.Active]);
                 if (active != config.Active)
                     Text.Active = config.Active = active;

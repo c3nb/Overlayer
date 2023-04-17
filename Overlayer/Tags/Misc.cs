@@ -31,18 +31,18 @@ namespace Overlayer.Tags
         [Tag("XAccuracy")]
         public static double XAccuracy(int digits = -1) => (scrController.instance.mistakesManager.percentXAcc * 100d).Round(digits);
         [Tag("Year")]
-        public static double Year() => FastDateTime.Now.Year;
+        public static int Year() => FastDateTime.Now.Year;
         [Tag("Month")]
-        public static double Month() => FastDateTime.Now.Month;
+        public static int Month() => FastDateTime.Now.Month;
         [Tag("Day")]
-        public static double Day() => FastDateTime.Now.Day;
+        public static int Day() => FastDateTime.Now.Day;
         [Tag("Hour")]
-        public static double Hour() => FastDateTime.Now.Hour;
+        public static int Hour() => FastDateTime.Now.Hour;
         [Tag("Minute")]
-        public static double Minute() => FastDateTime.Now.Minute;
+        public static int Minute() => FastDateTime.Now.Minute;
         [Tag("Second")]
-        public static double Second() => FastDateTime.Now.Second;
+        public static int Second() => FastDateTime.Now.Second;
         [Tag("MilliSecond")]
-        public static double MilliSecond() => FastDateTime.Now.Millisecond;
+        public static int MilliSecond() => FastDateTime.Now.Millisecond;
     }
 }

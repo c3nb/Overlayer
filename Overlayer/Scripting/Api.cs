@@ -9,6 +9,7 @@ using Overlayer.Core;
 using IronPython.Runtime;
 using System.Reflection;
 using Neo.IronLua;
+using IronPython.Runtime.Types;
 
 namespace Overlayer.Scripting
 {
@@ -73,13 +74,20 @@ namespace Overlayer.Scripting
         }
         // Source Path Tracing Is Not Supported!
         [Api("Register Tag", SupportScript = ScriptType.Python)]
-        public static void RegisterTag(string name, PythonFunction func, bool notplaying)
+        public static void RegisterTagOpt(string name, Func<string, object> func, bool notplaying)
         {
             Tag tag = new Tag(name);
-            CodeContext ctx = (CodeContext)py_func_codeCtx.GetValue(func);
-            if (func.__code__.co_argcount == 1)
-                tag.SetGetter((string o) => func.__call__(ctx, o).ToString());
-            else tag.SetGetter(new Action(() => func.__call__(ctx).ToString()));
+            tag.SetGetter(s => func(s).ToString());
+            tag.Build();
+            TagManager.SetTag(tag, notplaying);
+            TextManager.Refresh();
+        }
+        // Source Path Tracing Is Not Supported!
+        [Api("Register Tag", SupportScript = ScriptType.Python)]
+        public static void RegisterTag(string name, Func<object> func, bool notplaying)
+        {
+            Tag tag = new Tag(name);
+            tag.SetGetter(new Func<string>(() => func().ToString()));
             tag.Build();
             TagManager.SetTag(tag, notplaying);
             TextManager.Refresh();
@@ -104,6 +112,11 @@ namespace Overlayer.Scripting
         public static ObjectInstance Resolve(ScriptEngine engine, string clrType)
         {
             return ClrStaticTypeWrapper.FromCache(engine, Utility.TypeByName(clrType));
+        }
+        [Api("Resolve CLR Type", SupportScript = ScriptType.Python)]
+        public static PythonType Resolve(string clrType)
+        {
+            return DynamicHelpers.GetPythonTypeFromType(Utility.TypeByName(clrType));
         }
         static readonly FieldInfo py_func_codeCtx = typeof(PythonFunction).GetField("_context", AccessTools.all);
     }

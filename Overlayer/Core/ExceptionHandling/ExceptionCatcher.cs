@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.ExceptionServices;
 
-namespace Overlayer.Core
+namespace Overlayer.Core.ExceptionHandling
 {
     public static class ExceptionCatcher
     {
@@ -15,10 +15,10 @@ namespace Overlayer.Core
             AppDomain.CurrentDomain.FirstChanceException -= All;
             AppDomain.CurrentDomain.UnhandledException -= NotCatched;
         }
-        public static event CatchedEvent Catched = delegate { };
+        public static event CatchedEvent AllExceptions = delegate { };
         public static event CatchedEvent Unhandled = delegate { };
         private static void All(object sender, FirstChanceExceptionEventArgs e)
-            => Catched(e.Exception);
+            => AllExceptions(e.Exception);
         private static void NotCatched(object sender, UnhandledExceptionEventArgs e)
             => Unhandled(e.ExceptionObject as Exception);
     }

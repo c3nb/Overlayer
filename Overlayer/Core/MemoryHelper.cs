@@ -31,6 +31,7 @@ namespace Overlayer.Core
         }
         public static void Clean(CleanOption option = CleanOption.Default)
         {
+            OverlayerDebug.Begin($"Cleaning Memory With Option {option}");
             var prevMode = GarbageCollector.GCMode;
             GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
             if ((option & CleanOption.Incremental) != 0)
@@ -39,8 +40,9 @@ namespace Overlayer.Core
             if ((option & CleanOption.UnloadAssets) != 0)
                 Resources.UnloadUnusedAssets();
             GarbageCollector.GCMode = prevMode;
+            OverlayerDebug.End();
         }
-        public static async Task CleanAsync(CleanOption option = CleanOption.Default)
+        public static async void CleanAsync(CleanOption option = CleanOption.Default)
         {
             await Task.Run(() => Clean(option));
         }

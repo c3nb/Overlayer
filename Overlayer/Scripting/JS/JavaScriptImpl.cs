@@ -19,8 +19,8 @@ namespace Overlayer.Scripting.JS
                 Type rt = tag.Getter.ReturnType;
                 ParameterInfo[] tagOptions = tag.Getter.GetParameters();
                 if (tag.HasOption)
-                    sb.AppendLine(GetPRTypeHintComment(rt, "", (tagOptions[0].ParameterType, "opt")))
-                        .AppendLine($"function {tag.Name}(opt);");
+                    sb.AppendLine(GetPRTypeHintComment(rt, "", (tagOptions[0].ParameterType, tagOptions[0].Name.IfNullOrEmpty("digits"))))
+                        .AppendLine($"function {tag.Name}({tagOptions[0].Name.IfNullOrEmpty("digits")});");
                 else sb.AppendLine(GetPRTypeHintComment(rt, ""))
                         .AppendLine($"function {tag.Name}();");
             }    

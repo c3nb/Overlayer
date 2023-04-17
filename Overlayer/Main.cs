@@ -16,6 +16,7 @@ using Overlayer.Scripting.Python;
 using UnityEngine.SceneManagement;
 using Overlayer.Tags;
 using Overlayer.Patches;
+using Overlayer.Core.ExceptionHandling;
 
 namespace Overlayer
 {
@@ -53,8 +54,8 @@ namespace Overlayer
             if (value)
             {
                 Variables.Reset();
-                ExceptionCatcher.Catch();
                 OverlayerDebug.Init();
+                OverlayerDebug.Begin("Overlayer Initialized");
                 SceneManager.activeSceneChanged += SceneChanged;
                 Backup();
                 Settings = ModSettings.Load<Settings>(modEntry);
@@ -76,10 +77,11 @@ namespace Overlayer
                     OverlayerDebug.OpenDebugLog();
                 }
                 RunScripts(ScriptPath);
+                MemoryHelper.CleanAsync(CleanOption.All);
+                OverlayerDebug.End();
             }
             else
             {
-                ExceptionCatcher.Drop();
                 OverlayerDebug.Term();
                 SceneManager.activeSceneChanged -= SceneChanged;
                 Harmony.UnpatchAll(Harmony.Id);
@@ -98,6 +100,8 @@ namespace Overlayer
             LanguageSelectGUI();
             Settings.Draw();
             GUILayout.BeginHorizontal();
+            if (GUILayout.Button(Language[TranslationKeys.CleanMemory]))
+                MemoryHelper.Clean(CleanOption.All);
             if (GUILayout.Button(Language[TranslationKeys.ReloadScripts]))
                 RunScripts(ScriptPath);
             GUILayout.FlexibleSpace();
@@ -205,13 +209,16 @@ namespace Overlayer
             File.WriteAllText(Path.Combine(folderPath, "Impl.lua"), new LuaImpl().Generate());
             File.WriteAllText(Path.Combine(folderPath, "Impl.py"), new PythonImpl().Generate());
             OverlayerDebug.Log($"Preparing Executing Scripts..");
+            OverlayerDebug.Begin("Executing All Scripts");
             foreach (string script in Directory.GetFiles(folderPath))
             {
                 if (Path.GetFileNameWithoutExtension(script) == "Impl") continue;
                 ScriptType sType = Script.GetScriptType(script);
                 if (sType == ScriptType.None) continue;
                 Script scr = Script.Create(script, sType);
-                OverlayerDebug.Log($"Executing Script {Path.GetFileName(script)}");
+                var name = Path.GetFileName(script);
+                OverlayerDebug.Log($"Executing Script {name}");
+                OverlayerDebug.Begin($"Executed Script {name}");
                 Utility.ExecuteSafe(scr.Compile, out Exception compileEx);
                 if (compileEx != null)
                 {
@@ -224,13 +231,9 @@ namespace Overlayer
                     Logger.Log(OverlayerDebug.Log($"Error At Executing Script \"{scr.Path}\":\n{executeEx}"));
                     continue;
                 }
-                if (!HasScripts)
-                {
-                    Harmony.PatchAll(Assembly.GetExecutingAssembly());
-                    HasScripts = true;
-                }
+                OverlayerDebug.End();
             }
-            OverlayerDebug.Log($"All Scripts Have Executed.");
+            OverlayerDebug.End();
         }
         public static byte[] LoadManifestResource(string name)
         {

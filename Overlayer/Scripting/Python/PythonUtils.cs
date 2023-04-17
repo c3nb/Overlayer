@@ -9,7 +9,7 @@ namespace Overlayer.Scripting.Python
 {
     public static class PythonUtils
     {
-        public static readonly Dictionary<string, object> options;
+        public static readonly Dictionary<string, object> options = new Dictionary<string, object>();
         public static string[] modulePaths = new string[] { Main.ScriptPath };
         public static ScriptEngine CreateEngine(string path, out ScriptSource source)
         {

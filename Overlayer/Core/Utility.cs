@@ -626,6 +626,7 @@ namespace Overlayer.Core
         }
         #endregion
         #region Extensions
+        public static string IfNullOrEmpty(this string s, string other) => string.IsNullOrEmpty(s) ? other : s;
         public static string RemoveLast(this string s, int count) => s.Remove(s.Length - count - 1);
         public static int Map(this int value, int fromMin, int fromMax, int toMin, int toMax) => toMin + (value - fromMin) * (toMax - toMin) / (fromMax - fromMin);
         public static double Map(this double value, double fromMin, double fromMax, double toMin, double toMax) => toMin + (value - fromMin) * (toMax - toMin) / (fromMax - fromMin);

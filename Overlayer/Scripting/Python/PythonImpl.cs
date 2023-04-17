@@ -19,17 +19,17 @@ namespace Overlayer.Scripting.Python
             {
                 ParameterInfo[] tagOptions = tag.Getter.GetParameters();
                 if (tagOptions.Length > 0)
-                    sb.AppendLine($"def {tag.Name}({GetArgStr(tagOptions)}): return Overlayer_Internal.{tag.Name}({GetCallArgStr(tagOptions)})");
+                    sb.AppendLine($"def {tag.Name}({GetArgStr(tagOptions)}): return {tag.Name}({GetCallArgStr(tagOptions)})");
                 else
-                    sb.AppendLine($"def {tag.Name}(): return Overlayer_Internal.{tag.Name}()");
+                    sb.AppendLine($"def {tag.Name}(): return {tag.Name}()");
             }
             foreach (var api in Api.GetApi(ScriptType))
             {
                 ParameterInfo[] options = api.GetParameters();
                 if (options.Length > 0)
-                    sb.AppendLine($"def {api.Name}({GetArgStr(options)}): {(api.ReturnType != typeof(void) ? "return " : "")}Overlayer_Internal.{api.Name}({GetCallArgStr(options)})");
+                    sb.AppendLine($"def {api.Name}({GetArgStr(options)}): {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}({GetCallArgStr(options)})");
                 else
-                    sb.AppendLine($"def {api.Name}(): {(api.ReturnType != typeof(void) ? "return " : "")}Overlayer_Internal.{api.Name}()");
+                    sb.AppendLine($"def {api.Name}(): {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}()");
             }
             return sb.ToString();
         }
@@ -37,7 +37,7 @@ namespace Overlayer.Scripting.Python
         {
             StringBuilder sb = new StringBuilder();
             foreach (var arg in args)
-                sb.Append($"{arg.Name}:{GetTypeStr(arg.ParameterType)}, ");
+                sb.Append($"{arg.Name.IfNullOrEmpty("digits")}:{GetTypeStr(arg.ParameterType)}, ");
             var result = sb.ToString();
             return result.Remove(result.Length - 2);
         }
@@ -45,7 +45,7 @@ namespace Overlayer.Scripting.Python
         {
             StringBuilder sb = new StringBuilder();
             foreach (var arg in args)
-                sb.Append($"{arg.Name}, ");
+                sb.Append($"{arg.Name.IfNullOrEmpty("digits")}, ");
             var result = sb.ToString();
             return result.Remove(result.Length - 2);
         }

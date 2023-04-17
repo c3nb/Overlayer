@@ -30,7 +30,7 @@ namespace Overlayer
             if (AdofaiFont.Apply(out FontData font))
                 FontManager.SetFont(AdofaiFont.name, font);
         }
-        public bool AllowCollectingLevels = true;
+        public bool AllowCollectingLevels = false;
         public bool ChangeFont = false;
         public bool DebugMode = true;
         public FontMeta AdofaiFont = new FontMeta();
