@@ -9,7 +9,7 @@ namespace JSEngine
     /// </summary>
     public sealed class CompiledEval
     {
-        private GlobalOrEvalMethodGenerator methodGen;
+        internal GlobalOrEvalMethodGenerator methodGen;
 
         internal CompiledEval(GlobalOrEvalMethodGenerator methodGen)
         {

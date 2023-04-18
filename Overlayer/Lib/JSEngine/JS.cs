@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using Overlayer.Core;
+using Overlayer.Core.Tags;
 
 namespace JSEngine
 {
@@ -186,8 +187,9 @@ namespace JSEngine
             this.udf = udf;
             fd = (FunctionMethodGenerator.FunctionDelegate)udf.GeneratedMethod.GeneratedDelegate;
         }
-        public readonly UserDefinedFunction udf;
-        readonly FunctionMethodGenerator.FunctionDelegate fd;
+        public UserDefinedFunction udf;
+        public Tag Tag;
+        FunctionMethodGenerator.FunctionDelegate fd;
         public object Call(object @this, params object[] arguments)
         {
             var context = ExecutionContext.CreateFunctionContext(

@@ -44,5 +44,7 @@ namespace Overlayer.Tags
         public static int Second() => FastDateTime.Now.Second;
         [Tag("MilliSecond")]
         public static int MilliSecond() => FastDateTime.Now.Millisecond;
+        [Tag("DifficultyStr")]
+        public static string DifficultyStr() => GCS.difficulty.ToString();
     }
 }

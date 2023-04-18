@@ -47,12 +47,12 @@ namespace JSEngine.Compiler
         /// Gets the root node of the abstract syntax tree.  This will be <c>null</c> until Parse()
         /// is called.
         /// </summary>
-        public Statement AbstractSyntaxTree { get; protected set; }
+        public Statement AbstractSyntaxTree { get; internal set; }
 
         /// <summary>
         /// Gets the top-level scope.  This will be <c>null</c> until Parse() is called.
         /// </summary>
-        public Scope BaseScope { get; protected set; }
+        public Scope BaseScope { get; internal set; }
 
         /// <summary>
         /// Gets or sets optimization information.
@@ -80,7 +80,7 @@ namespace JSEngine.Compiler
         public GeneratedMethod GeneratedMethod
         {
             get;
-            protected set;
+            internal set;
         }
 
         /// <summary>

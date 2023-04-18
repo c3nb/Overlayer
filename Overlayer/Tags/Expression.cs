@@ -1,23 +1,24 @@
 ﻿using System.Collections.Generic;
 using Overlayer.Core;
+using System;
 using Overlayer.Core.Tags;
 using Overlayer.Scripting;
+using Overlayer.Scripting.JS;
 
 namespace Overlayer.Tags
 {
     [ClassTag("Expression")]
     public static class Expression
     {
-        public static readonly Dictionary<string, Script> expressions = new Dictionary<string, Script>();
+        public static readonly Dictionary<string, Result> expressions = new Dictionary<string, Result>();
         [Tag]
         public static object Expr(string expr)
         {
-            if (expressions.TryGetValue(expr, out Script script))
-                return script.Evaluate();
-            var scr = Script.CreateFromSource(expr, ScriptType.JavaScript);
-            Utility.ExecuteSafe(scr.Compile, out var ex);
-            if (ex != null) return "";
-            return (expressions[expr] = scr).Evaluate();
+            if (expressions.TryGetValue(expr, out var res))
+                return res.Eval();
+            res = Utility.ExecuteSafe(() => JSUtils.CompileEvalSource(expr), out _);
+            if (res == null) return null;
+            return (expressions[expr] = res).Eval();
         }
     }
 }

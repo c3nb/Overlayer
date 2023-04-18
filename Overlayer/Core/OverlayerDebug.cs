@@ -13,9 +13,14 @@ namespace Overlayer.Core
 {
     public static class OverlayerDebug
     {
+        struct ExecuteInfo
+        {
+            public Stopwatch timer;
+            public string executer;
+        }
         static readonly StringBuilder Buffer = new StringBuilder();
-        static readonly Stack<Stopwatch> TimerStack = new Stack<Stopwatch>();
-        static readonly Stack<string> ExecutingStack = new Stack<string>();
+        static readonly Stack<ExecuteInfo> ExecutingStack = new Stack<ExecuteInfo>();
+        static bool prevActiveStatus = true;
         public static void Init()
         {
             Application.quitting += SaveLog;
@@ -36,12 +41,12 @@ namespace Overlayer.Core
         }
         static void SaveLog()
         {
-            if (Main.Settings.DebugMode)
+            if (Main.Settings.DebugMode || !Main.Initialized)
                 File.WriteAllText(Path.Combine(Main.Mod.Path, "Debug.log"), Buffer.ToString());
         }
         public static T Log<T>(T obj, Func<T, string> toString = null)
         {
-            if (!Main.Settings.DebugMode) return obj;
+            if (Main.Initialized && !Main.Settings.DebugMode) return obj;
             Buffer.AppendLine(toString != null ? toString(obj) : obj?.ToString());
             return obj;
         }
@@ -54,23 +59,35 @@ namespace Overlayer.Core
         }
         public static void Begin(string toExecute)
         {
+            if (Main.Initialized && !Main.Settings.DebugMode) return;
             var timer = new Stopwatch();
-            TimerStack.Push(timer);
-            ExecutingStack.Push(toExecute);
+            ExecuteInfo info;
+            info.timer = timer;
+            info.executer = toExecute;
+            ExecutingStack.Push(info);
             timer.Start();
         }
-        public static void End()
+        public static string End(bool success = true)
         {
-            if (ExecutingStack.Count < 1) return;
-            var timer = TimerStack.Pop();
-            timer.Stop();
-            var executing = ExecutingStack.Pop();
-            Log($"{executing} For {timer.Elapsed}");
+            if (Main.Initialized && !Main.Settings.DebugMode) return null;
+            if (ExecutingStack.Count < 1) return null;
+            var info = ExecutingStack.Pop();
+            info.timer.Stop();
+            return Log($"{(success ? "" : "Failed ")}{info.executer} For {info.timer.Elapsed}");
         }
         public static void OpenDebugLog()
         {
             SaveLog();
             Application.OpenURL(Path.Combine(Main.Mod.Path, "Debug.log"));
+        }
+        public static void Enable()
+        {
+            Main.Settings.DebugMode = prevActiveStatus;
+        }
+        public static void Disable()
+        {
+            prevActiveStatus = Main.Settings.DebugMode;
+            Main.Settings.DebugMode = false;
         }
     }
 }

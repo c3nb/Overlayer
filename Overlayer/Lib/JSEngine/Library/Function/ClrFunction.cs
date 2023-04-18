@@ -113,6 +113,29 @@ namespace JSEngine.Library
         }
 
         /// <summary>
+        /// Creates a new instance of a function which calls the given method.
+        /// </summary>
+        /// <param name="prototype"> The next object in the prototype chain. </param>
+        /// <param name="methodToCall"> The method to call. </param>
+        /// <param name="name"> The name of the function.  Pass <c>null</c> to use the name of the
+        /// method for the function name. </param>
+        /// <param name="length"> The "typical" number of arguments expected by the function.  Pass
+        /// <c>-1</c> to use the number of arguments expected by the method. </param>
+        internal ClrFunction(ObjectInstance prototype, MethodInfo methodToCall, string name = null, int length = -1, JSFunctionFlags flags = JSFunctionFlags.None)
+            : base(prototype)
+        {
+            // Initialize the [[Call]] method.
+            this.callBinder = new JSBinder(new JSBinderMethod(methodToCall, flags));
+            this.thisBinding = null;
+
+            // Add function properties.
+            this.FastSetProperty("name", name != null ? name : this.callBinder.Name, PropertyAttributes.Configurable);
+            this.FastSetProperty("length", length >= 0 ? length : this.callBinder.FunctionLength, PropertyAttributes.Configurable);
+            //this.FastSetProperty("prototype", this.Engine.Object.Construct());
+            //this.InstancePrototype.FastSetProperty("constructor", this, PropertyAttributes.NonEnumerable);
+        }
+
+        /// <summary>
         /// Creates a new instance of a function which calls one or more provided methods.
         /// </summary>
         /// <param name="prototype"> The next object in the prototype chain. </param>

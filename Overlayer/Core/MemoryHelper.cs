@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -9,13 +10,13 @@ namespace Overlayer.Core
     [Flags]
     public enum CleanOption
     {
-        Default = 0,
-        Incremental = 1,
+        CollectGarbage = 1,
         UnloadAssets = 2,
-        All = Incremental | UnloadAssets
+        All = CollectGarbage | UnloadAssets
     }
     public static class MemoryHelper
     {
+        public static bool Cleaning { get; private set; }
         public static IntPtr Alloc(int bytes)
         {
             return Marshal.AllocHGlobal(bytes);
@@ -24,26 +25,37 @@ namespace Overlayer.Core
         {
             Marshal.FreeHGlobal(ptr);
         }
+        public static void Free<T>(ref T obj)
+        {
+            if (ReferenceEquals(obj, default(T))) return;
+            int generation = GC.GetGeneration(obj);
+            obj = default;
+            GC.Collect(generation, GCCollectionMode.Forced, false);
+        }
         public static unsafe IntPtr GetAddress<T>(ref T obj)
         {
             TypedReference tr = __makeref(obj);
             return *(IntPtr*)&tr;
         }
-        public static void Clean(CleanOption option = CleanOption.Default)
+        public static void Clean(CleanOption option = CleanOption.CollectGarbage)
         {
             OverlayerDebug.Begin($"Cleaning Memory With Option {option}");
-            var prevMode = GarbageCollector.GCMode;
-            GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
-            if ((option & CleanOption.Incremental) != 0)
-                GarbageCollector.CollectIncremental(100000);
-            else GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, false);
+            Cleaning = true;
+            if ((option & CleanOption.CollectGarbage) != 0)
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, false);
             if ((option & CleanOption.UnloadAssets) != 0)
                 Resources.UnloadUnusedAssets();
-            GarbageCollector.GCMode = prevMode;
+            Cleaning = false;
             OverlayerDebug.End();
         }
-        public static async void CleanAsync(CleanOption option = CleanOption.Default)
+        public static async void CleanAsync(CleanOption option = CleanOption.CollectGarbage)
         {
+            if (Cleaning) return;
+            await Task.Run(() => Clean(option));
+        }
+        public static async Task CleanTask(CleanOption option = CleanOption.CollectGarbage)
+        {
+            if (Cleaning) return;
             await Task.Run(() => Clean(option));
         }
     }

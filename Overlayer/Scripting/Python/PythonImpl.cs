@@ -23,7 +23,7 @@ namespace Overlayer.Scripting.Python
                 else
                     sb.AppendLine($"def {tag.Name}(): return {tag.Name}()");
             }
-            foreach (var api in Api.GetApi(ScriptType))
+            foreach (var api in Api.GetApiMethods(ScriptType))
             {
                 ParameterInfo[] options = api.GetParameters();
                 if (options.Length > 0)

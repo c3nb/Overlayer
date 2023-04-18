@@ -12,7 +12,7 @@ namespace JSEngine.Compiler
         private ScopeType Type { get; set; }
 
         // A dictionary containing the variables declared in this scope.
-        private Dictionary<string, DeclaredVariable> variables;
+        internal Dictionary<string, DeclaredVariable> variables;
 
         /// <summary>
         /// Represents a variable declared in a scope.
@@ -38,7 +38,7 @@ namespace JSEngine.Compiler
             public PrimitiveType Type = PrimitiveType.Any;
         }
 
-        private Dictionary<string, FunctionExpression> hoistedFunctions;
+        internal Dictionary<string, FunctionExpression> hoistedFunctions;
 
         /// <summary>
         /// 

@@ -27,7 +27,7 @@ namespace JSEngine.Compiler
         public Delegate GeneratedDelegate
         {
             get;
-            private set;
+            internal set;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace JSEngine.Compiler
         public IList<GeneratedMethod> Dependencies
         {
             get;
-            private set;
+            internal set;
         }
 
         /// <summary>

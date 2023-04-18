@@ -12,6 +12,47 @@ namespace Overlayer.Scripting.JS
 {
     public static class JSUtils
     {
+        static List<(MethodInfo, JSFunctionFlags)> apis;
+        public static ScriptEngine Prepare()
+        {
+            var engine = new ScriptEngine();
+            engine.EnableExposedClrTypes = true;
+            foreach (var tag in TagManager.All)
+                engine.SetGlobalFunction(tag.Name, tag.GetterDelegate);
+            if (apis == null)
+            {
+                apis = new List<(MethodInfo, JSFunctionFlags)>();
+                foreach (var (attr, api) in Api.GetApi(ScriptType.JavaScript))
+                    apis.Add((api, (JSFunctionFlags)attr.Flags));
+            }
+            foreach (var (method, flag) in apis)
+                engine.SetGlobalFunction(method.Name, method, flag);
+            return engine;
+        }
+        public static Result CompileExec(string path)
+        {
+            var engine = Prepare();
+            var scr = CompiledScript.Compile(new FileSource(path));
+            return new Result(engine, scr);
+        }
+        public static Result CompileEval(string path)
+        {
+            var engine = Prepare();
+            var scr = CompiledEval.Compile(new FileSource(path));
+            return new Result(engine, scr);
+        }
+        public static Result CompileExecSource(string source)
+        {
+            var engine = Prepare();
+            var scr = CompiledScript.Compile(new StringSource(source));
+            return new Result(engine, scr);
+        }
+        public static Result CompileEvalSource(string source)
+        {
+            var engine = Prepare();
+            var scr = CompiledEval.Compile(new StringSource(source));
+            return new Result(engine, scr);
+        }
         static ParameterInfo[] SelectActualParams(MethodBase m, ParameterInfo[] p, string[] n)
         {
             Type dType = m.DeclaringType;

@@ -11,12 +11,14 @@ using Overlayer.Core.Translation;
 using Overlayer.Scripting;
 using UnityEngine;
 using Overlayer.Scripting.JS;
-using Overlayer.Scripting.Lua;
 using Overlayer.Scripting.Python;
 using UnityEngine.SceneManagement;
 using Overlayer.Tags;
 using Overlayer.Patches;
 using Overlayer.Core.ExceptionHandling;
+using System.Threading.Tasks;
+using static IronPython.Modules._ast;
+using UnityEngine.Scripting;
 
 namespace Overlayer
 {
@@ -33,6 +35,8 @@ namespace Overlayer
         public static Texture2D OverlayerV2Logo { get; private set; }
         public static Scene ActiveScene { get; private set; }
         public static Version ModVersion { get; private set; }
+        public static bool Initialized { get; private set; }
+        public static bool ScriptsRunning { get; private set; }
         #endregion
         #region UMM Impl
         public static void Load(ModEntry modEntry)
@@ -76,7 +80,8 @@ namespace Overlayer
                     OverlayerDebug.Exception(e, "OnToggle: Loading Tag, Text");
                     OverlayerDebug.OpenDebugLog();
                 }
-                RunScripts(ScriptPath);
+                RunScriptsNonBlocking(ScriptPath);
+                Initialized = true;
                 MemoryHelper.CleanAsync(CleanOption.All);
                 OverlayerDebug.End();
             }
@@ -90,6 +95,7 @@ namespace Overlayer
                 TextManager.Save();
                 TextManager.Release();
                 TagManager.Release();
+                Initialized = false;
                 MemoryHelper.Clean(CleanOption.All);
             }
             return true;
@@ -103,7 +109,10 @@ namespace Overlayer
             if (GUILayout.Button(Language[TranslationKeys.CleanMemory]))
                 MemoryHelper.Clean(CleanOption.All);
             if (GUILayout.Button(Language[TranslationKeys.ReloadScripts]))
-                RunScripts(ScriptPath);
+            {
+                RunScriptsNonBlocking(ScriptPath);
+                MemoryHelper.CleanAsync(CleanOption.All);
+            }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             TextManager.GUI();
@@ -188,7 +197,7 @@ namespace Overlayer
 
             ModSettings.Save(Settings, modEntry);
             TextManager.Save();
-            MemoryHelper.Clean(CleanOption.Incremental);
+            MemoryHelper.Clean(CleanOption.CollectGarbage);
         }
         public static void OnUpdate(ModEntry modEntry, float deltaTime)
         {
@@ -200,40 +209,48 @@ namespace Overlayer
         {
             ActiveScene = to;
         }
-        public static void RunScripts(string folderPath)
+        public static async Task RunScripts(string folderPath)
         {
+            if (ScriptsRunning) return;
+            ScriptsRunning = true;
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
             OverlayerDebug.Log($"Generating Script Implementations..");
-            File.WriteAllText(Path.Combine(folderPath, "Impl.js"), new JavaScriptImpl().Generate());
-            File.WriteAllText(Path.Combine(folderPath, "Impl.lua"), new LuaImpl().Generate());
-            File.WriteAllText(Path.Combine(folderPath, "Impl.py"), new PythonImpl().Generate());
+            await Task.Run(() => File.WriteAllText(Path.Combine(folderPath, "Impl.js"), new JavaScriptImpl().Generate()));
+            await Task.Run(() => File.WriteAllText(Path.Combine(folderPath, "Impl.py"), new PythonImpl().Generate()));
             OverlayerDebug.Log($"Preparing Executing Scripts..");
+            Api.Clear();
             OverlayerDebug.Begin("Executing All Scripts");
             foreach (string script in Directory.GetFiles(folderPath))
             {
                 if (Path.GetFileNameWithoutExtension(script) == "Impl") continue;
                 ScriptType sType = Script.GetScriptType(script);
-                if (sType == ScriptType.None) continue;
-                Script scr = Script.Create(script, sType);
                 var name = Path.GetFileName(script);
-                OverlayerDebug.Log($"Executing Script {name}");
-                OverlayerDebug.Begin($"Executed Script {name}");
-                Utility.ExecuteSafe(scr.Compile, out Exception compileEx);
-                if (compileEx != null)
+                OverlayerDebug.Begin($"Executing Script {name}");
+                bool success = await Task.Run(() =>
                 {
-                    Logger.Log(OverlayerDebug.Log($"Error At Compiling Script \"{scr.Path}\":\n{compileEx}"));
-                    continue;
-                }
-                Utility.ExecuteSafe(scr.Execute, out Exception executeEx);
-                if (executeEx != null)
-                {
-                    Logger.Log(OverlayerDebug.Log($"Error At Executing Script \"{scr.Path}\":\n{executeEx}"));
-                    continue;
-                }
-                OverlayerDebug.End();
+                    try
+                    {
+                        var result = Script.CompileExec(script, sType);
+                        result.Exec();
+                        result.Dispose();
+                        result = null;
+                        return true; 
+                    }
+                    catch (Exception e) { OverlayerDebug.Log($"Exception At Executing Script \"{name}\":\n{e}"); return false; }
+                });
+                OverlayerDebug.End(success);
             }
+            OverlayerDebug.Disable();
+            MemoryHelper.Clean();
+            await Task.Run(() => MemoryHelper.Clean());
+            OverlayerDebug.Enable();
             OverlayerDebug.End();
+            ScriptsRunning = false;
+        }
+        public static async void RunScriptsNonBlocking(string folderPath)
+        {
+            await RunScripts(folderPath);
         }
         public static byte[] LoadManifestResource(string name)
         {

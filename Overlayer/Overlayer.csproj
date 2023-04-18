@@ -812,26 +812,6 @@
     <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetConstructor.g.cs" />
     <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetInstance.cs" />
     <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetInstance.g.cs" />
-    <Compile Include="Lib\NeoLua\Exceptions.cs" />
-    <Compile Include="Lib\NeoLua\Extern\printf.cs" />
-    <Compile Include="Lib\NeoLua\Lua.Binder.cs" />
-    <Compile Include="Lib\NeoLua\Lua.cs" />
-    <Compile Include="Lib\NeoLua\Lua.Runtime.cs" />
-    <Compile Include="Lib\NeoLua\LuaChunk.cs" />
-    <Compile Include="Lib\NeoLua\LuaDebug.cs" />
-    <Compile Include="Lib\NeoLua\LuaEmit.cs" />
-    <Compile Include="Lib\NeoLua\LuaFile.cs" />
-    <Compile Include="Lib\NeoLua\LuaGlobal.cs" />
-    <Compile Include="Lib\NeoLua\LuaLexer.cs" />
-    <Compile Include="Lib\NeoLua\LuaLibraries.cs" />
-    <Compile Include="Lib\NeoLua\LuaResult.cs" />
-    <Compile Include="Lib\NeoLua\LuaStackTraceDebugger.cs" />
-    <Compile Include="Lib\NeoLua\LuaTable.cs" />
-    <Compile Include="Lib\NeoLua\LuaThread.cs" />
-    <Compile Include="Lib\NeoLua\LuaType.cs" />
-    <Compile Include="Lib\NeoLua\Parser.cs" />
-    <Compile Include="Lib\NeoLua\Parser.Emit.cs" />
-    <Compile Include="Lib\NeoLua\Properties\Resources.Designer.cs" />
     <Compile Include="Core\Utility.cs" />
     <Compile Include="Lib\AdofaiMapConverter\Actions\Action.cs" />
     <Compile Include="Lib\AdofaiMapConverter\Actions\ActionUtils.cs" />
@@ -1265,13 +1245,10 @@
     <Compile Include="Scripting\ApiAttribute.cs" />
     <Compile Include="Scripting\Impl.cs" />
     <Compile Include="Scripting\JS\JavaScriptImpl.cs" />
-    <Compile Include="Scripting\JS\JavaScript.cs" />
     <Compile Include="Scripting\JS\JSUtils.cs" />
-    <Compile Include="Scripting\Lua\LuaImpl.cs" />
-    <Compile Include="Scripting\Lua\LuaScript.cs" />
     <Compile Include="Scripting\Python\PythonImpl.cs" />
-    <Compile Include="Scripting\Python\PythonScript.cs" />
     <Compile Include="Scripting\Python\PythonUtils.cs" />
+    <Compile Include="Scripting\Result.cs" />
     <Compile Include="Scripting\Script.cs" />
     <Compile Include="Scripting\ScriptType.cs" />
     <Compile Include="Settings.cs" />
@@ -1290,7 +1267,6 @@
     <Compile Include="TextConfig.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Lib\NeoLua\LICENSE.md" />
     <None Include="Lib\Vostok\Commons\Helpers\Windows\WindowsProcessKillJob.props" />
     <None Include="Lib\Vostok\Metrics\Codegen\CodegenCommons.ttinclude" />
     <None Include="Lib\Vostok\Metrics\Codegen\FactoryExtensions.ttinclude" />
@@ -1300,10 +1276,6 @@
   <ItemGroup>
     <Content Include="Lib\JSEngine\Compiler\Emit\Optimizations.txt" />
     <EmbeddedResource Include="ov2Logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Lib\NeoLua\Properties\Resources.de.resx" />
-    <EmbeddedResource Include="Lib\NeoLua\Properties\Resources.resx" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

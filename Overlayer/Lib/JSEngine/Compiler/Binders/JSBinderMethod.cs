@@ -80,13 +80,13 @@ namespace JSEngine.Compiler
                     type = type.GetElementType();
                 }
 
-                if (type != typeof(bool) &&
-                    type != typeof(int) &&
-                    type != typeof(double) &&
-                    type != typeof(string) &&
-                    type != typeof(object) &&
-                    typeof(ObjectInstance).IsAssignableFrom(type) == false)
-                    throw new NotImplementedException(string.Format("Unsupported parameter type '{0}'.", type));
+                //if (type != typeof(bool) &&
+                //    type != typeof(int) &&
+                //    type != typeof(double) &&
+                //    type != typeof(string) &&
+                //    type != typeof(object) &&
+                //    typeof(ObjectInstance).IsAssignableFrom(type) == false)
+                //    throw new NotImplementedException(string.Format("Unsupported parameter type '{0}'.", type));
             }
         }
 

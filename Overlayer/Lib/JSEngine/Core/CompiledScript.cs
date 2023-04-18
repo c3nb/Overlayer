@@ -1,5 +1,7 @@
 ﻿using System;
 using JSEngine.Compiler;
+using Overlayer.Core;
+using Overlayer.Tags;
 
 namespace JSEngine
 {
@@ -8,7 +10,7 @@ namespace JSEngine
     /// </summary>
     public sealed class CompiledScript
     {
-        private GlobalOrEvalMethodGenerator methodGen;
+        internal GlobalOrEvalMethodGenerator methodGen;
 
         internal CompiledScript(GlobalOrEvalMethodGenerator methodGen)
         {

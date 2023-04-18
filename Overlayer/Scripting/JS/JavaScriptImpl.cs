@@ -24,7 +24,7 @@ namespace Overlayer.Scripting.JS
                 else sb.AppendLine(GetPRTypeHintComment(rt, ""))
                         .AppendLine($"function {tag.Name}();");
             }    
-            foreach (var api in Api.GetApi(ScriptType))
+            foreach (var api in Api.GetApiMethods(ScriptType))
             {
                 Type rt = api.ReturnType;
                 ParameterInfo[] options = api.GetParameters();
