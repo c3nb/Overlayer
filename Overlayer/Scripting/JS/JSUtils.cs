@@ -9,7 +9,6 @@ using Jint;
 using Jint.Native.Function;
 using Jint.Native;
 using System.IO;
-using Jint.Runtime.Interop;
 
 namespace Overlayer.Scripting.JS
 {

@@ -41,6 +41,7 @@ namespace Overlayer.Core
         {
             OverlayerDebug.Begin($"Cleaning Memory With Option {option}");
             Cleaning = true;
+            Overlayer.Tags.Expression.expressions.Clear();
             if ((option & CleanOption.CollectGarbage) != 0)
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             if ((option & CleanOption.UnloadAssets) != 0)

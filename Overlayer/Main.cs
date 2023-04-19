@@ -213,6 +213,7 @@ namespace Overlayer
             await Task.Run(() => File.WriteAllText(Path.Combine(folderPath, "Impl.py"), new PythonImpl().Generate()));
             OverlayerDebug.Log($"Preparing Executing Scripts..");
             Api.Clear();
+            Expression.expressions.Clear();
             OverlayerDebug.Begin("Executing All Scripts");
             foreach (string script in Directory.GetFiles(folderPath))
             {
