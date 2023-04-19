@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AdofaiMapConverter.Actions;
 using AdofaiMapConverter.Types;
+using Action = AdofaiMapConverter.Actions.Action;
 
 namespace AdofaiMapConverter.Decorations
 {

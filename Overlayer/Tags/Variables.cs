@@ -53,7 +53,7 @@ namespace Overlayer.Tags
         public static int TotalMilliSecond;
         [FieldTag("CurCheckPoint", RelatedPatches = "Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix")]
         public static int CurrentCheckPoint;
-        [FieldTag("StartTile", Round = true, RelatedPatches = "Overlayer.Patches.StartProgUpdater:Prefix")]
+        [FieldTag("StartTile", RelatedPatches = "Overlayer.Patches.StartProgUpdater:Prefix")]
         public static int StartTile;
         [FieldTag("TileBpm", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix")]
         public static double TileBpm;

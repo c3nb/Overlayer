@@ -16,7 +16,7 @@ namespace Overlayer.Tags
         {
             if (expressions.TryGetValue(expr, out var res))
                 return res.Eval();
-            res = Utility.ExecuteSafe(() => JSUtils.CompileEvalSource(expr), out _);
+            res = Utility.ExecuteSafe(() => JSUtils.CompileSource(expr), out _);
             if (res == null) return null;
             return (expressions[expr] = res).Eval();
         }

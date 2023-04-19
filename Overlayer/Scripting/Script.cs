@@ -23,7 +23,7 @@ namespace Overlayer.Scripting
             switch (scriptType)
             {
                 case ScriptType.JavaScript:
-                    return JSUtils.CompileExec(path);
+                    return JSUtils.Compile(path);
                 case ScriptType.Python:
                     return PythonUtils.CompileExec(path);
                 default: return null;
@@ -34,7 +34,7 @@ namespace Overlayer.Scripting
             switch (scriptType)
             {
                 case ScriptType.JavaScript:
-                    return JSUtils.CompileEval(path);
+                    return JSUtils.Compile(path);
                 case ScriptType.Python:
                     return PythonUtils.CompileEval(path);
                 default: return null;
@@ -45,7 +45,7 @@ namespace Overlayer.Scripting
             switch (scriptType)
             {
                 case ScriptType.JavaScript:
-                    return JSUtils.CompileExecSource(source);
+                    return JSUtils.CompileSource(source);
                 case ScriptType.Python:
                     return PythonUtils.CompileExecSource(source);
                 default: return null;
@@ -56,7 +56,7 @@ namespace Overlayer.Scripting
             switch (scriptType)
             {
                 case ScriptType.JavaScript:
-                    return JSUtils.CompileEvalSource(source);
+                    return JSUtils.CompileSource(source);
                 case ScriptType.Python:
                     return PythonUtils.CompileEvalSource(source);
                 default: return null;

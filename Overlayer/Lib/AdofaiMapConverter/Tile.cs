@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AdofaiMapConverter.Types;
 using AdofaiMapConverter.Actions;
 using AdofaiMapConverter.Decorations;
 using AdofaiMapConverter.Helpers;
+using Action = AdofaiMapConverter.Actions.Action;
 
 namespace AdofaiMapConverter
 {
-    public class Tile : System.ICloneable
+    public class Tile : ICloneable
     {
         public Tile() : this(TileAngle.Zero) { }
         public Tile(TileAngle angle)

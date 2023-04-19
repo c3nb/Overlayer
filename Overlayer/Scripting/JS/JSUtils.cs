@@ -1,68 +1,41 @@
 ﻿using HarmonyLib;
-using JSEngine.Library;
-using JSEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection;
 using Overlayer.Core;
-using JSEngine.Compiler;
+using Jint;
+using Jint.Native.Function;
+using Jint.Native;
+using System.IO;
+using Jint.Runtime.Interop;
 
 namespace Overlayer.Scripting.JS
 {
     public static class JSUtils
     {
-        public static bool UseDynamicMethod
+        static Dictionary<string, Delegate> apis;
+        public static Engine Prepare()
         {
-            get => MethodGenerator.useDynMethod;
-            set
-            {
-                if (MethodGenerator.useDynMethod == value) return;
-                MethodGenerator.Refresh(!(MethodGenerator.useDynMethod = value));
-            }
-        }
-        static List<(MethodInfo, JSFunctionFlags)> apis;
-        public static ScriptEngine Prepare()
-        {
-            var engine = new ScriptEngine();
-            engine.EnableExposedClrTypes = true;
+            var engine = new Engine(op => 
+                op.AllowClr(Utility.loadedAsss)
+                    .Strict(false)
+            );
             foreach (var tag in TagManager.All)
-                engine.SetGlobalFunction(tag.Name, tag.GetterDelegate);
+                engine.SetValue(tag.Name, tag.GetterDelegate);
             if (apis == null)
             {
-                apis = new List<(MethodInfo, JSFunctionFlags)>();
-                foreach (var (attr, api) in Api.GetApi(ScriptType.JavaScript))
-                    apis.Add((api, (JSFunctionFlags)attr.Flags));
+                apis = new Dictionary<string, Delegate>();
+                foreach (var api in Api.GetApiMethods(ScriptType.JavaScript))
+                    apis.Add(api.Name, api.CreateDelegateAuto());
             }
-            foreach (var (method, flag) in apis)
-                engine.SetGlobalFunction(method.Name, method, flag);
+            foreach (var api in apis)
+                engine.SetValue(api.Key, api.Value);
             return engine;
         }
-        public static Result CompileExec(string path)
-        {
-            var engine = Prepare();
-            var scr = CompiledScript.Compile(new FileSource(path));
-            return new Result(engine, scr);
-        }
-        public static Result CompileEval(string path)
-        {
-            var engine = Prepare();
-            var scr = CompiledEval.Compile(new FileSource(path));
-            return new Result(engine, scr);
-        }
-        public static Result CompileExecSource(string source)
-        {
-            var engine = Prepare();
-            var scr = CompiledScript.Compile(new StringSource(source));
-            return new Result(engine, scr);
-        }
-        public static Result CompileEvalSource(string source)
-        {
-            var engine = Prepare();
-            var scr = CompiledEval.Compile(new StringSource(source));
-            return new Result(engine, scr);
-        }
+        public static Result Compile(string path) => new Result(Prepare(), File.ReadAllText(path));
+        public static Result CompileSource(string source) => new Result(Prepare(), source);
         static ParameterInfo[] SelectActualParams(MethodBase m, ParameterInfo[] p, string[] n)
         {
             Type dType = m.DeclaringType;
@@ -121,16 +94,15 @@ namespace Overlayer.Scripting.JS
         }
         public static MethodInfo Wrap(this FunctionInstance func, MethodBase target, bool rtIsBool)
         {
-            UserDefinedFunction udf = func as UserDefinedFunction;
-            if (udf == null) return null;
-            UDFWrapper holder = new UDFWrapper(udf);
+            if (func == null) return null;
+            FIWrapper holder = new FIWrapper(func);
 
             TypeBuilder type = Core.Utility.mod.DefineType(Core.Utility.TypeCount++.ToString(), TypeAttributes.Public);
-            ParameterInfo[] parameters = SelectActualParams(target, target.GetParameters(), udf.ArgumentNames.ToArray());
+            ParameterInfo[] parameters = SelectActualParams(target, target.GetParameters(), func.FunctionDeclaration.Params.Select(n => n.AssociatedData.ToString()).ToArray());
             if (parameters == null) return null;
             Type[] paramTypes = parameters.Select(p => p.ParameterType).ToArray();
             MethodBuilder methodB = type.DefineMethod("Wrapper", MethodAttributes.Public | MethodAttributes.Static, rtIsBool ? typeof(bool) : typeof(void), paramTypes);
-            FieldBuilder holderfld = type.DefineField("holder", typeof(UDFWrapper), FieldAttributes.Public | FieldAttributes.Static);
+            FieldBuilder holderfld = type.DefineField("holder", typeof(FIWrapper), FieldAttributes.Public | FieldAttributes.Static);
 
             var il = methodB.GetILGenerator();
             LocalBuilder arr = il.MakeArray<object>(parameters.Length);
@@ -139,7 +111,6 @@ namespace Overlayer.Scripting.JS
             {
                 Type pType = param.ParameterType;
                 Core.Utility.IgnoreAccessCheck(pType);
-                udf.Engine.SetGlobalValue(pType.Name, pType);
                 methodB.DefineParameter(paramIndex++, ParameterAttributes.None, param.Name);
                 int pIndex = paramIndex - 2;
                 il.Emit(OpCodes.Ldloc, arr);
@@ -149,7 +120,7 @@ namespace Overlayer.Scripting.JS
             }
             il.Emit(OpCodes.Ldsfld, holderfld);
             il.Emit(OpCodes.Ldloc, arr);
-            il.Emit(OpCodes.Call, UDFWrapper.CallGlobalMethod);
+            il.Emit(OpCodes.Call, FIWrapper.CallMethod);
             if (rtIsBool)
                 il.Emit(OpCodes.Call, istrue);
             else il.Emit(OpCodes.Pop);
@@ -170,5 +141,17 @@ namespace Overlayer.Scripting.JS
                 NameImpl = name;
             }
         }
+    }
+    public class FIWrapper
+    {
+        public readonly Engine engine;
+        public readonly FunctionInstance fi;
+        public FIWrapper(FunctionInstance fi)
+        {
+            this.fi = fi;
+            engine = fi.Engine;
+        }
+        public object Call(params object[] args) => fi.Call(null, Array.ConvertAll(args, o => JsValue.FromObject(engine, o))).ToObject();
+        public static readonly MethodInfo CallMethod = typeof(FIWrapper).GetMethod("Call");
     }
 }

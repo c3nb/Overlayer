@@ -1,4 +1,5 @@
 ﻿using Overlayer.Core;
+using Overlayer.Core.Tags;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,17 +20,17 @@ namespace Overlayer.Scripting.Python
             {
                 ParameterInfo[] tagOptions = tag.Getter.GetParameters();
                 if (tagOptions.Length > 0)
-                    sb.AppendLine($"def {tag.Name}({GetArgStr(tagOptions)}): return {tag.Name}({GetCallArgStr(tagOptions)})");
+                    sb.AppendLine($"def {tag.Name}({GetArgStr(tagOptions)}) -> {GetTypeStr(tag.Getter.ReturnType)}: return {tag.Name}({GetCallArgStr(tagOptions)})");
                 else
-                    sb.AppendLine($"def {tag.Name}(): return {tag.Name}()");
+                    sb.AppendLine($"def {tag.Name}() -> {GetTypeStr(tag.Getter.ReturnType)}: return {tag.Name}()");
             }
             foreach (var api in Api.GetApiMethods(ScriptType))
             {
                 ParameterInfo[] options = api.GetParameters();
                 if (options.Length > 0)
-                    sb.AppendLine($"def {api.Name}({GetArgStr(options)}): {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}({GetCallArgStr(options)})");
+                    sb.AppendLine($"def {api.Name}({GetArgStr(options)}) -> {GetTypeStr(api.ReturnType)}: {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}({GetCallArgStr(options)})");
                 else
-                    sb.AppendLine($"def {api.Name}(): {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}()");
+                    sb.AppendLine($"def {api.Name}() -> {GetTypeStr(api.ReturnType)}: {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}()");
             }
             return sb.ToString();
         }

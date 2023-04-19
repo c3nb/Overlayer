@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using UnityEngine.UI;
@@ -14,8 +15,6 @@ using static UnityModManagerNet.UnityModManager.UI;
 using TMPro;
 using Overlayer.Core.Translation;
 using System.Diagnostics;
-using UnityEngine.Scripting;
-using System.Threading.Tasks;
 
 namespace Overlayer.Core
 {
@@ -26,6 +25,7 @@ namespace Overlayer.Core
             var assName = new AssemblyName("Overlayer.Utility");
             ass = AssemblyBuilder.DefineDynamicAssembly(assName, AssemblyBuilderAccess.Run);
             mod = ass.DefineDynamicModule(assName.Name);
+            loadedAsss = AppDomain.CurrentDomain.GetAssemblies();
         }
         #region GUI
         public static void BeginIndent(float hIndent = 20f, float vIndent = 0f)
@@ -579,12 +579,10 @@ namespace Overlayer.Core
         }
         #endregion
         #region Misc
-        static Assembly[] loadedAsss;
-        static Type[] loadedTypes;
+        public static Assembly[] loadedAsss { get; private set; }
+        public static Type[] loadedTypes { get; private set; }
         public static Assembly AssByName(string assName)
         {
-            if (loadedAsss == null)
-                loadedAsss = AppDomain.CurrentDomain.GetAssemblies();
             return loadedAsss.FirstOrDefault(t => t.FullName == assName) ??
                 loadedAsss.FirstOrDefault(t => t.GetName().Name == assName);
         }
@@ -623,6 +621,13 @@ namespace Overlayer.Core
             a.Invoke();
             watch.Stop();
             return watch.Elapsed;
+        }
+        public static Delegate CreateDelegateAuto(this MethodInfo method)
+        {
+            var prms = method.GetParameters().Select(p => p.ParameterType);
+            if (method.ReturnType != typeof(void))
+                return method.CreateDelegate(Expression.GetFuncType(prms.Append(method.ReturnType).ToArray()));
+            return method.CreateDelegate(Expression.GetActionType(prms.ToArray()));
         }
         #endregion
         #region Extensions

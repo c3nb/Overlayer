@@ -11,7 +11,7 @@ namespace Overlayer.Patches
         public static void Prefix(scrController __instance)
         {
             if (__instance.paused || !scrConductor.instance.isGameWorld) return;
-            Variables.CurrentTile = __instance.currentSeqID + 1;
+            Variables.CurrentTile = __instance.currentSeqID;
             Variables.TotalTile = scrLevelMaker.instance.listFloors.Count;
             Variables.LeftTile = Variables.TotalTile - Variables.CurrentTile;
             AudioSource song = scrConductor.instance.song;

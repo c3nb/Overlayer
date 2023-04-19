@@ -6,6 +6,7 @@ using AdofaiMapConverter.Actions;
 using AdofaiMapConverter.Types;
 using AdofaiMapConverter.Helpers;
 using MT = System.Math;
+using Action = AdofaiMapConverter.Actions.Action;
 
 namespace AdofaiMapConverter
 {

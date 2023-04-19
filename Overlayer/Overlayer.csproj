@@ -26,6 +26,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CS8632;</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,6 +36,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CS8632;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -62,6 +64,9 @@
     <Reference Include="DOTweenPro">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\DOTweenPro.dll</HintPath>
     </Reference>
+    <Reference Include="Esprima">
+      <HintPath>C:\Users\dongs\source\repos\jint\Jint\bin\Release\net48\Esprima.dll</HintPath>
+    </Reference>
     <Reference Include="IronPython, Version=3.4.0.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\IronPython.3.4.0\lib\net462\IronPython.dll</HintPath>
     </Reference>
@@ -73,6 +78,9 @@
     </Reference>
     <Reference Include="IronPython.Wpf, Version=3.4.0.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\IronPython.3.4.0\lib\net462\IronPython.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Jint">
+      <HintPath>C:\Users\dongs\source\repos\jint\Jint\bin\Release\net48\Jint.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic, Version=1.3.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\DynamicLanguageRuntime.1.3.3\lib\net452\Microsoft.Dynamic.dll</HintPath>
@@ -571,247 +579,6 @@
     <Compile Include="Core\Tags\TagConfig.cs" />
     <Compile Include="Core\TextManager.cs" />
     <Compile Include="FastDateTime.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Binders\Binder.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Binders\BinderMethod.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Binders\BinderUtilities.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Binders\ClrBinder.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Binders\FieldBinders.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Binders\JSBinder.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Binders\JSBinderMethod.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Binders\MethodBinder.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Debugging\SourceCodePosition.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Debugging\SourceCodeSpan.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\EmitConversion.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\EmitHelpers.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\ILGenerator\DynamicILGenerator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\ILGenerator\ILGenerator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\ILGenerator\ILLabel.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\ILGenerator\ILLocalVariable.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\ILGenerator\LoggingILGenerator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\ILGenerator\ReflectionEmitILGenerator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\ILGenerator\VerifyingILGenerator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\LongJumpException.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\MethodOptimizationHints.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\OptimizationInfo.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\PrimitiveType.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\PrimitiveTypeUtilities.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Emit\ReflectionHelpers.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\ExecutionContext\ExecutionContext.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\ExecutionContext\RuntimeScope.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\ArrayLiteralExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\AssignmentExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\BinaryExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\ClassExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\Expression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\FunctionCallExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\FunctionExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\GroupingExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\IReferenceExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\ListExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\LiteralExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\MemberAccessExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\NameExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\NewExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\NewTargetExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\ObjectLiteralExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\OperatorExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\SuperExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\TemplateLiteralExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\TernaryExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\ThisExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Expressions\UnaryExpression.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\IdentifierToken.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\KeywordToken.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\Lexer.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\LiteralToken.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\PunctuatorToken.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\RegularExpressionLiteral.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\StringLiteralToken.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\TemplateLiteralToken.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Lexer\Token.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\MethodGenerator\CodeContext.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\MethodGenerator\CompilerOptions.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\MethodGenerator\FunctionMethodGenerator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\MethodGenerator\GeneratedMethod.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\MethodGenerator\GlobalOrEvalMethodGenerator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\MethodGenerator\MethodGenerator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Parser\AstNode.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Parser\Operator.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Parser\Parser.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Parser\PropertyDeclaration.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Parser\PropertyName.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Parser\Scope.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Parser\ScopeType.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\BlockStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\BreakStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\ContinueStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\DebuggerStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\DoWhileStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\EmptyStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\ExpressionStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\ForInStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\ForOfStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\ForStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\IfStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\LoopStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\ReturnStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\Statement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\SwitchStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\ThrowStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\TryCatchFinallyStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\VarLetOrConstStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\WhileStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\Statements\WithStatement.cs" />
-    <Compile Include="Lib\JSEngine\Compiler\SyntaxErrorException.cs" />
-    <Compile Include="Lib\JSEngine\Core\BigInteger.cs" />
-    <Compile Include="Lib\JSEngine\Core\CompatibilityMode.cs" />
-    <Compile Include="Lib\JSEngine\Core\CompiledEval.cs" />
-    <Compile Include="Lib\JSEngine\Core\CompiledScript.cs" />
-    <Compile Include="Lib\JSEngine\Core\ConcatenatedString.cs" />
-    <Compile Include="Lib\JSEngine\Core\JavaScriptException.cs" />
-    <Compile Include="Lib\JSEngine\Core\Null.cs" />
-    <Compile Include="Lib\JSEngine\Core\NumberFormatter.cs" />
-    <Compile Include="Lib\JSEngine\Core\NumberParser.cs" />
-    <Compile Include="Lib\JSEngine\Core\ScriptEngine.cs" />
-    <Compile Include="Lib\JSEngine\Core\ScriptSource\FileSource.cs" />
-    <Compile Include="Lib\JSEngine\Core\ScriptSource\ScriptSource.cs" />
-    <Compile Include="Lib\JSEngine\Core\ScriptSource\StringSource.cs" />
-    <Compile Include="Lib\JSEngine\Core\StackFrameTransformContext.cs" />
-    <Compile Include="Lib\JSEngine\Core\StringHelpers.cs" />
-    <Compile Include="Lib\JSEngine\Core\TypeComparer.cs" />
-    <Compile Include="Lib\JSEngine\Core\TypeConverter.cs" />
-    <Compile Include="Lib\JSEngine\Core\TypeUtilities.cs" />
-    <Compile Include="Lib\JSEngine\Core\Undefined.cs" />
-    <Compile Include="Lib\JSEngine\JS.cs" />
-    <Compile Include="Lib\JSEngine\JSUtils.cs" />
-    <Compile Include="Lib\JSEngine\Library\Array\ArrayAdapter.cs" />
-    <Compile Include="Lib\JSEngine\Library\Array\ArrayConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Array\ArrayConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Array\ArrayInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Array\ArrayInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Array\ArrayIterator.cs" />
-    <Compile Include="Lib\JSEngine\Library\Array\ArrayIterator.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Array\SparseArray.cs" />
-    <Compile Include="Lib\JSEngine\Library\Boolean\BooleanConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Boolean\BooleanConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Boolean\BooleanInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Boolean\BooleanInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\ClrWrapper\ClrInstanceTypeWrapper.cs" />
-    <Compile Include="Lib\JSEngine\Library\ClrWrapper\ClrInstanceWrapper.cs" />
-    <Compile Include="Lib\JSEngine\Library\ClrWrapper\ClrStaticTypeWrapper.cs" />
-    <Compile Include="Lib\JSEngine\Library\Date\DateConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Date\DateConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Date\DateInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Date\DateInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Date\DateParser.cs" />
-    <Compile Include="Lib\JSEngine\Library\Error\ErrorConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Error\ErrorConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Error\ErrorInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Error\ErrorInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Error\ErrorType.cs" />
-    <Compile Include="Lib\JSEngine\Library\FirebugConsole\FirebugConsole.cs" />
-    <Compile Include="Lib\JSEngine\Library\FirebugConsole\FirebugConsole.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\FirebugConsole\IFirebugConsoleOutput.cs" />
-    <Compile Include="Lib\JSEngine\Library\FirebugConsole\StandardConsoleOutput.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\ArgumentsInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\ArgumentsInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\BoundFunction.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\ClassFunction.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\ClrFunction.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\ClrStubFunction.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\FunctionConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\FunctionConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\FunctionInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\FunctionInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\ThrowTypeErrorFunction.cs" />
-    <Compile Include="Lib\JSEngine\Library\Function\UserDefinedFunction.cs" />
-    <Compile Include="Lib\JSEngine\Library\GlobalObject.cs" />
-    <Compile Include="Lib\JSEngine\Library\GlobalObject.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Iterator.cs" />
-    <Compile Include="Lib\JSEngine\Library\Iterator.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\JSON\JSONLexer.cs" />
-    <Compile Include="Lib\JSEngine\Library\JSON\JSONObject.cs" />
-    <Compile Include="Lib\JSEngine\Library\JSON\JSONObject.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\JSON\JSONParser.cs" />
-    <Compile Include="Lib\JSEngine\Library\JSON\JSONSerializer.cs" />
-    <Compile Include="Lib\JSEngine\Library\Map\MapConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Map\MapConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Map\MapInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Map\MapInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Map\MapIterator.cs" />
-    <Compile Include="Lib\JSEngine\Library\Map\MapIterator.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\MathObject.cs" />
-    <Compile Include="Lib\JSEngine\Library\MathObject.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Number\NumberConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Number\NumberConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Number\NumberInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Number\NumberInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\Attributes.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\HiddenClassSchema.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\JSFunctionFlags.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\ObjectConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\ObjectConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\ObjectInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\ObjectInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\PropertyAccessorValue.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\PropertyAttributes.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\PropertyDescriptor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\PropertyNameAndValue.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\PropertyReference.cs" />
-    <Compile Include="Lib\JSEngine\Library\Object\SchemaProperty.cs" />
-    <Compile Include="Lib\JSEngine\Library\Promise\PromiseConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Promise\PromiseConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Promise\PromiseInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Promise\PromiseInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Proxy\IProxyInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Proxy\ProxyConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Proxy\ProxyConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Proxy\ProxyFunction.cs" />
-    <Compile Include="Lib\JSEngine\Library\Proxy\ProxyObject.cs" />
-    <Compile Include="Lib\JSEngine\Library\Reflect\Reflect.cs" />
-    <Compile Include="Lib\JSEngine\Library\Reflect\Reflect.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\RegExp\RegExpConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\RegExp\RegExpConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\RegExp\RegExpInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\RegExp\RegExpInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Set\SetConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Set\SetConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Set\SetInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Set\SetInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Set\SetIterator.cs" />
-    <Compile Include="Lib\JSEngine\Library\Set\SetIterator.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\String\StringConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\String\StringConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\String\StringInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\String\StringInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\String\StringIterator.cs" />
-    <Compile Include="Lib\JSEngine\Library\String\StringIterator.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Symbol\Symbol.cs" />
-    <Compile Include="Lib\JSEngine\Library\Symbol\SymbolConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\Symbol\SymbolConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\Symbol\SymbolInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\Symbol\SymbolInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\ArrayBufferConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\ArrayBufferConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\ArrayBufferInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\ArrayBufferInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\DataViewConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\DataViewConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\DataViewInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\DataViewInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\TypedArrayConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\TypedArrayConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\TypedArrayInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\TypedArrayInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\TypedArray\TypedArrayType.cs" />
-    <Compile Include="Lib\JSEngine\Library\WeakMap\WeakMapConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\WeakMap\WeakMapConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\WeakMap\WeakMapInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\WeakMap\WeakMapInstance.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetConstructor.cs" />
-    <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetConstructor.g.cs" />
-    <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetInstance.cs" />
-    <Compile Include="Lib\JSEngine\Library\WeakSet\WeakSetInstance.g.cs" />
     <Compile Include="Core\Utility.cs" />
     <Compile Include="Lib\AdofaiMapConverter\Actions\Action.cs" />
     <Compile Include="Lib\AdofaiMapConverter\Actions\ActionUtils.cs" />
@@ -1274,7 +1041,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Lib\JSEngine\Compiler\Emit\Optimizations.txt" />
     <EmbeddedResource Include="ov2Logo.png" />
   </ItemGroup>
   <ItemGroup />

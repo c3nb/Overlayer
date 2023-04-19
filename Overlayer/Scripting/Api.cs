@@ -1,15 +1,18 @@
 ﻿using HarmonyLib;
-using JSEngine.Library;
 using System;
 using System.Collections.Generic;
 using Overlayer.Scripting.JS;
-using JSEngine;
 using Overlayer.Core.Tags;
 using Overlayer.Core;
 using IronPython.Runtime;
 using System.Reflection;
 using IronPython.Runtime.Types;
 using System.Linq;
+using Vostok.Metrics.Primitives.Gauge;
+using Jint.Native.Object;
+using Jint.Runtime.Interop;
+using Jint.Native.Function;
+using Jint.Native;
 
 namespace Overlayer.Scripting
 {
@@ -70,7 +73,7 @@ namespace Overlayer.Scripting
         [Api("Get Global Variable")]
         public static object GetGlobalVariable(string name)
         {
-            return Variables.TryGetValue(name, out var value) ? value : Undefined.Value;
+            return Variables.TryGetValue(name, out var value) ? value : null;
         }
         [Api("Set Global Variable")]
         public static void SetGlobalVariable(string name, object obj)
@@ -79,15 +82,15 @@ namespace Overlayer.Scripting
         }
         // Source Path Tracing Is Not Supported!
         [Api("Register Tag", SupportScript = ScriptType.JavaScript)]
-        public static void RegisterTag(string name, UserDefinedFunction func, bool notplaying)
+        public static void RegisterTag(string name, JsValue val, bool notplaying)
         {
             OverlayerDebug.Begin($"Registered Tag \"{name}\" (NotPlaying:{notplaying})");
             Tag tag = new Tag(name);
-            UDFWrapper wrapper = new UDFWrapper(func);
-            wrapper.Tag = tag;
-            if (func.ArgumentNames.Count == 1)
-                tag.SetGetter((string o) => wrapper.CallGlobal(o).ToString());
-            else tag.SetGetter(new Func<string>(() => wrapper.CallGlobal().ToString()));
+            if (!(val is FunctionInstance func)) return;
+            FIWrapper wrapper = new FIWrapper(func);
+            if (func.FunctionDeclaration.Params.Select(n => n.AssociatedData.ToString()).Count() == 1)
+                tag.SetGetter((string o) => wrapper.Call(o).ToString());
+            else tag.SetGetter(new Func<string>(() => wrapper.Call().ToString()));
             tag.Build();
             TagManager.SetTag(tag, notplaying);
             OverlayerDebug.Disable();
@@ -132,16 +135,14 @@ namespace Overlayer.Scripting
             TagManager.RemoveTag(name);
             TextManager.Refresh();
         }
-        [Api("Resolve CLR Type", SupportScript = ScriptType.JavaScript, Flags = (int)JSFunctionFlags.HasEngineParameter)]
-        public static ObjectInstance Resolve(ScriptEngine engine, string clrType)
-        {
-            return ClrStaticTypeWrapper.FromCache(engine, Utility.TypeByName(clrType));
-        }
         [Api("Resolve CLR Type", SupportScript = ScriptType.Python)]
         public static PythonType Resolve(string clrType)
         {
             return DynamicHelpers.GetPythonTypeFromType(Utility.TypeByName(clrType));
         }
-        static readonly FieldInfo py_func_codeCtx = typeof(PythonFunction).GetField("_context", AccessTools.all);
+        [Api("Round Float For Fucking Python Floating Point", SupportScript = ScriptType.Python)]
+        public static float RoundFloat(double value, int digits = -1) => (float)value.Round(digits);
+        [Api("Round Float And ToString For Fucking Python Floating Point", SupportScript = ScriptType.Python)]
+        public static string RoundFloatString(double value, int digits = -1) => digits < 0 ? value.ToString() : value.ToString($"F{digits}");
     }
 }

@@ -86,6 +86,7 @@ namespace Overlayer.Core
             {
                 TagAttribute tagAttr = method.GetCustomAttribute<TagAttribute>();
                 if (tagAttr == null) continue;
+                if (cTag != null && tagAttr.IsDefault) continue;
                 tagAttr.Name = tagAttr.Name ?? method.Name;
                 OverlayerDebug.Log($"Loading Tag {tagAttr.Name}..");
                 Tag tag = new Tag(tagAttr.Name, config);

@@ -120,7 +120,7 @@ namespace Overlayer.Patches
             if (Variables.IsStarted)
             {
                 Variables.StartProg = ctrl.percentComplete * 100;
-                Variables.StartTile = ctrl.currentSeqID + 1;
+                Variables.StartTile = ctrl.currentSeqID;
                 Variables.IsStarted = false;
             }
         }

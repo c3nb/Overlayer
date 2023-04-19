@@ -1,10 +1,9 @@
-﻿using JSEngine;
-using JSEngine.Compiler;
+﻿using Jint;
 using Microsoft.Scripting.Hosting;
-using Overlayer.Core;
 using System;
-using System.Collections.Generic;
-using ScriptEngine = JSEngine.ScriptEngine;
+using Esprima.Ast;
+using Esprima;
+using Microsoft.Scripting.Utils;
 
 namespace Overlayer.Scripting
 {
@@ -13,37 +12,30 @@ namespace Overlayer.Scripting
         bool js;
         CompiledCode code;
         ScriptScope scope;
-        ScriptEngine engine;
-        CompiledScript exec;
-        CompiledEval eval;
+        Engine engine;
+        Esprima.Ast.Script scr;
         public Result(CompiledCode code, ScriptScope scope)
         {
             js = false;
             this.code = code;
             this.scope = scope;
         }
-        public Result(ScriptEngine engine, CompiledScript exec)
+        public Result(Engine engine, string expr)
         {
             js = true;
             this.engine = engine;
-            this.exec = exec;
-        }
-        public Result(ScriptEngine engine, CompiledEval eval)
-        {
-            js = true;
-            this.engine = engine;
-            this.eval = eval;
+            scr = new Esprima.Ast.Script(new JavaScriptParser().ParseScript(expr).Body, false);
         }
         public object Eval()
         {
             if (js)
-                return eval.EvaluateFastInternal(engine);
+                return engine.Evaluate(scr).ToObject();
             return code.Execute(scope);
         }
         public void Exec()
         {
             if (js)
-                exec.ExecuteFastInternal(engine);
+                engine.Execute(scr);
             else code.Execute(scope);
         }
         public void Dispose() => Dispose(false);
@@ -52,8 +44,7 @@ namespace Overlayer.Scripting
             code = null; 
             scope = null;
             engine = null;
-            exec = null;
-            eval = null;
+            scr = null;
             if (!byFinalizer)
                 GC.SuppressFinalize(this);
         }
