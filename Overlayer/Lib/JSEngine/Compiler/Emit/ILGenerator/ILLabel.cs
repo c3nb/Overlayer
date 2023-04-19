@@ -5,7 +5,7 @@ namespace JSEngine.Compiler
     /// <summary>
     /// Represents a label in IL code.
     /// </summary>
-    internal abstract class ILLabel
+    public abstract class ILLabel
     {
     }
 

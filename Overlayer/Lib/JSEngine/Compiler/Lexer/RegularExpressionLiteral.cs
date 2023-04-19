@@ -4,7 +4,7 @@
     /// <summary>
     /// Represents a lightweight representation of a regular expression literal.
     /// </summary>
-    internal class RegularExpressionLiteral
+    public class RegularExpressionLiteral
     {
         /// <summary>
         /// Creates a new regular expression literal.

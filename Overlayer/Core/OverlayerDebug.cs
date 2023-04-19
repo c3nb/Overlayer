@@ -39,10 +39,11 @@ namespace Overlayer.Core
                 Log($"{condition} {type}");
             else Log($"{condition} {type}\n{stackTrace}");
         }
-        static void SaveLog()
+        static void SaveLog() => SaveLog(null);
+        public static void SaveLog(string path = null)
         {
-            if (Main.Settings.DebugMode || !Main.Initialized)
-                File.WriteAllText(Path.Combine(Main.Mod.Path, "Debug.log"), Buffer.ToString());
+            if (!Main.Initialized || Main.Settings.DebugMode)
+                File.WriteAllText(path ?? Path.Combine(Main.Mod.Path, "Debug.log"), Buffer.ToString());
         }
         public static T Log<T>(T obj, Func<T, string> toString = null)
         {
@@ -82,10 +83,12 @@ namespace Overlayer.Core
         }
         public static void Enable()
         {
+            if (!Main.Initialized) return;
             Main.Settings.DebugMode = prevActiveStatus;
         }
         public static void Disable()
         {
+            if (!Main.Initialized) return;
             prevActiveStatus = Main.Settings.DebugMode;
             Main.Settings.DebugMode = false;
         }

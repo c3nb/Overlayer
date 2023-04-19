@@ -6,7 +6,7 @@ namespace JSEngine.Compiler
     /// <summary>
     /// Represents a local variable in CIL code.
     /// </summary>
-    internal abstract class ILLocalVariable
+    public abstract class ILLocalVariable
     {
         /// <summary>
         /// Gets the zero-based index of the local variable within the method body.

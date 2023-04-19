@@ -19,6 +19,7 @@ using Overlayer.Core.ExceptionHandling;
 using System.Threading.Tasks;
 using static IronPython.Modules._ast;
 using UnityEngine.Scripting;
+using JSEngine.Compiler;
 
 namespace Overlayer
 {
@@ -82,7 +83,6 @@ namespace Overlayer
                 }
                 RunScriptsNonBlocking(ScriptPath);
                 Initialized = true;
-                MemoryHelper.CleanAsync(CleanOption.All);
                 OverlayerDebug.End();
             }
             else
@@ -109,10 +109,7 @@ namespace Overlayer
             if (GUILayout.Button(Language[TranslationKeys.CleanMemory]))
                 MemoryHelper.Clean(CleanOption.All);
             if (GUILayout.Button(Language[TranslationKeys.ReloadScripts]))
-            {
                 RunScriptsNonBlocking(ScriptPath);
-                MemoryHelper.CleanAsync(CleanOption.All);
-            }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             TextManager.GUI();
@@ -220,6 +217,7 @@ namespace Overlayer
             await Task.Run(() => File.WriteAllText(Path.Combine(folderPath, "Impl.py"), new PythonImpl().Generate()));
             OverlayerDebug.Log($"Preparing Executing Scripts..");
             Api.Clear();
+            await Task.Run(() => MethodGenerator.Refresh(!MethodGenerator.useDynMethod));
             OverlayerDebug.Begin("Executing All Scripts");
             foreach (string script in Directory.GetFiles(folderPath))
             {

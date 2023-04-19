@@ -7,11 +7,21 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection;
 using Overlayer.Core;
+using JSEngine.Compiler;
 
 namespace Overlayer.Scripting.JS
 {
     public static class JSUtils
     {
+        public static bool UseDynamicMethod
+        {
+            get => MethodGenerator.useDynMethod;
+            set
+            {
+                if (MethodGenerator.useDynMethod == value) return;
+                MethodGenerator.Refresh(!(MethodGenerator.useDynMethod = value));
+            }
+        }
         static List<(MethodInfo, JSFunctionFlags)> apis;
         public static ScriptEngine Prepare()
         {

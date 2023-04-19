@@ -18,7 +18,31 @@ namespace JSEngine.Compiler
         /// </summary>
         /// <param name="dynamicMethod"> The DynamicMethod to emit IL for. </param>
         /// <param name="emitDebugInfo"> Indicates whether to emit debugging information, like symbol names. </param>
+        public ReflectionEmitILGenerator(MethodInfo dynamicMethod, bool emitDebugInfo)
+        {
+            this.method = dynamicMethod ?? throw new ArgumentNullException(nameof(dynamicMethod));
+            this.generator = dynamicMethod is System.Reflection.Emit.DynamicMethod dm ? dm.GetILGenerator() : ((System.Reflection.Emit.MethodBuilder)dynamicMethod).GetILGenerator();
+            this.emitDebugInfo = emitDebugInfo;
+        }
+
+        /// <summary>
+        /// Creates a new ReflectionEmitILGenerator instance from a DynamicMethod.
+        /// </summary>
+        /// <param name="dynamicMethod"> The DynamicMethod to emit IL for. </param>
+        /// <param name="emitDebugInfo"> Indicates whether to emit debugging information, like symbol names. </param>
         public ReflectionEmitILGenerator(System.Reflection.Emit.DynamicMethod dynamicMethod, bool emitDebugInfo)
+        {
+            this.method = dynamicMethod ?? throw new ArgumentNullException(nameof(dynamicMethod));
+            this.generator = dynamicMethod.GetILGenerator();
+            this.emitDebugInfo = emitDebugInfo;
+        }
+
+        /// <summary>
+        /// Creates a new ReflectionEmitILGenerator instance from a DynamicMethod.
+        /// </summary>
+        /// <param name="dynamicMethod"> The DynamicMethod to emit IL for. </param>
+        /// <param name="emitDebugInfo"> Indicates whether to emit debugging information, like symbol names. </param>
+        public ReflectionEmitILGenerator(System.Reflection.Emit.MethodBuilder dynamicMethod, bool emitDebugInfo)
         {
             this.method = dynamicMethod ?? throw new ArgumentNullException(nameof(dynamicMethod));
             this.generator = dynamicMethod.GetILGenerator();

@@ -42,18 +42,13 @@ namespace Overlayer.Core
             OverlayerDebug.Begin($"Cleaning Memory With Option {option}");
             Cleaning = true;
             if ((option & CleanOption.CollectGarbage) != 0)
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, false);
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             if ((option & CleanOption.UnloadAssets) != 0)
                 Resources.UnloadUnusedAssets();
             Cleaning = false;
             OverlayerDebug.End();
         }
         public static async void CleanAsync(CleanOption option = CleanOption.CollectGarbage)
-        {
-            if (Cleaning) return;
-            await Task.Run(() => Clean(option));
-        }
-        public static async Task CleanTask(CleanOption option = CleanOption.CollectGarbage)
         {
             if (Cleaning) return;
             await Task.Run(() => Clean(option));

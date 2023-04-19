@@ -6,7 +6,7 @@ namespace JSEngine.Compiler
     /// <summary>
     /// Represents a generated method and it's dependencies.
     /// </summary>
-    internal class GeneratedMethod
+    public class GeneratedMethod
     {
         /// <summary>
         /// Creates a new GeneratedMethod instance.

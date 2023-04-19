@@ -94,7 +94,7 @@ namespace Overlayer.Scripting
             TextManager.Refresh();
             OverlayerDebug.Enable();
             RegisteredCustomTags.Add(name);
-            Main.Logger.Log(OverlayerDebug.End());
+            Main.Logger?.Log(OverlayerDebug.End());
         }
         // Source Path Tracing Is Not Supported!
         [Api("Register Tag", SupportScript = ScriptType.Python)]
@@ -109,7 +109,7 @@ namespace Overlayer.Scripting
             TextManager.Refresh();
             OverlayerDebug.Enable();
             RegisteredCustomTags.Add(name);
-            Main.Logger.Log(OverlayerDebug.End());
+            Main.Logger?.Log(OverlayerDebug.End());
         }
         // Source Path Tracing Is Not Supported!
         [Api("Register Tag", SupportScript = ScriptType.Python)]
@@ -124,7 +124,7 @@ namespace Overlayer.Scripting
             TextManager.Refresh();
             OverlayerDebug.Enable();
             RegisteredCustomTags.Add(name);
-            Main.Logger.Log(OverlayerDebug.End());
+            Main.Logger?.Log(OverlayerDebug.End());
         }
         [Api("Unregister Tag")]
         public static void UnregisterTag(string name)

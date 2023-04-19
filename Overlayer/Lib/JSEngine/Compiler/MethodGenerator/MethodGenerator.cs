@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace JSEngine.Compiler
 {
@@ -7,6 +9,33 @@ namespace JSEngine.Compiler
     /// </summary>
     internal abstract class MethodGenerator
     {
+        internal static bool useDynMethod = true;
+        static AssemblyBuilder asm;
+        static ModuleBuilder mod;
+        static int cnt = 0;
+        public static void Refresh(bool reset = true)
+        {
+            if (mod != null)
+            {
+                mod = null;
+                asm = null;
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            }
+            if (reset)
+            {
+                asm = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("DYNASM"), AssemblyBuilderAccess.RunAndCollect);
+                mod = asm.DefineDynamicModule("DYNASM");
+            }
+        }
+        public static MethodBuilder Begin(string name, Type rt, Type[] pt, out TypeBuilder tb)
+        {
+            tb = mod.DefineType(cnt++.ToString(), TypeAttributes.Public);
+            return tb.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static, rt, pt);
+        }
+        public static MethodInfo End(TypeBuilder tb, string name)
+        {
+            return tb.CreateType().GetMethod(name);
+        }
         internal abstract Type ReturnType { get; }
         /// <summary>
         /// Creates a new MethodGenerator instance.
@@ -162,12 +191,17 @@ namespace JSEngine.Compiler
             // FunctionExpression class.
 
             // Create a new dynamic method.
-            System.Reflection.Emit.DynamicMethod dynamicMethod = new System.Reflection.Emit.DynamicMethod(
-                GetMethodName(),                                        // Name of the generated method.
-                typeof(object),                                         // Return type of the generated method.
-                GetParameterTypes(),                                    // Parameter types of the generated method.
-                typeof(MethodGenerator),                                // Owner type.
-                true);                                                  // Skip visibility checks.
+            MethodInfo dynamicMethod;
+            TypeBuilder tb = null;
+            if (!useDynMethod)
+                dynamicMethod = Begin(GetMethodName(), typeof(object), GetParameterTypes(), out tb);
+            else
+                dynamicMethod = new DynamicMethod(
+                    GetMethodName(),                                        // Name of the generated method.
+                    typeof(object),                                         // Return type of the generated method.
+                    GetParameterTypes(),                                    // Parameter types of the generated method.
+                    typeof(MethodGenerator),                                // Owner type.
+                    true);                                                  // Skip visibility checks.
 #if USE_DYNAMIC_IL_INFO
             ILGenerator generator = new DynamicILGenerator(dynamicMethod);
 #else
@@ -194,7 +228,10 @@ namespace JSEngine.Compiler
             generator.Complete();
 
             // Create a delegate from the method.
-            this.GeneratedMethod = new GeneratedMethod(dynamicMethod.CreateDelegate(GetDelegate()), optimizationInfo.NestedFunctions);
+            if (useDynMethod)
+                this.GeneratedMethod = new GeneratedMethod(dynamicMethod.CreateDelegate(GetDelegate()), optimizationInfo.NestedFunctions);
+            else 
+                this.GeneratedMethod = new GeneratedMethod(End(tb, dynamicMethod.Name).CreateDelegate(GetDelegate()), optimizationInfo.NestedFunctions);
             
             if (loggingILGenerator != null)
             {
