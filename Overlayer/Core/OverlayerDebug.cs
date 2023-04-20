@@ -1,13 +1,9 @@
-﻿using HarmonyLib;
-using Overlayer.Core.ExceptionHandling;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using UnityEngine;
-using UnityModManagerNet;
 
 namespace Overlayer.Core
 {
@@ -16,7 +12,7 @@ namespace Overlayer.Core
         struct ExecuteInfo
         {
             public Stopwatch timer;
-            public string executer;
+            public string executor;
         }
         static readonly StringBuilder Buffer = new StringBuilder();
         static readonly Stack<ExecuteInfo> ExecutingStack = new Stack<ExecuteInfo>();
@@ -26,6 +22,7 @@ namespace Overlayer.Core
             Application.quitting += SaveLog;
             Application.logMessageReceived += UnityLogCallback;
         }
+        public static string CurrentExecutor => ExecutingStack.Count > 0 ? ExecutingStack.Peek().executor : null;
         public static void Term()
         {
             SaveLog();
@@ -64,7 +61,7 @@ namespace Overlayer.Core
             var timer = new Stopwatch();
             ExecuteInfo info;
             info.timer = timer;
-            info.executer = toExecute;
+            info.executor = toExecute;
             ExecutingStack.Push(info);
             timer.Start();
         }
@@ -74,7 +71,7 @@ namespace Overlayer.Core
             if (ExecutingStack.Count < 1) return null;
             var info = ExecutingStack.Pop();
             info.timer.Stop();
-            return Log($"{(success ? "" : "Failed ")}{info.executer} For {info.timer.Elapsed}");
+            return Log($"{(success ? "" : "Failed ")}{info.executor} For {info.timer.Elapsed}");
         }
         public static void OpenDebugLog()
         {

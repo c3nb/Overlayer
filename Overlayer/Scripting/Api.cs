@@ -4,13 +4,9 @@ using System.Collections.Generic;
 using Overlayer.Scripting.JS;
 using Overlayer.Core.Tags;
 using Overlayer.Core;
-using IronPython.Runtime;
 using System.Reflection;
 using IronPython.Runtime.Types;
 using System.Linq;
-using Vostok.Metrics.Primitives.Gauge;
-using Jint.Native.Object;
-using Jint.Runtime.Interop;
 using Jint.Native.Function;
 using Jint.Native;
 
@@ -42,6 +38,7 @@ namespace Overlayer.Scripting
         public static List<string> RegisteredCustomTags = new List<string>();
         public static void Clear()
         {
+            harmony.UnpatchAll(harmony.Id);
             Variables.Clear();
             foreach (var tag in RegisteredCustomTags)
                 TagManager.RemoveTag(tag);
@@ -51,8 +48,9 @@ namespace Overlayer.Scripting
         [Api("Log Object")]
         public static void Log(object obj) => Main.Logger.Log(OverlayerDebug.Log(obj).ToString());
         [Api("Prefix Method", SupportScript = ScriptType.JavaScript)]
-        public static bool Prefix(string typeColonMethodName, FunctionInstance func)
+        public static bool Prefix(string typeColonMethodName, JsValue val)
         {
+            if (!(val is FunctionInstance func)) return false;
             var target = AccessTools.Method(typeColonMethodName);
             var wrap = func.Wrap(target, true);
             if (wrap == null)
@@ -61,8 +59,9 @@ namespace Overlayer.Scripting
             return true;
         }
         [Api("Postfix Method", SupportScript = ScriptType.JavaScript)]
-        public static bool Postfix(string typeColonMethodName, FunctionInstance func)
+        public static bool Postfix(string typeColonMethodName, JsValue val)
         {
+            if (!(val is FunctionInstance func)) return false;
             var target = AccessTools.Method(typeColonMethodName);
             var wrap = func.Wrap(target, false);
             if (wrap == null)
@@ -70,6 +69,8 @@ namespace Overlayer.Scripting
             harmony.Patch(target, postfix: new HarmonyMethod(wrap));
             return true;
         }
+        [Api("Generate Proxy", SupportScript = ScriptType.JavaScript)]
+        public static void GenerateProxy(string clrType) => JSUtils.BuildProxy(Utility.TypeByName(clrType), Main.ScriptPath);
         [Api("Get Global Variable")]
         public static object GetGlobalVariable(string name)
         {
@@ -84,7 +85,8 @@ namespace Overlayer.Scripting
         [Api("Register Tag", SupportScript = ScriptType.JavaScript)]
         public static void RegisterTag(string name, JsValue val, bool notplaying)
         {
-            OverlayerDebug.Begin($"Registered Tag \"{name}\" (NotPlaying:{notplaying})");
+            var executor = $"Registered Tag \"{name}\" (NotPlaying:{notplaying})";
+            OverlayerDebug.Begin(executor);
             Tag tag = new Tag(name);
             if (!(val is FunctionInstance func)) return;
             FIWrapper wrapper = new FIWrapper(func);
@@ -97,13 +99,15 @@ namespace Overlayer.Scripting
             TextManager.Refresh();
             OverlayerDebug.Enable();
             RegisteredCustomTags.Add(name);
-            Main.Logger?.Log(OverlayerDebug.End());
+            OverlayerDebug.End();
+            Main.Logger?.Log(executor);
         }
         // Source Path Tracing Is Not Supported!
         [Api("Register Tag", SupportScript = ScriptType.Python)]
         public static void RegisterTagOpt(string name, Func<string, object> func, bool notplaying)
         {
-            OverlayerDebug.Begin($"Registered Tag \"{name}\" (NotPlaying:{notplaying})");
+            var executor = $"Registered Tag \"{name}\" (NotPlaying:{notplaying})";
+            OverlayerDebug.Begin(executor);
             Tag tag = new Tag(name);
             tag.SetGetter(s => func(s).ToString());
             tag.Build();
@@ -112,13 +116,15 @@ namespace Overlayer.Scripting
             TextManager.Refresh();
             OverlayerDebug.Enable();
             RegisteredCustomTags.Add(name);
-            Main.Logger?.Log(OverlayerDebug.End());
+            OverlayerDebug.End();
+            Main.Logger?.Log(executor);
         }
         // Source Path Tracing Is Not Supported!
         [Api("Register Tag", SupportScript = ScriptType.Python)]
         public static void RegisterTag(string name, Func<object> func, bool notplaying)
         {
-            OverlayerDebug.Begin($"Registered Tag \"{name}\" (NotPlaying:{notplaying})");
+            var executor = $"Registered Tag \"{name}\" (NotPlaying:{notplaying})";
+            OverlayerDebug.Begin(executor);
             Tag tag = new Tag(name);
             tag.SetGetter(new Func<string>(() => func().ToString()));
             tag.Build();
@@ -127,7 +133,8 @@ namespace Overlayer.Scripting
             TextManager.Refresh();
             OverlayerDebug.Enable();
             RegisteredCustomTags.Add(name);
-            Main.Logger?.Log(OverlayerDebug.End());
+            OverlayerDebug.End();
+            Main.Logger?.Log(executor);
         }
         [Api("Unregister Tag")]
         public static void UnregisterTag(string name)

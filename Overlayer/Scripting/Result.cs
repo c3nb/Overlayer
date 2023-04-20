@@ -1,9 +1,9 @@
 ﻿using Jint;
 using Microsoft.Scripting.Hosting;
 using System;
-using Esprima.Ast;
 using Esprima;
-using Microsoft.Scripting.Utils;
+using System.IO;
+using System.Text;
 
 namespace Overlayer.Scripting
 {
@@ -24,7 +24,7 @@ namespace Overlayer.Scripting
         {
             js = true;
             this.engine = engine;
-            scr = new Esprima.Ast.Script(new JavaScriptParser().ParseScript(expr).Body, false);
+            scr = new Esprima.Ast.Script(new JavaScriptParser().ParseScript(RemoveImports(expr)).Body, false);
         }
         public object Eval()
         {
@@ -49,5 +49,18 @@ namespace Overlayer.Scripting
                 GC.SuppressFinalize(this);
         }
         ~Result() => Dispose(true);
+        static string RemoveImports(string expr)
+        {
+            using (StringReader sr = new StringReader(expr))
+            {
+                StringBuilder sb = new StringBuilder();
+                string line = null;
+                while ((line = sr.ReadLine()) != null)
+                    if (!line.StartsWith("import"))
+                        sb.AppendLine(line);
+                    else sb.AppendLine(string.Empty);
+                return sb.ToString();
+            }
+        }
     }
 }

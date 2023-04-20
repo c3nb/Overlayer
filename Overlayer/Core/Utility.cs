@@ -588,10 +588,8 @@ namespace Overlayer.Core
         }
         public static Type TypeByName(string typeName)
         {
-            if (loadedAsss == null)
-                loadedAsss = AppDomain.CurrentDomain.GetAssemblies();
             if (loadedTypes == null)
-                loadedTypes = loadedAsss.SelectMany(ass => ass.GetTypes()).ToArray();
+                loadedTypes = loadedAsss.Select(ass => ExecuteSafe(ass.GetTypes, out _)).Where(t => t != null).SelectMany(ts => ts).ToArray();
             return Type.GetType(typeName, false) ??
                 loadedTypes.FirstOrDefault(t => t.FullName == typeName) ?? 
                 loadedTypes.FirstOrDefault(t => t.Name == typeName);

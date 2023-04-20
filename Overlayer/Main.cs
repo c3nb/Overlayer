@@ -217,7 +217,9 @@ namespace Overlayer
             OverlayerDebug.Begin("Executing All Scripts");
             foreach (string script in Directory.GetFiles(folderPath))
             {
-                if (Path.GetFileNameWithoutExtension(script) == "Impl") continue;
+                var nameWithoutExt = Path.GetFileNameWithoutExtension(script);
+                if (nameWithoutExt == "Impl") continue;
+                if (nameWithoutExt.EndsWith("_Proxy")) continue;
                 ScriptType sType = Script.GetScriptType(script);
                 if (sType == ScriptType.None) continue;
                 var name = Path.GetFileName(script);
