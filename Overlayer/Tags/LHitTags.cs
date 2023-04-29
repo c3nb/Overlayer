@@ -1,10 +1,12 @@
 ﻿using Overlayer.Core.Tags;
+using System.Runtime.ConstrainedExecution;
 
 namespace Overlayer.Tags
 {
     public static class LHitTags
     {
         [Tag("LHit")]
+        [ReliabilityContract(Consistency.MayCorruptProcess, Cer.MayFail)]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Lenient);
         [Tag("LTE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double TE() => Variables.LenientCounts[HitMargin.TooEarly];

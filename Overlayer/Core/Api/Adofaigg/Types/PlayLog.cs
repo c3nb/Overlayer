@@ -5,7 +5,7 @@ namespace Overlayer.Core.Api.Adofaigg.Types
 {
     public class PlayLog : Json
     {
-        public static async Task<Response<PlayLog>> Request(params Parameter[] parameters) => await Adofaigg.PlayLogs.Request<PlayLog>(parameters);
+        public static async Task<Response<PlayLog>> Request(params Parameter[] parameters) => await AdofaiggApi.PlayLogs.Request<PlayLog>(parameters);
         public int id;
         public DateTime timestamp;
         public TinyLevel level;

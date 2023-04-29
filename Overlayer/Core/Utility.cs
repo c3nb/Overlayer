@@ -431,6 +431,29 @@ namespace Overlayer.Core
             if (index < 0) return null;
             return str.Substring(index + 1, str.Length - index - 1);
         }
+        public static int GetDifference(this string a, string b)
+        {
+            int aCount = a.Length;
+            int bCount = b.Length;
+            int[,] d = new int[aCount + 1, bCount + 1];
+            if (aCount == 0) return bCount;
+            if (bCount == 0) return aCount;
+            for (int i = 0; i <= aCount; d[i, 0] = i++) ;
+            for (int i = 0; i <= bCount; d[0, i] = i++) ;
+            for (int i = 1; i <= aCount; i++)
+                for (int j = 1; j <= bCount; j++)
+                {
+                    int cost = (b[j - 1] == a[i - 1]) ? 0 : 1;
+                    d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+                }
+            return d[aCount, bCount];
+        }
+        public static double CalculateDifference(this string a, string b)
+        {
+            if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b)) return 0.0;
+            if (a == b) return 1.0;
+            return 1.0 - (GetDifference(a, b) / Math.Max(a.Length, b.Length));
+        }
         public static string TrimBetween(this string str, string start, string end)
         {
             int sIdx = str.IndexOf(start);

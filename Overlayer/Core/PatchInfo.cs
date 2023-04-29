@@ -72,16 +72,11 @@ namespace Overlayer.Core
         }
         static HarmonyPatchType DeterminePatchType(MethodInfo m)
         {
-            bool isPrefix = m.Name == "Prefix" || m.GetCustomAttribute<HarmonyPrefix>() != null;
-            bool isPostfix = m.Name == "Postfix" || m.GetCustomAttribute<HarmonyPostfix>() != null;
-            bool isTranspiler = m.Name == "Transpiler" || m.GetCustomAttribute<HarmonyTranspiler>() != null;
-            bool isFinalizer = m.Name == "Finalizer" || m.GetCustomAttribute<HarmonyFinalizer>() != null;
-            bool isReversePatch = m.Name == "ReversePatch" || m.GetCustomAttribute<HarmonyReversePatch>() != null;
-            if (isPrefix) return HarmonyPatchType.Prefix;
-            else if (isPostfix) return HarmonyPatchType.Postfix;
-            else if (isTranspiler) return HarmonyPatchType.Transpiler;
-            else if (isFinalizer) return HarmonyPatchType.Finalizer;
-            else if (isReversePatch) return HarmonyPatchType.ReversePatch;
+            if (m.Name == "Prefix" || m.GetCustomAttribute<HarmonyPrefix>() != null) return HarmonyPatchType.Prefix;
+            else if (m.Name == "Postfix" || m.GetCustomAttribute<HarmonyPostfix>() != null) return HarmonyPatchType.Postfix;
+            else if (m.Name == "Transpiler" || m.GetCustomAttribute<HarmonyTranspiler>() != null) return HarmonyPatchType.Transpiler;
+            else if (m.Name == "Finalizer" || m.GetCustomAttribute<HarmonyFinalizer>() != null) return HarmonyPatchType.Finalizer;
+            else if (m.Name == "ReversePatch" || m.GetCustomAttribute<HarmonyReversePatch>() != null) return HarmonyPatchType.ReversePatch;
             else return HarmonyPatchType.All;
         }
         static MethodBase GetOriginal(MethodInfo replacement)

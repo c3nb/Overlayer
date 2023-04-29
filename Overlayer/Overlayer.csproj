@@ -541,7 +541,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Api\Adofaigg\Adofaigg.cs" />
+    <Compile Include="Core\Api\Adofaigg\AdofaiggApi.cs" />
     <Compile Include="Core\Api\Adofaigg\Music.cs" />
     <Compile Include="Core\Api\Adofaigg\Parameter.cs" />
     <Compile Include="Core\Api\Adofaigg\Parameters.cs" />
@@ -559,7 +559,7 @@
     <Compile Include="Core\Api\Adofaigg\User.cs" />
     <Compile Include="Core\Api\Api.cs" />
     <Compile Include="Core\Api\Overlayer\LevelMeta.cs" />
-    <Compile Include="Core\Api\Overlayer\Overlayer.cs" />
+    <Compile Include="Core\Api\Overlayer\OverlayerApi.cs" />
     <Compile Include="Core\ExceptionHandling\ExceptionCatcher.cs" />
     <Compile Include="Core\ExceptionHandling\StackTraceParser.cs" />
     <Compile Include="Core\FontManager.cs" />

@@ -14,9 +14,10 @@ using JSON;
 using Vostok.Commons.Helpers.Extensions;
 using System.Management.Instrumentation;
 using Discord;
-using AdofaiggApi = Overlayer.Core.Api.Adofaigg.Adofaigg;
-using OverlayerApi = Overlayer.Core.Api.Overlayer.Overlayer;
+using AdofaiggApi = Overlayer.Core.Api.Adofaigg.AdofaiggApi;
+using OverlayerApi = Overlayer.Core.Api.Overlayer.OverlayerApi;
 using Overlayer.Core.Api.Overlayer;
+using System.Runtime.ConstrainedExecution;
 
 namespace Overlayer.Tags
 {
@@ -199,6 +200,7 @@ namespace Overlayer.Tags
             return CachedStrings[key].Contains(value);
         }
 #if DIFFICULTY_PREDICTOR
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         public static async void PredictDiff(scnEditor editor)
         {
             try
@@ -218,6 +220,7 @@ namespace Overlayer.Tags
                 OverlayerDebug.Log($"Adjusting PredictedDifficulty To Editor Difficulty {IntegratedDifficulty = PredictedDifficulty = ((double)editor.levelData.difficulty).Map(1, 10, 1, 21)}");
             }
         }
+        [ReliabilityContract(Consistency.MayCorruptInstance, Cer.MayFail)]
         public static async Task<double> PredictDifficulty(scnEditor editor)
         {
             var levelData = editor.levelData;

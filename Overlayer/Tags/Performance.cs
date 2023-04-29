@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Vostok.Sys.Metrics.PerfCounters;
 using Overlayer.Core.Tags;
+using System.Runtime.ConstrainedExecution;
 
 namespace Overlayer.Tags
 {
@@ -20,6 +21,7 @@ namespace Overlayer.Tags
         public static ulong TotalMemoryUsageMBytes;
         public static Thread UpdateThread;
         public static bool Initialized { get; private set; }
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
         public static void Init()
         {
             if (Initialized) return;

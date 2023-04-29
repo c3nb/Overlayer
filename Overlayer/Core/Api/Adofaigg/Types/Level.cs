@@ -7,8 +7,8 @@ namespace Overlayer.Core.Api.Adofaigg.Types
 {
     public class Level : Json
     {
-        public static async Task<Response<Level>> Request(params Parameter[] parameters) => await Adofaigg.Level.Request<Level>(parameters);
-        public static async Task<Response<Level>> Request(Parameters parameters) => await Adofaigg.Level.Request<Level>(parameters);
+        public static async Task<Response<Level>> Request(params Parameter[] parameters) => await AdofaiggApi.Level.Request<Level>(parameters);
+        public static async Task<Response<Level>> Request(Parameters parameters) => await AdofaiggApi.Level.Request<Level>(parameters);
         public int id;
         public string title;
         public double difficulty;

@@ -27,6 +27,7 @@ namespace Overlayer.Core
         }
         public static void Save()
         {
+            if (Texts == null) return;
             string path = Path.Combine(Main.Mod.Path, "Texts.json");
             File.WriteAllText(path, JsonConvert.SerializeObject(Texts.Select(t => t.config).ToList(), settings));
         }
@@ -47,9 +48,10 @@ namespace Overlayer.Core
         }
         public static void Release()
         {
-            Texts.ForEach(t => RemoveText(t, false));
-            Texts.Clear();
-            UnityEngine.Object.Destroy(ShadowText.PCanvasObj);
+            Texts?.ForEach(t => RemoveText(t, false));
+            Texts?.Clear();
+            if (ShadowText.PublicCanvas)
+                UnityEngine.Object.Destroy(ShadowText.PCanvasObj);
             ShadowText.PublicCanvas = null;
         }
         public static void Refresh()

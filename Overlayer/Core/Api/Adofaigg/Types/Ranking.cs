@@ -4,7 +4,7 @@ namespace Overlayer.Core.Api.Adofaigg.Types
 {
     public class Ranking : Json
     {
-        public static async Task<Response<Ranking>> Request(params Parameter[] parameters) => await Adofaigg.Ranking.Request<Ranking>(parameters);
+        public static async Task<Response<Ranking>> Request(params Parameter[] parameters) => await AdofaiggApi.Ranking.Request<Ranking>(parameters);
         public int id;
         public string name;
         public double totalPp;

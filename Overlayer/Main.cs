@@ -16,6 +16,7 @@ using UnityEngine.SceneManagement;
 using Overlayer.Tags;
 using Overlayer.Patches;
 using System.Threading.Tasks;
+using Overlayer.Core.Api.Overlayer;
 
 namespace Overlayer
 {
@@ -57,6 +58,7 @@ namespace Overlayer
                 Variables.Reset();
                 OverlayerDebug.Init();
                 OverlayerDebug.Begin("Overlayer Initialized");
+                //OverlayerApi.Instance.RunHotfixes();
                 SceneManager.activeSceneChanged += SceneChanged;
                 Backup();
                 Settings = ModSettings.Load<Settings>(modEntry);
@@ -223,27 +225,32 @@ namespace Overlayer
                 ScriptType sType = Script.GetScriptType(script);
                 if (sType == ScriptType.None) continue;
                 var name = Path.GetFileName(script);
-                OverlayerDebug.Begin($"Executing Script {name}");
-                bool success = await Task.Run(() =>
-                {
-                    try
-                    {
-                        var result = Script.CompileExec(script, sType);
-                        result.Exec();
-                        result.Dispose();
-                        result = null;
-                        return true; 
-                    }
-                    catch (Exception e) { OverlayerDebug.Log($"Exception At Executing Script \"{name}\":\n{e}"); return false; }
-                });
-                OverlayerDebug.End(success);
+                await RunScript(name, script, sType);
             }
             OverlayerDebug.Disable();
             MemoryHelper.Clean();
-            await Task.Run(() => MemoryHelper.Clean());
             OverlayerDebug.Enable();
             OverlayerDebug.End();
             ScriptsRunning = false;
+        }
+        public static async Task<bool> RunScript(string name, string script, ScriptType sType)
+        {
+            OverlayerDebug.Begin($"Executing Script {name}");
+            bool success = await Task.Run(() =>
+            {
+                try
+                {
+                    var result = Script.CompileExec(script, sType);
+                    result.Exec();
+                    result.Dispose();
+                    result = null;
+                    HasScripts = true;
+                    return true;
+                }
+                catch (Exception e) { OverlayerDebug.Log($"Exception At Executing Script \"{name}\":\n{e}"); return false; }
+            });
+            OverlayerDebug.End(success);
+            return success;
         }
         public static async void RunScriptsNonBlocking(string folderPath)
         {

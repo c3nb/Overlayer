@@ -1,10 +1,12 @@
 ﻿using Overlayer.Core.Tags;
+using System.Runtime.ConstrainedExecution;
 
 namespace Overlayer.Tags
 {
     public static class SHitTags
     {
         [Tag("SHit")]
+        [ReliabilityContract(Consistency.MayCorruptProcess, Cer.MayFail)]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Strict);
         [Tag("STE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double TE() => Variables.StrictCounts[HitMargin.TooEarly];

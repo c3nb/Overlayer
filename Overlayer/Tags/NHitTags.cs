@@ -1,10 +1,12 @@
 ﻿using Overlayer.Core.Tags;
+using System.Runtime.ConstrainedExecution;
 
 namespace Overlayer.Tags
 {
     public static class NHitTags
     {
         [Tag("NHit")]
+        [ReliabilityContract(Consistency.MayCorruptProcess, Cer.MayFail)]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Normal);
         [Tag("NTE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double TE() => Variables.NormalCounts[HitMargin.TooEarly];

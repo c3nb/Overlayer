@@ -123,7 +123,7 @@ namespace Overlayer.Core
         }
         public static void Release()
         {
-            AllTags.Values.ForEach(t => t.Dispose());
+            AllTags?.Values.ForEach(t => t.Dispose());
             AllTags = NotPlayingTags = ReferencedTags = null;
             Patches = null;
         }

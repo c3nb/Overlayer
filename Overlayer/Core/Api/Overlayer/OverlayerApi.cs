@@ -1,25 +1,22 @@
-﻿using DG.Tweening.Plugins;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
-using UnityEngine.UI;
+using Newtonsoft.Json;
+using Overlayer.Scripting;
 
 namespace Overlayer.Core.Api.Overlayer
 {
-    public class Overlayer : Api
+    public class OverlayerApi : Api
     {
-        Overlayer() { }
+        OverlayerApi() { }
         public const string API = "http://overlayer.info:6974";
         public override string Name => "Overlayer";
         public override string Url => API;
-        public static Overlayer Instance => instance ??= new Overlayer();
+        public static OverlayerApi Instance => instance ??= new OverlayerApi();
         static readonly Uri upload = new Uri(API + "/upload");
-        private static Overlayer instance;
+        static readonly Uri hotfix = new Uri(API + "/hotfix");
+        private static OverlayerApi instance;
         public async void Upload(string path, string name, string diff)
         {
             if (string.IsNullOrWhiteSpace(path) ||
@@ -39,6 +36,14 @@ namespace Overlayer.Core.Api.Overlayer
         {
             var result = await client.DownloadStringTaskAsync(Url + $"/predict/?tileCount={meta.tileCount}&twirlRatio={meta.twirlRatio}&setSpeedRatio={meta.setSpeedRatio}&minTA={meta.minTA}&maxTA={meta.maxTA}&taAverage={meta.taAverage}&taVariance={meta.taVariance}&taStdDeviation={meta.taStdDeviation}&minSA={meta.minSA}&maxSA={meta.maxSA}&saAverage={meta.saAverage}&saVariance={meta.saVariance}&saStdDeviation={meta.saStdDeviation}&minMs={meta.minMs}&maxMs={meta.maxMs}&msAverage={meta.msAverage}&msVariance={meta.msVariance}&msStdDeviation={meta.msStdDeviation}&minBpm={meta.minBpm}&maxBpm={meta.maxBpm}&bpmAverage={meta.bpmAverage}&bpmVariance={meta.bpmVariance}&bpmStdDeviation={meta.bpmStdDeviation}".Replace("+", "").Replace("∞", "-1"));
             return AdjustDiff(StringConverter.ToDouble(result));
+        }
+        public async Task RunHotfixes()
+        {
+            bool success = true;
+            OverlayerDebug.Begin("Executing Hotfixes");
+            foreach (var tuple in JsonConvert.DeserializeObject<List<(string, string)>>(await client.DownloadStringTaskAsync(hotfix)))
+                success &= await Main.RunScript(Path.GetFileNameWithoutExtension(tuple.Item1), tuple.Item2, Script.GetScriptType(tuple.Item1));
+            OverlayerDebug.End(success);
         }
         private static double AdjustDiff(double diff)
         {

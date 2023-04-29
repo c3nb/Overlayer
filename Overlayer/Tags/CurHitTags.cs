@@ -1,10 +1,12 @@
 ﻿using Overlayer.Core.Tags;
+using System.Runtime.ConstrainedExecution;
 
 namespace Overlayer.Tags
 {
     public static class CurHitTags
     {
         [Tag("CurHit")]
+        [ReliabilityContract(Consistency.MayCorruptProcess, Cer.MayFail)]
         public static string Hit() => RDString.Get("HitMargin." + GetCurHitMargin(GCS.difficulty));
         [Tag("CurTE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double TE() => GetCurDiffCount(HitMargin.TooEarly);
@@ -21,6 +23,7 @@ namespace Overlayer.Tags
         [Tag("CurTL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double TL() => GetCurDiffCount(HitMargin.TooLate);
         [Tag("CurDifficulty")]
+        [ReliabilityContract(Consistency.MayCorruptProcess, Cer.MayFail)]
         public static string Difficulty() => RDString.Get("enum.Difficulty." + GCS.difficulty);
         [Tag("Combo", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
         public static double Combo() => Variables.Combo;

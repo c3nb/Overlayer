@@ -50,8 +50,7 @@ namespace Overlayer.Core
         }
         public static T Exception<T>(T ex, string message = null) where T : Exception
         {
-            if (message != null)
-                Log(message);
+            if (message != null) Log(message);
             Log($"Exception Has Occured.\n{ex}");
             return ex;
         }

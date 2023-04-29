@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -16,10 +17,24 @@ namespace Overlayer.Core
     }
     public static class MemoryHelper
     {
+        public static IDisposable CurrentGC { get; private set; }
         public static bool Cleaning { get; private set; }
         public static IntPtr Alloc(int bytes)
         {
             return Marshal.AllocHGlobal(bytes);
+        }
+        public static unsafe IntPtr Calloc(int count, int size)
+        {
+            int total = count * size;
+            IntPtr addr = Marshal.AllocHGlobal(total);
+            byte* ptr = (byte*)addr;
+            for (int i = 0; i < total; i++)
+                ptr[i] = 0;
+            return addr;
+        }
+        public static IntPtr Realloc(IntPtr addr, int size)
+        {
+            return Marshal.ReAllocHGlobal(addr, (IntPtr)size);
         }
         public static void Free(IntPtr ptr)
         {
@@ -49,10 +64,21 @@ namespace Overlayer.Core
             Cleaning = false;
             OverlayerDebug.End();
         }
+        public static IDisposable StartNoGC() => CurrentGC = new GCObj(GarbageCollector.Mode.Disabled);
+        public static void EndNoGC()
+        {
+            CurrentGC?.Dispose();
+            CurrentGC = null;
+        }
         public static async void CleanAsync(CleanOption option = CleanOption.CollectGarbage)
         {
             if (Cleaning) return;
             await Task.Run(() => Clean(option));
+        }
+        struct GCObj : IDisposable
+        {
+            public GCObj(GarbageCollector.Mode mode) => GarbageCollector.GCMode = mode;
+            void IDisposable.Dispose() => GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
         }
     }
 }

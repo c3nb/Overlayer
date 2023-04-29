@@ -8,17 +8,17 @@ using System;
 
 namespace Overlayer.Core.Api.Adofaigg
 {
-    public class Adofaigg : Api
+    public class AdofaiggApi : Api
     {
         public static bool EscapeParameter { get; set; } = false;
         public const string API = "https://adofai.gg:9200/api/v1";
         public override string Name => "ADOFAI.GG";
         public override string Url => API;
-        Adofaigg(string header) => this.header = header;
+        AdofaiggApi(string header) => this.header = header;
         public readonly string header;
-        public static readonly Adofaigg Level = new Adofaigg("/levels");
-        public static readonly Adofaigg PlayLogs = new Adofaigg("/playLogs");
-        public static readonly Adofaigg Ranking = new Adofaigg("/ranking");
+        public static readonly AdofaiggApi Level = new AdofaiggApi("/levels");
+        public static readonly AdofaiggApi PlayLogs = new AdofaiggApi("/playLogs");
+        public static readonly AdofaiggApi Ranking = new AdofaiggApi("/ranking");
         public async Task<Response<T>> Request<T>(params Parameter[] parameters) where T : Json
             => await Request<T>(new Parameters(parameters));
         public async Task<Response<T>> Request<T>(Parameters parameters) where T : Json
