@@ -11,7 +11,6 @@ using Overlayer.Patches;
 using ACL = AdofaiMapConverter.CustomLevel;
 using System.IO;
 using JSON;
-using Vostok.Commons.Helpers.Extensions;
 using System.Management.Instrumentation;
 using Discord;
 using AdofaiggApi = Overlayer.Core.Api.Adofaigg.AdofaiggApi;

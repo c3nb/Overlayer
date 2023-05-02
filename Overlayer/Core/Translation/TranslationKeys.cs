@@ -109,5 +109,7 @@
         public static readonly string FPSUpdateRate = nameof(FPSUpdateRate);
         public static readonly string ReloadScripts = nameof(ReloadScripts);
         public static readonly string CleanMemory = nameof(CleanMemory);
+        public static readonly string MaxRecursion = nameof(MaxRecursion);
+        public static readonly string OnlineUsers = nameof(OnlineUsers);
     }
 }

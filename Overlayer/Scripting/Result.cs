@@ -4,6 +4,9 @@ using System;
 using Esprima;
 using System.IO;
 using System.Text;
+using Jint.Native;
+using Overlayer.Core;
+using System.Runtime;
 
 namespace Overlayer.Scripting
 {

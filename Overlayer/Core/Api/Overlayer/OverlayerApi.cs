@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Overlayer.Scripting;
@@ -15,8 +19,11 @@ namespace Overlayer.Core.Api.Overlayer
         public override string Url => API;
         public static OverlayerApi Instance => instance ??= new OverlayerApi();
         static readonly Uri upload = new Uri(API + "/upload");
-        static readonly Uri hotfix = new Uri(API + "/hotfix");
+        static readonly Uri online = new Uri(API + "/online");
         private static OverlayerApi instance;
+        static Socket heartbeatClient;
+        static Thread heartbeatThread;
+        public int OnlineUsers;
         public async void Upload(string path, string name, string diff)
         {
             if (string.IsNullOrWhiteSpace(path) ||
@@ -37,14 +44,6 @@ namespace Overlayer.Core.Api.Overlayer
             var result = await client.DownloadStringTaskAsync(Url + $"/predict/?tileCount={meta.tileCount}&twirlRatio={meta.twirlRatio}&setSpeedRatio={meta.setSpeedRatio}&minTA={meta.minTA}&maxTA={meta.maxTA}&taAverage={meta.taAverage}&taVariance={meta.taVariance}&taStdDeviation={meta.taStdDeviation}&minSA={meta.minSA}&maxSA={meta.maxSA}&saAverage={meta.saAverage}&saVariance={meta.saVariance}&saStdDeviation={meta.saStdDeviation}&minMs={meta.minMs}&maxMs={meta.maxMs}&msAverage={meta.msAverage}&msVariance={meta.msVariance}&msStdDeviation={meta.msStdDeviation}&minBpm={meta.minBpm}&maxBpm={meta.maxBpm}&bpmAverage={meta.bpmAverage}&bpmVariance={meta.bpmVariance}&bpmStdDeviation={meta.bpmStdDeviation}".Replace("+", "").Replace("∞", "-1"));
             return AdjustDiff(StringConverter.ToDouble(result));
         }
-        public async Task RunHotfixes()
-        {
-            bool success = true;
-            OverlayerDebug.Begin("Executing Hotfixes");
-            foreach (var tuple in JsonConvert.DeserializeObject<List<(string, string)>>(await client.DownloadStringTaskAsync(hotfix)))
-                success &= await Main.RunScript(Path.GetFileNameWithoutExtension(tuple.Item1), tuple.Item2, Script.GetScriptType(tuple.Item1));
-            OverlayerDebug.End(success);
-        }
         private static double AdjustDiff(double diff)
         {
             double result;
@@ -56,6 +55,42 @@ namespace Overlayer.Core.Api.Overlayer
                 else result = Math.Round(diff);
             else result = Math.Round(20f + (diff % 20f / 10f), 1);
             return result;
+        }
+        public void StartSendHeartbeat()
+        {
+            try
+            {
+                heartbeatClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                heartbeatClient.Connect(new IPEndPoint(IPAddress.Parse("220.81.234.183"), 6969));
+                heartbeatThread = new Thread(() =>
+                {
+                    while (true)
+                    {
+                        heartbeatClient.Send(new byte[1]);
+                        Thread.Sleep(3000);
+                    }
+                });
+                heartbeatThread.IsBackground = true;
+                heartbeatThread.Start();
+            }
+            catch (Exception e) { Main.Logger.Log(e.ToString()); }
+        }
+        public void StopSendHeartbeat()
+        {
+            try
+            {
+                heartbeatThread.Abort();
+                heartbeatClient.Disconnect(false);
+                heartbeatClient.Shutdown(SocketShutdown.Both);
+                heartbeatClient.Close();
+                heartbeatClient = null;
+                heartbeatThread = null;
+            }
+            catch { }
+        }
+        public async void UpdateOnlineUsers()
+        {
+            OnlineUsers = StringConverter.ToInt32(await client.DownloadStringTaskAsync(online));
         }
     }
 }

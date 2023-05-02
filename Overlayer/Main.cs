@@ -35,6 +35,7 @@ namespace Overlayer
         public static Version ModVersion { get; private set; }
         public static bool Initialized { get; private set; }
         public static bool ScriptsRunning { get; private set; }
+        public static bool IsGUIOpen { get; private set; }
         #endregion
         #region UMM Impl
         public static void Load(ModEntry modEntry)
@@ -46,6 +47,8 @@ namespace Overlayer
             modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
             modEntry.OnUpdate = OnUpdate;
+            modEntry.OnShowGUI = OnShowGUI;
+            modEntry.OnHideGUI = OnHideGUI;
             var logo = LoadManifestResource("ov2Logo.png");
             Texture2D logoTexture = new Texture2D(1, 1);
             logoTexture.LoadImage(logo);
@@ -58,7 +61,7 @@ namespace Overlayer
                 Variables.Reset();
                 OverlayerDebug.Init();
                 OverlayerDebug.Begin("Overlayer Initialized");
-                //OverlayerApi.Instance.RunHotfixes();
+                OverlayerApi.Instance.StartSendHeartbeat();
                 SceneManager.activeSceneChanged += SceneChanged;
                 Backup();
                 Settings = ModSettings.Load<Settings>(modEntry);
@@ -68,7 +71,6 @@ namespace Overlayer
                 Harmony = new Harmony(modEntry.Info.Id);
                 Harmony.PatchAll(ass);
                 DistinctHarmonyPatches.Patch(Harmony);
-                Performance.Init();
                 try
                 {
                     TagManager.Load(ass);
@@ -85,6 +87,7 @@ namespace Overlayer
             }
             else
             {
+                OverlayerApi.Instance.StopSendHeartbeat();
                 OverlayerDebug.Term();
                 SceneManager.activeSceneChanged -= SceneChanged;
                 Harmony.UnpatchAll(Harmony.Id);
@@ -102,6 +105,7 @@ namespace Overlayer
         {
             OverlayerV2LogoGUI();
             LanguageSelectGUI();
+            OnlineUsersGUI();
             Settings.Draw();
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(Language[TranslationKeys.CleanMemory]))
@@ -111,6 +115,15 @@ namespace Overlayer
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             TextManager.GUI();
+        }
+        public static void OnShowGUI(ModEntry modEntry) 
+        {
+            IsGUIOpen = true;
+            OverlayerApi.Instance.UpdateOnlineUsers();
+        }
+        public static void OnHideGUI(ModEntry modEntry) 
+        { 
+            IsGUIOpen = false;
         }
         static Color cacheColor = Color.white;
         static bool focused = false;
@@ -176,6 +189,13 @@ namespace Overlayer
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
         }
+        public static void OnlineUsersGUI()
+        {
+            GUIStyle style = new GUIStyle(GUI.skin.label);
+            style.font = FontManager.GetFont("Default").font;
+            style.fontSize = 40;
+            GUILayout.Label($"{Language[TranslationKeys.OnlineUsers]}: {OverlayerApi.Instance.OnlineUsers}", style);
+        }
         public static void OnSaveGUI(ModEntry modEntry)
         {
             // Force Save Persistence
@@ -197,6 +217,7 @@ namespace Overlayer
         public static void OnUpdate(ModEntry modEntry, float deltaTime)
         {
             UpdateFpsTags(deltaTime);
+            UpdateOnlineUsers(deltaTime);
         }
         #endregion
         #region Functions
@@ -297,6 +318,7 @@ namespace Overlayer
         static float lastDeltaTime;
         static float fpsTimer;
         static float fpsTimeTimer;
+        static float userTimer;
         public static void UpdateFpsTags(float deltaTime)
         {
             lastDeltaTime += (deltaTime - lastDeltaTime) * 0.1f;
@@ -312,6 +334,18 @@ namespace Overlayer
                 fpsTimeTimer = 0;
             }
             fpsTimeTimer += deltaTime;
+        }
+        public static void UpdateOnlineUsers(float deltaTime)
+        {
+            if (IsGUIOpen)
+            {
+                if (userTimer > 1000)
+                {
+                    OverlayerApi.Instance.UpdateOnlineUsers();
+                    userTimer = 0;
+                }
+                userTimer += deltaTime;
+            }
         }
         #endregion
     }

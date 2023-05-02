@@ -105,7 +105,7 @@ namespace Overlayer
                 FPSUpdateRate = StringConverter.ToFloat(fur);
             string ftur = FrameTimeUpdateRate.ToString();
             if (Utility.DrawTextField(ref ftur, Main.Language[TranslationKeys.FrameTimeUpdateRate]))
-                FrameTimeUpdateRate = StringConverter.ToFloat(fur);
+                FrameTimeUpdateRate = StringConverter.ToFloat(ftur);
         }
     }
 }

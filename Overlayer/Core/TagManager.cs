@@ -1,7 +1,5 @@
 ﻿using AdofaiMapConverter;
-using BLINDED_AM_ME;
 using HarmonyLib;
-using Mono.Cecil;
 using Overlayer.Core.Tags;
 using System;
 using System.Collections.Generic;
@@ -9,14 +7,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.ConstrainedExecution;
 
 namespace Overlayer.Core
 {
     public static class TagManager
     {
+        public static event Action ReferenceUpdated = delegate { };
         static Dictionary<string, Tag> AllTags = new Dictionary<string, Tag>();
         static Dictionary<string, Tag> NotPlayingTags = new Dictionary<string, Tag>();
         static Dictionary<string, Tag> ReferencedTags = new Dictionary<string, Tag>();
+        static Dictionary<Type, List<string>> TypeTagCache = new Dictionary<Type, List<string>>();
         static Dictionary<PatchInfo, List<Tag>> Patches = new Dictionary<PatchInfo, List<Tag>>(PatchInfo.Comparer);
         public static Tag GetTag(string name) => AllTags.TryGetValue(name, out var tag) ? tag : null;
         public static Tag GetReferencedTag(string name) => ReferencedTags.TryGetValue(name, out var tag) ? tag : null;
@@ -33,6 +34,7 @@ namespace Overlayer.Core
                     else patch.Patch(Main.Harmony);
                 }
             }
+            ReferenceUpdated();
         }
         public static void SetTag(Tag tag, bool notPlaying)
         {
@@ -55,6 +57,7 @@ namespace Overlayer.Core
             NotPlayingTags??= new Dictionary<string, Tag>();
             ReferencedTags ??= new Dictionary<string, Tag>();
             Patches ??= new Dictionary<PatchInfo, List<Tag>>(PatchInfo.Comparer);
+            TypeTagCache ??= new Dictionary<Type, List<string>>();
         }
         public static void Load(Assembly assembly, TagConfig config = null)
         {
@@ -64,6 +67,7 @@ namespace Overlayer.Core
         public static void Load(Type type, TagConfig config = null)
         {
             Prepare();
+            List<string> tags = new List<string>();
             ClassTagAttribute cTag = type.GetCustomAttribute<ClassTagAttribute>();
             var methods = type.GetMethods(AccessTools.all);
             var fields = type.GetFields(AccessTools.all);
@@ -81,6 +85,7 @@ namespace Overlayer.Core
                     NotPlayingTags.Add(cTag.Name, tag);
                 if (cTag.RelatedPatches != null)
                     AddPatches(tag, cTag.RelatedPatches);
+                tags.Add(cTag.Name);
             }
             foreach (MethodInfo method in methods)
             {
@@ -96,6 +101,7 @@ namespace Overlayer.Core
                     NotPlayingTags.Add(tagAttr.Name, tag);
                 if (tagAttr.RelatedPatches != null)
                     AddPatches(tag, tagAttr.RelatedPatches);
+                tags.Add(tagAttr.Name);
             }
             foreach (FieldInfo field in fields)
             {
@@ -119,13 +125,56 @@ namespace Overlayer.Core
                     NotPlayingTags.Add(tagAttr.Name, tag);
                 if (tagAttr.RelatedPatches != null)
                     AddPatches(tag, tagAttr.RelatedPatches);
+                tags.Add(tagAttr.Name);
             }
+            TypeTagCache.Add(type, tags);
+        }
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
+        public static bool Unload(Assembly ass)
+        {
+            try
+            {
+                bool result = true;
+                bool requireRefresh = false;
+                foreach (Type type in ass.GetTypes())
+                {
+                    if (TypeTagCache.TryGetValue(type, out var tags))
+                    {
+                        foreach (var tag in tags)
+                            result &= RemoveTag(tag);
+                        TypeTagCache.Remove(type);
+                        requireRefresh = true;
+                    }
+                }
+                if (requireRefresh)
+                {
+                    UpdateReference();
+                    TextManager.Refresh();
+                }
+                return result;
+            }
+            catch { return false; }
+        }
+        public static bool Unload(Type type)
+        {
+            if (TypeTagCache.TryGetValue(type, out var tags))
+            {
+                bool result = true;
+                foreach (var tag in tags)
+                    result &= RemoveTag(tag);
+                UpdateReference();
+                TextManager.Refresh();
+                TypeTagCache.Remove(type);
+                return result;
+            }
+            return false;
         }
         public static void Release()
         {
             AllTags?.Values.ForEach(t => t.Dispose());
             AllTags = NotPlayingTags = ReferencedTags = null;
             Patches = null;
+            TypeTagCache = null;
         }
         static void AddPatches(Tag tag, string patchNames)
         {
