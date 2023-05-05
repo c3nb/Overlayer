@@ -654,6 +654,23 @@ namespace Overlayer.Core
         }
         #endregion
         #region Extensions
+        public static async void RunAsynchronously(this Task task, TimeSpan? timeout = null)
+        {
+            if (timeout != null)
+                await task.TryWaitAsync(timeout.Value);
+            else await task;
+        }
+        public static async Task TryWaitAsync(this Task task, TimeSpan timeout)
+        {
+            if (task.IsCompleted) return;
+            using (var cts = new CancellationTokenSource())
+            {
+                var delay = Task.Delay(timeout, cts.Token);
+                var result = await Task.WhenAny(task, delay).ConfigureAwait(false);
+                if (result == delay) return;
+                cts.Cancel();
+            }
+        }
         public static async Task<T> TryWaitAsync<T>(this Task<T> task, TimeSpan timeout)
         {
             if (task.IsCompleted) return task.Result;
@@ -666,7 +683,6 @@ namespace Overlayer.Core
             }
             return task.Result;
         }
-
         public static string IfNullOrEmpty(this string s, string other) => string.IsNullOrEmpty(s) ? other : s;
         public static string RemoveLast(this string s, int count) => s.Remove(s.Length - count - 1);
         public static int Map(this int value, int fromMin, int fromMax, int toMin, int toMax) => toMin + (value - fromMin) * (toMax - toMin) / (fromMax - fromMin);

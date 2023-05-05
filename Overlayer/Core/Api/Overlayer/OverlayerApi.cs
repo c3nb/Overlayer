@@ -58,35 +58,41 @@ namespace Overlayer.Core.Api.Overlayer
         }
         public void StartSendHeartbeat()
         {
-            try
+            new Task(() =>
             {
-                heartbeatClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                heartbeatClient.Connect(new IPEndPoint(IPAddress.Parse("220.81.234.183"), 6969));
-                heartbeatThread = new Thread(() =>
+                try
                 {
-                    while (true)
+                    heartbeatClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    heartbeatClient.Connect(new IPEndPoint(IPAddress.Parse("220.81.234.183"), 6969));
+                    heartbeatThread = new Thread(() =>
                     {
-                        heartbeatClient.Send(new byte[1]);
-                        Thread.Sleep(3000);
-                    }
-                });
-                heartbeatThread.IsBackground = true;
-                heartbeatThread.Start();
-            }
-            catch (Exception e) { Main.Logger.Log(e.ToString()); }
+                        while (true)
+                        {
+                            heartbeatClient.Send(new byte[1]);
+                            Thread.Sleep(3000);
+                        }
+                    });
+                    heartbeatThread.IsBackground = true;
+                    heartbeatThread.Start();
+                }
+                catch (Exception e) { Main.Logger.Log(e.ToString()); }
+            }).RunAsynchronously(TimeSpan.FromSeconds(10));
         }
         public void StopSendHeartbeat()
         {
-            try
+            new Task(() =>
             {
-                heartbeatThread.Abort();
-                heartbeatClient.Disconnect(false);
-                heartbeatClient.Shutdown(SocketShutdown.Both);
-                heartbeatClient.Close();
-                heartbeatClient = null;
-                heartbeatThread = null;
-            }
-            catch { }
+                try
+                {
+                    heartbeatThread.Abort();
+                    heartbeatClient.Disconnect(false);
+                    heartbeatClient.Shutdown(SocketShutdown.Both);
+                    heartbeatClient.Close();
+                    heartbeatClient = null;
+                    heartbeatThread = null;
+                }
+                catch { }
+            }).RunAsynchronously(TimeSpan.FromSeconds(10));
         }
         public async void UpdateOnlineUsers()
         {
