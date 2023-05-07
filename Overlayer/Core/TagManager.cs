@@ -1,5 +1,6 @@
 ﻿using AdofaiMapConverter;
 using HarmonyLib;
+using Newtonsoft.Json;
 using Overlayer.Core.Tags;
 using System;
 using System.Collections.Generic;
@@ -179,6 +180,15 @@ namespace Overlayer.Core
             Patches = null;
             TypeTagCache = null;
         }
+        public static string GetTagInfos()
+        {
+            TagInfoResult result = new TagInfoResult();
+            var infos = result.Infos = new List<TagInfo>();
+            foreach (var tag in AllTags.Values)
+                infos.Add(new TagInfo() { Name = tag.Name, Category = tag.Category, HasOption = tag.HasOption });
+            result.Count = infos.Count;
+            return JsonConvert.SerializeObject(result);
+        }
         static void AddPatches(Tag tag, string patchNames)
         {
             foreach (var info in ParsePatchNames(patchNames))
@@ -245,5 +255,16 @@ namespace Overlayer.Core
             return dm.CreateDelegate(Expression.GetFuncType(new[] { prms[1].ParameterType, processor.ReturnType }));
         }
         static readonly MethodInfo round = typeof(Utility).GetMethod("Round", new[] { typeof(double), typeof(int) });
+        public class TagInfoResult
+        {
+            public List<TagInfo> Infos;
+            public int Count;
+        }
+        public class TagInfo
+        {
+            public string Name;
+            public Category Category;
+            public bool HasOption;
+        }
     } 
 }

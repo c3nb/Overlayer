@@ -75,6 +75,7 @@ namespace Overlayer
                 {
                     TagManager.Load(ass);
                     TextManager.Load();
+                    //File.WriteAllText(Path.Combine(Mod.Path, "TagInfos.json"), TagManager.GetTagInfos());
                 }
                 catch (Exception e) 
                 { 
@@ -217,7 +218,6 @@ namespace Overlayer
         public static void OnUpdate(ModEntry modEntry, float deltaTime)
         {
             UpdateFpsTags(deltaTime);
-            UpdateOnlineUsers(deltaTime);
         }
         #endregion
         #region Functions
@@ -318,7 +318,6 @@ namespace Overlayer
         static float lastDeltaTime;
         static float fpsTimer;
         static float fpsTimeTimer;
-        static float userTimer;
         public static void UpdateFpsTags(float deltaTime)
         {
             lastDeltaTime += (deltaTime - lastDeltaTime) * 0.1f;
@@ -334,18 +333,6 @@ namespace Overlayer
                 fpsTimeTimer = 0;
             }
             fpsTimeTimer += deltaTime;
-        }
-        public static void UpdateOnlineUsers(float deltaTime)
-        {
-            if (IsGUIOpen)
-            {
-                if (userTimer > 1000)
-                {
-                    OverlayerApi.Instance.UpdateOnlineUsers();
-                    userTimer = 0;
-                }
-                userTimer += deltaTime;
-            }
         }
         #endregion
     }
