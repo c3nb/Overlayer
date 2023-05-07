@@ -13,7 +13,7 @@ namespace Overlayer.Patches
         #region Tags
         public static List<scrFloor> AllCheckPoints = new List<scrFloor>();
         public static List<double> TimingList = new List<double>();
-        [Tag("TimingAvg", RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix")]
+        [Tag("TimingAvg", RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix", Category = Category.Misc)]
         public static double TimingAvg(double digits = -1)
         {
             if (TimingList.Any())

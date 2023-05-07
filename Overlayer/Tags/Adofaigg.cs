@@ -22,14 +22,14 @@ namespace Overlayer.Tags
 {
     public static class Adofaigg
     {
-        [FieldTag(Round = true)]
+        [FieldTag(Round = true, Category = Category.Adofaigg)]
         public static double IntegratedDifficulty = 0;
-        [FieldTag(Round = true)]
+        [FieldTag(Round = true, Category = Category.Adofaigg)]
         public static double ForumDifficulty = 0;
-        [FieldTag(Round = true)]
+        [FieldTag(Round = true, Category = Category.Adofaigg)]
         public static double PredictedDifficulty = 0;
         public static AgLevel Result = null;
-        [Tag("PlayPoint")]
+        [Tag("PlayPoint", Category = Category.Adofaigg)]
         public static double PlayPoint(int digits = -1)
         {
             double result;
@@ -39,7 +39,7 @@ namespace Overlayer.Tags
             else result = (double)CalculatePlayPoint(IntegratedDifficulty, (int)Math.Round(Misc.Pitch() * 100), Misc.XAccuracy(), scrLevelMaker.instance.listFloors.Count);
             return result.Round(digits);
         }
-        [Tag("LevelId")]
+        [Tag("LevelId", Category = Category.Adofaigg)]
         public static double Id() => Result?.id ?? -1;
         public static double CalculatePlayPoint(double difficulty, int speed, double accuracy, int tile)
         {

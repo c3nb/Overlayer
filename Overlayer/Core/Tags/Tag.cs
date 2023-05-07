@@ -20,10 +20,9 @@ namespace Overlayer.Core.Tags
         public Func<object> FastInvoker { get; private set; }
         public Func<object, object> FastInvokerOpt { get; private set; }
         public bool HasOption { get; private set; }
+        public Category Category { get; private set; }
         public bool Referenced => ReferencedCount > 0;
         internal int ReferencedCount = 0;
-        // For CustomTag
-        public string SourcePath = null;
         public Tag(string name, TagConfig config = null)
         {
             Name = name;
@@ -100,6 +99,12 @@ namespace Overlayer.Core.Tags
             if (!CheckThreadSig(thread))
                 throw new InvalidOperationException("ReturnType Must Be Void And Parameter's Length Must Be 0.");
             Threads.Add(new Thread((ThreadStart)thread.CreateDelegate(typeof(ThreadStart))));
+            return this;
+        }
+        public Tag SetCategory(Category category)
+        {
+            if (Built) return null;
+            Category = category;
             return this;
         }
         public void Build()

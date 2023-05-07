@@ -12,5 +12,6 @@ namespace Overlayer.Core.Tags
         public bool NotPlaying { get; set; }
         public string RelatedPatches { get; set; }
         public bool IsDefault => Name == null;
+        public Category Category { get; set; } = Category.Misc;
     }
 }

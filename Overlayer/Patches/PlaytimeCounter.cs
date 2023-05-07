@@ -11,7 +11,7 @@ namespace Overlayer.Patches
     public static class PlaytimeCounter
     {
         public static double PlayTime = 0;
-        [Tag("PlayTime", RelatedPatches = "Overlayer.Patches.PlaytimeCounter:UpdatePostfix|Overlayer.Patches.PlaytimeCounter+SetIDPatch")]
+        [Tag("PlayTime", RelatedPatches = "Overlayer.Patches.PlaytimeCounter:UpdatePostfix|Overlayer.Patches.PlaytimeCounter+SetIDPatch", Category = Category.Play)]
         public static double PlayTimeTag(string opt = "M_1")
         {
             if (string.IsNullOrEmpty(opt))

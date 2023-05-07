@@ -15,57 +15,57 @@ namespace Overlayer.Tags
         public static HitMargin Strict;
         public static bool IsStarted;
         public static int Combo;
-        [FieldTag("LScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [FieldTag("LScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static int LenientScore;
-        [FieldTag("NScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [FieldTag("NScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static int NormalScore;
-        [FieldTag("SScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [FieldTag("SScore", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static int StrictScore;
-        [FieldTag("Score", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [FieldTag("Score", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static int CurrentScore;
-        [FieldTag("Timing", Round = true, RelatedPatches = "Overlayer.Patches.TimingUpdater:Prefix")]
+        [FieldTag("Timing", Round = true, RelatedPatches = "Overlayer.Patches.TimingUpdater:Prefix", Category = Category.Play)]
         public static double Timing = 0;
-        [FieldTag("Attempts", RelatedPatches = "Overlayer.Patches.AttemptsCounter:FCLLPostfix|Overlayer.Patches.AttemptsCounter:Postfix|Overlayer.Patches.DataInit:Postfix")]
+        [FieldTag("Attempts", RelatedPatches = "Overlayer.Patches.AttemptsCounter:FCLLPostfix|Overlayer.Patches.AttemptsCounter:Postfix|Overlayer.Patches.DataInit:Postfix", Category = Category.Play)]
         public static int AttemptsCount = 0;
-        [FieldTag("FailCount", RelatedPatches = "Overlayer.Patches.AttemptsCounter:FAPostfix")]
+        [FieldTag("FailCount", RelatedPatches = "Overlayer.Patches.AttemptsCounter:FAPostfix", Category = Category.HitMargin)]
         public static int FailCount = 0;
-        [FieldTag("StartProgress", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.StartProgUpdater:Prefix")]
+        [FieldTag("StartProgress", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.StartProgUpdater:Prefix", Category = Category.AccProg)]
         public static double StartProg = 0;
-        [FieldTag("BestProgress", Round = true, RelatedPatches = "Overlayer.Patches.AttemptsCounter:FAPostfix|Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [FieldTag("BestProgress", Round = true, RelatedPatches = "Overlayer.Patches.AttemptsCounter:FAPostfix|Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.AccProg)]
         public static double BestProg = 0;
-        [FieldTag("CurTile", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
-        public static int CurrentTile;
-        [FieldTag("TotalTile", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
-        public static int TotalTile;
-        [FieldTag("LeftTile", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
-        public static int LeftTile;
-        [FieldTag("CurMinute", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
+        [FieldTag("CurMinute", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Song)]
         public static int CurMinute;
-        [FieldTag("CurSecond", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
+        [FieldTag("CurSecond", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Song)]
         public static int CurSecond;
-        [FieldTag("CurMilliSecond", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
+        [FieldTag("CurMilliSecond", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Song)]
         public static int CurMilliSecond;
-        [FieldTag("TotalMinute", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
+        [FieldTag("TotalMinute", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Song)]
         public static int TotalMinute;
-        [FieldTag("TotalSecond", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
+        [FieldTag("TotalSecond", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Song)]
         public static int TotalSecond;
-        [FieldTag("TotalMilliSecond", RelatedPatches = "Overlayer.Patches.Updater:Prefix")]
+        [FieldTag("TotalMilliSecond", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Song)]
         public static int TotalMilliSecond;
-        [FieldTag("CurCheckPoint", RelatedPatches = "Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix")]
+        [FieldTag("CurCheckPoint", RelatedPatches = "Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix", Category = Category.CheckPoint)]
         public static int CurrentCheckPoint;
-        [FieldTag("StartTile", RelatedPatches = "Overlayer.Patches.StartProgUpdater:Prefix")]
+        [FieldTag("StartTile", RelatedPatches = "Overlayer.Patches.StartProgUpdater:Prefix", Category = Category.Tile)]
         public static int StartTile;
-        [FieldTag("TileBpm", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix")]
+        [FieldTag("LeftTile", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Tile)]
+        public static int LeftTile;
+        [FieldTag("CurTile", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Tile)]
+        public static int CurrentTile;
+        [FieldTag("TotalTile", RelatedPatches = "Overlayer.Patches.Updater:Prefix", Category = Category.Tile)]
+        public static int TotalTile;
+        [FieldTag("TileBpm", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix", Category = Category.BpmKps)]
         public static double TileBpm;
-        [FieldTag("CurBpm", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix")]
+        [FieldTag("CurBpm", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix", Category = Category.BpmKps)]
         public static double CurBpm;
-        [FieldTag("RecKPS", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix")]
+        [FieldTag("RecKPS", Round = true, RelatedPatches = "Overlayer.Patches.BpmUpdater+CustomLevelStart:Postfix|Overlayer.Patches.BpmUpdater+BossLevelStart:Postfix|Overlayer.Patches.BpmUpdater+MoveToNextFloorPatch:Postfix", Category = Category.BpmKps)]
         public static double RecKPS;
-        [FieldTag(Round = true, NotPlaying = true)]
+        [FieldTag(Round = true, NotPlaying = true, Category = Category.Misc)]
         public static double FrameTime;
-        [FieldTag(Round = true, NotPlaying = true)]
+        [FieldTag(Round = true, NotPlaying = true, Category = Category.Misc)]
         public static double Fps;
-        [FieldTag("Multipress")]
+        [FieldTag("Multipress", Category = Category.HitMargin)]
         public static int MultipressCount;
         public static void Reset()
         {

@@ -7,7 +7,7 @@ using Overlayer.Scripting.JS;
 
 namespace Overlayer.Tags
 {
-    [ClassTag("Expression")]
+    [ClassTag("Expression", Category = Category.Misc)]
     public static class Expression
     {
         public static readonly Dictionary<string, Result> expressions = new Dictionary<string, Result>();

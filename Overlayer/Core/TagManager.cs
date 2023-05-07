@@ -79,6 +79,7 @@ namespace Overlayer.Core
                 Tag tag = new Tag(cTag.Name, config);
                 foreach (var thread in cTag.GetThreads(type))
                     tag.AddThread(thread);
+                tag.SetCategory(cTag.Category);
                 tag.SetGetter(def).Build();
                 AllTags.Add(cTag.Name, tag);
                 if (cTag.NotPlaying)
@@ -95,6 +96,7 @@ namespace Overlayer.Core
                 tagAttr.Name = tagAttr.Name ?? method.Name;
                 OverlayerDebug.Log($"Loading Tag {tagAttr.Name}..");
                 Tag tag = new Tag(tagAttr.Name, config);
+                tag.SetCategory(tagAttr.Category);
                 tag.SetGetter(method).Build();
                 AllTags.Add(tagAttr.Name, tag);
                 if (tagAttr.NotPlaying)
@@ -110,6 +112,7 @@ namespace Overlayer.Core
                 tagAttr.Name = tagAttr.Name ?? field.Name;
                 OverlayerDebug.Log($"Loading FieldTag {tagAttr.Name}..");
                 Tag tag = new Tag(tagAttr.Name, config);
+                tag.SetCategory(tagAttr.Category);
                 Delegate func;
                 if (tagAttr.Processor == null)
                     func = GenerateFieldTagWrapper(tagAttr, field, out _);
@@ -242,5 +245,5 @@ namespace Overlayer.Core
             return dm.CreateDelegate(Expression.GetFuncType(new[] { prms[1].ParameterType, processor.ReturnType }));
         }
         static readonly MethodInfo round = typeof(Utility).GetMethod("Round", new[] { typeof(double), typeof(int) });
-    }
+    } 
 }

@@ -5,31 +5,31 @@ namespace Overlayer.Tags
 {
     public static class CurHitTags
     {
-        [Tag("CurHit")]
+        [Tag("CurHit", Category = Category.HitMargin)]
         [ReliabilityContract(Consistency.MayCorruptProcess, Cer.MayFail)]
         public static string Hit() => RDString.Get("HitMargin." + GetCurHitMargin(GCS.difficulty));
-        [Tag("CurTE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("CurTE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double TE() => GetCurDiffCount(HitMargin.TooEarly);
-        [Tag("CurVE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("CurVE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double VE() => GetCurDiffCount(HitMargin.VeryEarly);
-        [Tag("CurEP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("CurEP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double EP() => GetCurDiffCount(HitMargin.EarlyPerfect);
-        [Tag("CurP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("CurP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double P() => GetCurDiffCount(HitMargin.Perfect);
-        [Tag("CurLP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("CurLP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double LP() => GetCurDiffCount(HitMargin.LatePerfect);
-        [Tag("CurVL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("CurVL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double VL() => GetCurDiffCount(HitMargin.VeryLate);
-        [Tag("CurTL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("CurTL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double TL() => GetCurDiffCount(HitMargin.TooLate);
-        [Tag("CurDifficulty")]
+        [Tag("CurDifficulty", Category = Category.Play)]
         [ReliabilityContract(Consistency.MayCorruptProcess, Cer.MayFail)]
         public static string Difficulty() => RDString.Get("enum.Difficulty." + GCS.difficulty);
-        [Tag("Combo", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("Combo", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.Play)]
         public static double Combo() => Variables.Combo;
-        [Tag("MissCount")]
+        [Tag("MissCount", Category = Category.HitMargin)]
         public static double MissCount() => scrController.instance?.mistakesManager.GetHits(HitMargin.FailMiss) ?? 0;
-        [Tag("Overloads")]
+        [Tag("Overloads", Category = Category.HitMargin)]
         public static double Overloads() => scrController.instance?.mistakesManager.GetHits(HitMargin.FailOverload) ?? 0;
         public static int GetCurDiffCount(HitMargin hit)
         {

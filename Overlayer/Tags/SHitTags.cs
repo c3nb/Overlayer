@@ -5,22 +5,22 @@ namespace Overlayer.Tags
 {
     public static class SHitTags
     {
-        [Tag("SHit")]
+        [Tag("SHit", Category = Category.HitMargin)]
         [ReliabilityContract(Consistency.MayCorruptProcess, Cer.MayFail)]
         public static string Hit() => RDString.Get("HitMargin." + Variables.Strict);
-        [Tag("STE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("STE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double TE() => Variables.StrictCounts[HitMargin.TooEarly];
-        [Tag("SVE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("SVE", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double VE() => Variables.StrictCounts[HitMargin.VeryEarly];
-        [Tag("SEP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("SEP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double EP() => Variables.StrictCounts[HitMargin.EarlyPerfect];
-        [Tag("SP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("SP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double P() => Variables.StrictCounts[HitMargin.Perfect];
-        [Tag("SLP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("SLP", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double LP() => Variables.StrictCounts[HitMargin.LatePerfect];
-        [Tag("SVL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("SVL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double VL() => Variables.StrictCounts[HitMargin.VeryLate];
-        [Tag("STL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix")]
+        [Tag("STL", RelatedPatches = "Overlayer.Patches.GetHitMarginFixer:Prefix", Category = Category.HitMargin)]
         public static double TL() => Variables.StrictCounts[HitMargin.TooLate];
     }
 }

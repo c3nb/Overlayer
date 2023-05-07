@@ -6,45 +6,45 @@ namespace Overlayer.Tags
 {
     public static class Misc
     {
-        [Tag("Radius")]
+        [Tag("Radius", Category = Category.Play)]
         public static double Radius(int digits = -1) => scrController.instance.chosenplanet.cosmeticRadius.Round(digits);
-        [Tag("Pitch")]
+        [Tag("Pitch", Category = Category.Play)]
         public static double Pitch(int digits = -1) => GCS.currentSpeedTrial.Round(digits);
-        [Tag("EditorPitch")]
+        [Tag("EditorPitch", Category = Category.Play)]
         public static double EditorPitch(int digits = -1) => (scnEditor.instance.levelData.pitch / 100.0).Round(digits);
-        [Tag("ShortcutPitch")]
+        [Tag("ShortcutPitch", Category = Category.Play)]
         public static double ShortcutPitch(int digits = -1) => StringConverter.ToDouble(scnEditor.instance.speedIndicator.percent.text.RemoveLast(1)).Round(digits);
-        [Tag("Title")]
+        [Tag("Title", Category = Category.Song)]
         public static string Title() => scnEditor.instance?.levelData?.song.BreakRichTagWithoutSize();
-        [Tag("Author")]
+        [Tag("Author", Category = Category.Song)]
         public static string Author() => scnEditor.instance?.levelData?.author.BreakRichTagWithoutSize();
-        [Tag("Artist")]
+        [Tag("Artist", Category = Category.Song)]
         public static string Artist() => scnEditor.instance?.levelData?.artist.BreakRichTagWithoutSize();
-        [Tag("Accuracy")]
+        [Tag("Accuracy", Category = Category.AccProg)]
         public static double Accuracy(int digits = -1) => (scrController.instance.mistakesManager.percentAcc * 100d).Round(digits);
-        [Tag("Progress")]
+        [Tag("Progress", Category = Category.AccProg)]
         public static double Progress(int digits = -1) => ((!scrLevelMaker.instance ? 0 : scrController.instance.percentComplete) * 100d).Round(digits);
-        [Tag("CheckPoint")]
+        [Tag("CheckPoint", Category = Category.CheckPoint)]
         public static double CheckPoint() => scrController.checkpointsUsed;
-        [Tag("TotalCheckPoint")]
+        [Tag("TotalCheckPoint", Category = Category.CheckPoint)]
         public static double TotalCheckPoints() => BpmUpdater.AllCheckPoints.Count;
-        [Tag("XAccuracy")]
+        [Tag("XAccuracy", Category = Category.AccProg)]
         public static double XAccuracy(int digits = -1) => (scrController.instance.mistakesManager.percentXAcc * 100d).Round(digits);
-        [Tag("Year")]
+        [Tag("Year", Category = Category.Misc)]
         public static int Year() => FastDateTime.Now.Year;
-        [Tag("Month")]
+        [Tag("Month", Category = Category.Misc)]
         public static int Month() => FastDateTime.Now.Month;
-        [Tag("Day")]
+        [Tag("Day", Category = Category.Misc)]
         public static int Day() => FastDateTime.Now.Day;
-        [Tag("Hour")]
+        [Tag("Hour", Category = Category.Misc)]
         public static int Hour() => FastDateTime.Now.Hour;
-        [Tag("Minute")]
+        [Tag("Minute", Category = Category.Misc)]
         public static int Minute() => FastDateTime.Now.Minute;
-        [Tag("Second")]
+        [Tag("Second", Category = Category.Misc)]
         public static int Second() => FastDateTime.Now.Second;
-        [Tag("MilliSecond")]
+        [Tag("MilliSecond", Category = Category.Misc)]
         public static int MilliSecond() => FastDateTime.Now.Millisecond;
-        [Tag("DifficultyStr")]
+        [Tag("DifficultyStr", Category = Category.Play)]
         public static string DifficultyStr() => GCS.difficulty.ToString();
     }
 }

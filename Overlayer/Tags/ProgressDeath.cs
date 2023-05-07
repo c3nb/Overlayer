@@ -6,7 +6,7 @@ using Overlayer.Core.Tags;
 
 namespace Overlayer.Tags
 {
-    [ClassTag("ProgressDeath")]
+    [ClassTag("ProgressDeath", Category = Category.AccProg)]
     public static class ProgressDeath
     {
         [Tag]
