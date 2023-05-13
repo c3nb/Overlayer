@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using UnityEngine.Networking;
 using GDMiniJSON;
+using Overlayer.Core.Utils;
 
 namespace Overlayer.Core.Translation
 {

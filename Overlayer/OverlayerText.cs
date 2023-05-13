@@ -1,6 +1,7 @@
 ﻿using Overlayer.Core;
 using Overlayer.Core.Tags;
 using Overlayer.Core.Translation;
+using Overlayer.Core.Utils;
 using TMPro;
 using UnityEngine;
 using UnityModManagerNet;
@@ -63,7 +64,7 @@ namespace Overlayer
             GUILayout.EndHorizontal();
             if (config.IsExpanded)
             {
-                Utility.BeginIndent();
+                GUIUtils.BeginIndent();
                 var active = GUILayout.Toggle(config.Active, Main.Language[TranslationKeys.Active]);
                 if (active != config.Active)
                     Text.Active = config.Active = active;
@@ -81,7 +82,7 @@ namespace Overlayer
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"{Main.Language[TranslationKeys.TextAlignment]}:");
-                if (Core.Utility.DrawEnum($"{config.Name} {Main.Language[TranslationKeys.Alignment]}", ref config.Alignment)) Apply();
+                if (GUIUtils.DrawEnum($"{config.Name} {Main.Language[TranslationKeys.Alignment]}", ref config.Alignment)) Apply();
                 if (GUILayout.Button(Main.Language[TranslationKeys.Reset]))
                 {
                     config.Alignment = TextAlignmentOptions.TopLeft;
@@ -99,7 +100,7 @@ namespace Overlayer
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                if (Core.Utility.DrawTextField(ref config.Font, Main.Language[TranslationKeys.TextFont])) Apply();
+                if (GUIUtils.DrawTextField(ref config.Font, Main.Language[TranslationKeys.TextFont])) Apply();
                 if (GUILayout.Button(Main.Language[TranslationKeys.LogFontList]))
                     foreach (string font in FontManager.OSFonts)
                         Main.Logger.Log(font);
@@ -112,14 +113,14 @@ namespace Overlayer
                     GUILayout.BeginVertical();
                     GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
                     GUILayout.Space(1);
-                    if (Core.Utility.DrawColor(ref config.TextColor_G)) Apply();
+                    if (GUIUtils.DrawColor(ref config.TextColor_G)) Apply();
                     GUILayout.FlexibleSpace();
                     GUILayout.EndVertical();
 
                     GUILayout.BeginVertical();
                     GUILayout.Label(Main.Language[TranslationKeys.ShadowColor]);
                     GUILayout.Space(1);
-                    if (Core.Utility.DrawColor(ref config.ShadowColor_G)) Apply();
+                    if (GUIUtils.DrawColor(ref config.ShadowColor_G)) Apply();
                     GUILayout.FlexibleSpace();
                     GUILayout.EndVertical();
                 }
@@ -130,7 +131,7 @@ namespace Overlayer
                     GUILayout.Label(Main.Language[TranslationKeys.TextColor]);
                     GUILayout.Space(1);
                     color = config.TextColor_;
-                    if (Core.Utility.DrawColor(ref color))
+                    if (GUIUtils.DrawColor(ref color))
                     {
                         config.TextColor_ = color;
                         Apply();
@@ -142,7 +143,7 @@ namespace Overlayer
                     GUILayout.Label(Main.Language[TranslationKeys.ShadowColor]);
                     GUILayout.Space(1);
                     color = config.ShadowColor_;
-                    if (Core.Utility.DrawColor(ref color))
+                    if (GUIUtils.DrawColor(ref color))
                     {
                         config.ShadowColor_ = color;
                         Apply();
@@ -156,11 +157,11 @@ namespace Overlayer
                     Apply();
                 }
                 GUILayout.BeginHorizontal();
-                if (Core.Utility.DrawTextArea(ref config.PlayingText, Main.Language[TranslationKeys.Text])) Apply();
+                if (GUIUtils.DrawTextArea(ref config.PlayingText, Main.Language[TranslationKeys.Text])) Apply();
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                if (Core.Utility.DrawTextArea(ref config.NotPlayingText, Main.Language[TranslationKeys.TextDisplayedWhenNotPlaying])) Apply();
+                if (GUIUtils.DrawTextArea(ref config.NotPlayingText, Main.Language[TranslationKeys.TextDisplayedWhenNotPlaying])) Apply();
                 GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
 
@@ -175,7 +176,7 @@ namespace Overlayer
                     TextManager.RemoveText(this);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
-                Core.Utility.EndIndent();
+                GUIUtils.EndIndent();
             }
         }
         public void Apply()

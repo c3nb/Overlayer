@@ -9,6 +9,7 @@ using UnityEngine.TextCore.LowLevel;
 using UnityEngine.Pool;
 using System.IO;
 using Overlayer.Core;
+using Overlayer.Core.Utils;
 #pragma warning disable
 
 namespace Overlayer
@@ -103,7 +104,7 @@ namespace Overlayer
 
             GameObject shadowObject = new GameObject();
             shadowObject.transform.SetParent(PublicCanvas.transform);
-            shadowObject.MakeFlexible();
+shadowObject.MakeFlexible();
             Shadow = shadowObject.AddComponent<TextMeshProUGUI>();
             var font = FontManager.GetFont("Default");
             Shadow.font = font.fontTMP;
@@ -113,7 +114,7 @@ namespace Overlayer
 
             GameObject mainObject = new GameObject();
             mainObject.transform.SetParent(PublicCanvas.transform);
-            mainObject.MakeFlexible();
+mainObject.MakeFlexible();
             Main = mainObject.AddComponent<TextMeshProUGUI>();
             Main.font = font.fontTMP;
             Main.enableVertexGradient = true;

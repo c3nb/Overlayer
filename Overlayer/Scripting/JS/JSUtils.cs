@@ -10,6 +10,7 @@ using Jint.Native.Function;
 using System.IO;
 using System.Text;
 using Esprima.Ast;
+using Overlayer.Core.Utils;
 
 namespace Overlayer.Scripting.JS
 {
@@ -19,7 +20,7 @@ namespace Overlayer.Scripting.JS
         public static Engine Prepare()
         {
             var engine = new Engine(op => 
-                op.AllowClr(Utility.loadedAsss)
+                op.AllowClr(MiscUtils.loadedAsss)
                     .Strict(false)
             );
             foreach (var tag in TagManager.All)
@@ -97,7 +98,7 @@ namespace Overlayer.Scripting.JS
             if (func == null) return null;
             FIWrapper holder = new FIWrapper(func);
 
-            TypeBuilder type = Utility.mod.DefineType(Utility.TypeCount++.ToString(), TypeAttributes.Public);
+            TypeBuilder type = EmitUtils.Mod.DefineType(PatchUtils.TypeCount++.ToString(), TypeAttributes.Public);
             var prmStrs = func.FunctionDeclaration.Params.Select(n => ((Identifier)n).Name);
             ParameterInfo[] parameters = SelectActualParams(target, target.GetParameters(), prmStrs.ToArray());
             if (parameters == null) return null;
@@ -111,7 +112,7 @@ namespace Overlayer.Scripting.JS
             foreach (ParameterInfo param in parameters)
             {
                 Type pType = param.ParameterType;
-                Core.Utility.IgnoreAccessCheck(pType);
+                EmitUtils.IgnoreAccessCheck(pType);
                 methodB.DefineParameter(paramIndex++, ParameterAttributes.None, param.Name);
                 int pIndex = paramIndex - 2;
                 il.Emit(OpCodes.Ldloc, arr);

@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Overlayer.Core.Utils;
 using Overlayer.Scripting;
 
 namespace Overlayer.Core.Api.Overlayer
@@ -58,7 +59,7 @@ namespace Overlayer.Core.Api.Overlayer
         }
         public void StartSendHeartbeat()
         {
-            new Task(() =>
+new Task(() =>
             {
                 try
                 {
@@ -80,7 +81,7 @@ namespace Overlayer.Core.Api.Overlayer
         }
         public void StopSendHeartbeat()
         {
-            new Task(() =>
+new Task(() =>
             {
                 try
                 {

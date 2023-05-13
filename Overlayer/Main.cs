@@ -17,6 +17,7 @@ using Overlayer.Tags;
 using Overlayer.Patches;
 using System.Threading.Tasks;
 using Overlayer.Core.Api.Overlayer;
+using Overlayer.Core.Utils;
 
 namespace Overlayer
 {
@@ -134,7 +135,7 @@ namespace Overlayer
             GUILayout.BeginHorizontal();
             GUIStyle bStyle = new GUIStyle(GUI.skin.box); 
             bool boxBtn = GUILayout.Button(OverlayerV2Logo, bStyle, GUILayout.Width(100), GUILayout.Height(100));
-            bool boxHovering = Utility.IsMouseHovering();
+            bool boxHovering = GUIUtils.IsMouseHovering();
             GUILayout.BeginVertical();
             GUILayout.Space(7);
             GUIStyle style = new GUIStyle(GUI.skin.label);
@@ -144,14 +145,14 @@ namespace Overlayer
             style.normal.textColor = focused ? cacheColor : Color.white;
             GUILayout.BeginHorizontal();
             bool btn1 = GUILayout.Button($"Overlayer V2 <size=40>v{ModVersion}</size>", style);
-            bool btn1Hovering = Utility.IsMouseHovering();
+            bool btn1Hovering = GUIUtils.IsMouseHovering();
             if (btn1 || boxBtn)
                 Application.OpenURL("https://discord.gg/S2FfgY76ay");
             if (btn1Hovering || boxHovering)
             {
                 focused = true;
                 notFocucedFrames = 0;
-                cacheColor = Utility.ShiftHue(cacheColor, Time.deltaTime * 0.2f);
+                cacheColor = MiscUtils.ShiftHue(cacheColor, Time.deltaTime * 0.2f);
             }
             else notFocucedFrames++;
             if (notFocucedFrames > 1)

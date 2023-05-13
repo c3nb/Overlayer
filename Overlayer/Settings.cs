@@ -1,5 +1,6 @@
 ﻿using Overlayer.Core;
 using Overlayer.Core.Translation;
+using Overlayer.Core.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityModManagerNet;
@@ -40,8 +41,8 @@ namespace Overlayer
         public float FrameTimeUpdateRate = 100;
         public void Draw()
         {
-            AllowCollectingLevels = Utility.RightToggle(AllowCollectingLevels, Main.Language[TranslationKeys.AllowCollectingLevel]);
-            if (ChangeFont = Utility.RightToggle(ChangeFont, Main.Language[TranslationKeys.AdofaiFont], v =>
+            AllowCollectingLevels = GUIUtils.RightToggle(AllowCollectingLevels, Main.Language[TranslationKeys.AllowCollectingLevel]);
+            if (ChangeFont = GUIUtils.RightToggle(ChangeFont, Main.Language[TranslationKeys.AdofaiFont], v =>
             {
                 if (!v)
                 {
@@ -56,7 +57,7 @@ namespace Overlayer
                 }
             }))
             {
-                Utility.BeginIndent();
+                GUIUtils.BeginIndent();
                 GUILayout.BeginHorizontal();
                 GUILayout.Label(Main.Language[TranslationKeys.AdofaiFont_Font]);
                 AdofaiFont.name = GUILayout.TextField(AdofaiFont.name);
@@ -94,17 +95,17 @@ namespace Overlayer
                         Main.Logger.Log(font);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
-                Core.Utility.EndIndent();
+                GUIUtils.EndIndent();
             }
-            DebugMode = Utility.RightToggle(DebugMode, Main.Language[TranslationKeys.DebugMode]);
+            DebugMode = GUIUtils.RightToggle(DebugMode, Main.Language[TranslationKeys.DebugMode]);
             string psur = PerfStatUpdateRate.ToString();
-            if (Utility.DrawTextField(ref psur, Main.Language[TranslationKeys.PerfStatUpdateRate]))
+            if (GUIUtils.DrawTextField(ref psur, Main.Language[TranslationKeys.PerfStatUpdateRate]))
                 PerfStatUpdateRate = StringConverter.ToInt32(psur);
             string fur = FPSUpdateRate.ToString();
-            if (Utility.DrawTextField(ref fur, Main.Language[TranslationKeys.FPSUpdateRate]))
+            if (GUIUtils.DrawTextField(ref fur, Main.Language[TranslationKeys.FPSUpdateRate]))
                 FPSUpdateRate = StringConverter.ToFloat(fur);
             string ftur = FrameTimeUpdateRate.ToString();
-            if (Utility.DrawTextField(ref ftur, Main.Language[TranslationKeys.FrameTimeUpdateRate]))
+            if (GUIUtils.DrawTextField(ref ftur, Main.Language[TranslationKeys.FrameTimeUpdateRate]))
                 FrameTimeUpdateRate = StringConverter.ToFloat(ftur);
         }
     }

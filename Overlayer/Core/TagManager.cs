@@ -2,6 +2,7 @@
 using HarmonyLib;
 using Newtonsoft.Json;
 using Overlayer.Core.Tags;
+using Overlayer.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -208,7 +209,7 @@ namespace Overlayer.Core
             {
                 PatchInfo pInfo;
                 string[] split = patch.Split2(':');
-                var type = Utility.TypeByName(split[0]);
+                var type = MiscUtils.TypeByName(split[0]);
                 if (split.Length < 2)
                     pInfo = new PatchInfo(type);
                 else pInfo = new PatchInfo(type.GetMethod(split[1], AccessTools.all));
@@ -230,7 +231,7 @@ namespace Overlayer.Core
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Call, round);
                 if (field.FieldType != typeof(double))
-                    il.Convert(field.FieldType);
+il.Convert(field.FieldType);
                 il.Emit(OpCodes.Ret);
                 return dm.CreateDelegate(Expression.GetFuncType(new[] { typeof(int), field.FieldType }));
             }
@@ -254,7 +255,7 @@ namespace Overlayer.Core
             il.Emit(OpCodes.Ret);
             return dm.CreateDelegate(Expression.GetFuncType(new[] { prms[1].ParameterType, processor.ReturnType }));
         }
-        static readonly MethodInfo round = typeof(Utility).GetMethod("Round", new[] { typeof(double), typeof(int) });
+        static readonly MethodInfo round = typeof(ExtUtils).GetMethod("Round", new[] { typeof(double), typeof(int) });
         public class TagInfoResult
         {
             public List<TagInfo> Infos;

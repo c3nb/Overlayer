@@ -9,6 +9,7 @@ using IronPython.Runtime.Types;
 using System.Linq;
 using Jint.Native.Function;
 using Jint.Native;
+using Overlayer.Core.Utils;
 
 namespace Overlayer.Scripting
 {
@@ -70,7 +71,7 @@ namespace Overlayer.Scripting
             return true;
         }
         [Api("Generate Proxy", SupportScript = ScriptType.JavaScript)]
-        public static void GenerateProxy(string clrType) => JSUtils.BuildProxy(Utility.TypeByName(clrType), Main.ScriptPath);
+        public static void GenerateProxy(string clrType) => JSUtils.BuildProxy(MiscUtils.TypeByName(clrType), Main.ScriptPath);
         [Api("Get Global Variable")]
         public static object GetGlobalVariable(string name)
         {
@@ -145,7 +146,7 @@ namespace Overlayer.Scripting
         [Api("Resolve CLR Type", SupportScript = ScriptType.Python)]
         public static PythonType Resolve(string clrType)
         {
-            return DynamicHelpers.GetPythonTypeFromType(Utility.TypeByName(clrType));
+            return DynamicHelpers.GetPythonTypeFromType(MiscUtils.TypeByName(clrType));
         }
         [Api("Round Float For Fucking Python Floating Point", SupportScript = ScriptType.Python)]
         public static float RoundFloat(double value, int digits = -1) => (float)value.Round(digits);

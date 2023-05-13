@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Overlayer.Core;
 using System;
 using Overlayer.Core.Tags;
 using Overlayer.Scripting;
 using Overlayer.Scripting.JS;
+using Overlayer.Core.Utils;
 
 namespace Overlayer.Tags
 {
@@ -16,7 +16,7 @@ namespace Overlayer.Tags
         {
             if (expressions.TryGetValue(expr, out var res))
                 return res.Eval();
-            res = Utility.ExecuteSafe(() => JSUtils.CompileSource(expr), out _);
+            res = MiscUtils.ExecuteSafe(() => JSUtils.CompileSource(expr), out _);
             if (res == null) return null;
             return (expressions[expr] = res).Eval();
         }
