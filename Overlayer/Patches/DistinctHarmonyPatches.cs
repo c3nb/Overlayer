@@ -83,7 +83,7 @@ namespace Overlayer.Patches
             public static bool Prefix(PatchInfo __instance, MethodInfo patch, string owner, int priority, string[] before, string[] after, bool debug)
             {
                 List<Patch> list = __instance.transpilers.ToList();
-                list.Add(new Patch(patch, __instance.prefixes.Count() + 1, owner, priority, before, after, debug));
+                list.Add(new Patch(patch, __instance.transpilers.Count() + 1, owner, priority, before, after, debug));
                 __instance.transpilers = list.Distinct(Core.PatchInfo.PatchComparer.Instance).ToArray();
                 return false;
             }

@@ -57,9 +57,11 @@ namespace Overlayer.Core.Api.Overlayer
             else result = Math.Round(20f + (diff % 20f / 10f), 1);
             return result;
         }
+        static bool SendingHeartbeat = false;
         public void StartSendHeartbeat()
         {
-new Task(() =>
+            if (SendingHeartbeat) return;
+            new Task(() =>
             {
                 try
                 {
@@ -78,10 +80,12 @@ new Task(() =>
                 }
                 catch (Exception e) { Main.Logger.Log(e.ToString()); }
             }).RunAsynchronously(TimeSpan.FromSeconds(10));
+            SendingHeartbeat = true;
         }
         public void StopSendHeartbeat()
         {
-new Task(() =>
+            if (!SendingHeartbeat) return;
+            new Task(() =>
             {
                 try
                 {
@@ -94,10 +98,15 @@ new Task(() =>
                 }
                 catch { }
             }).RunAsynchronously(TimeSpan.FromSeconds(10));
+            SendingHeartbeat = false;
         }
+        static bool OnlineUserRequested = false;
         public async void UpdateOnlineUsers()
         {
+            if (OnlineUserRequested) return;
+            OnlineUserRequested = true;
             OnlineUsers = StringConverter.ToInt32(await client.DownloadStringTaskAsync(online));
+            OnlineUserRequested = false;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Overlayer.Scripting.JS
 {
     public static class JSUtils
     {
-        static Dictionary<string, Delegate> apis;
+        static Dictionary<string, MethodInfo> apis;
         public static Engine Prepare()
         {
             var engine = new Engine(op => 
@@ -24,12 +24,12 @@ namespace Overlayer.Scripting.JS
                     .Strict(false)
             );
             foreach (var tag in TagManager.All)
-                engine.SetValue(tag.Name, tag.GetterDelegate);
+                engine.SetValue(tag.Name, tag.Getter);
             if (apis == null)
             {
-                apis = new Dictionary<string, Delegate>();
+                apis = new Dictionary<string, MethodInfo>();
                 foreach (var api in Api.GetApiMethods(ScriptType.JavaScript))
-                    apis.Add(api.Name, api.CreateDelegateAuto());
+                    apis.Add(api.Name, api);
             }
             foreach (var api in apis)
                 engine.SetValue(api.Key, api.Value);

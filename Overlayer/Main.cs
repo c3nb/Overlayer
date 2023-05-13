@@ -214,6 +214,7 @@ namespace Overlayer
 
             ModSettings.Save(Settings, modEntry);
             TextManager.Save();
+            OverlayerDebug.SaveLog();
             MemoryHelper.Clean(CleanOption.CollectGarbage);
         }
         public static void OnUpdate(ModEntry modEntry, float deltaTime)

@@ -10,7 +10,6 @@ namespace Overlayer.Core.Utils
 {
     public static class PatchUtils
     {
-        
         public static int TypeCount { get; internal set; }
         public static MethodInfo Postfix<T>(this Harmony harmony, MethodBase target, T del) where T : Delegate
             => harmony.Patch(target, postfix: new HarmonyMethod(del.Wrap()));
@@ -43,7 +42,6 @@ namespace Overlayer.Core.Utils
             t.GetField("function").SetValue(null, del);
             return t.GetMethod("Wrapper");
         }
-        
     }
 }
 namespace System.Runtime.CompilerServices
