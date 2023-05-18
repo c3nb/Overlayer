@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Overlayer.Scripting
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class ApiAttribute : Attribute
     {
-        public ApiAttribute(string desc) => Description = desc;
-        public string Description { get; }
-        public ScriptType SupportScript = ScriptType.All;
-        public int Flags = 0;
+        public ApiAttribute() { }
+        public ApiAttribute(string name) => Name = name;
+        public string Name { get; }
+        public ScriptType SupportScript { get; set; } = ScriptType.All;
     }
 }

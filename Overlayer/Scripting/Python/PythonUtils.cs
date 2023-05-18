@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System;
 using Py = IronPython.Hosting.Python;
 using Overlayer.Core.ExceptionHandling;
+using IronPython.Runtime.Types;
 
 namespace Overlayer.Scripting.Python
 {
@@ -23,6 +24,9 @@ namespace Overlayer.Scripting.Python
                 var delegates = Api.GetApiMethods(ScriptType.Python).Select(m => (m.Name, m.CreateDelegate(m.ReturnType != typeof(void) ? Expression.GetFuncType(m.GetParameters().Select(p => p.ParameterType).Append(m.ReturnType).ToArray()) : Expression.GetActionType(m.GetParameters().Select(p => p.ParameterType).ToArray())))).Concat(TagManager.All.Select(t => (t.Name, t.GetterDelegate)));
                 foreach (var (name, del) in delegates)
                     options.Add(name, del);
+                var types = Api.GetApiTypesWithAttr(ScriptType.Python);
+                foreach (var (attr, t) in types)
+                    options.Add(attr.Name ?? t.Name, DynamicHelpers.GetPythonTypeFromType(t));
                 apiInitialized = true;
             }
         }

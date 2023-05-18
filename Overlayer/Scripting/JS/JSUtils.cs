@@ -16,7 +16,7 @@ namespace Overlayer.Scripting.JS
 {
     public static class JSUtils
     {
-        static Dictionary<string, MethodInfo> apis;
+        static Dictionary<string, object> apis;
         public static Engine Prepare()
         {
             var engine = new Engine(op => 
@@ -27,9 +27,11 @@ namespace Overlayer.Scripting.JS
                 engine.SetValue(tag.Name, tag.Getter);
             if (apis == null)
             {
-                apis = new Dictionary<string, MethodInfo>();
+                apis = new Dictionary<string, object>();
                 foreach (var api in Api.GetApiMethods(ScriptType.JavaScript))
                     apis.Add(api.Name, api);
+                foreach (var (attr, t) in Api.GetApiTypesWithAttr(ScriptType.JavaScript))
+                    apis.Add(attr.Name ?? t.Name, t);
             }
             foreach (var api in apis)
                 engine.SetValue(api.Key, api.Value);

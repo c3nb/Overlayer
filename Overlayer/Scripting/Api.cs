@@ -10,15 +10,21 @@ using System.Linq;
 using Jint.Native.Function;
 using Jint.Native;
 using Overlayer.Core.Utils;
+using Jint.Runtime.Interop;
 
 namespace Overlayer.Scripting
 {
     public static class Api
     {
-        static Dictionary<ScriptType, List<(ApiAttribute, MethodInfo)>> cache = new Dictionary<ScriptType, List<(ApiAttribute, MethodInfo)>>()
+        static Dictionary<ScriptType, List<(ApiAttribute, MethodInfo)>> mcache = new Dictionary<ScriptType, List<(ApiAttribute, MethodInfo)>>()
         {
             [ScriptType.JavaScript] = new List<(ApiAttribute, MethodInfo)>(),
             [ScriptType.Python] = new List<(ApiAttribute, MethodInfo)>(),
+        };
+        static Dictionary<ScriptType, List<(ApiAttribute, Type)>> tcache = new Dictionary<ScriptType, List<(ApiAttribute, Type)>>()
+        {
+            [ScriptType.JavaScript] = new List<(ApiAttribute, Type)>(),
+            [ScriptType.Python] = new List<(ApiAttribute, Type)>(),
         };
         static Api()
         {
@@ -29,11 +35,21 @@ namespace Overlayer.Scripting
                 if (attr == null) continue;
                 for (int i = 0; i < types.Length; i++)
                     if ((attr.SupportScript & types[i]) != 0)
-                        cache[types[i]].Add((attr, method));
+                        mcache[types[i]].Add((attr, method));
+            }
+            foreach (Type type in typeof(Api).GetNestedTypes())
+            {
+                ApiAttribute attr = type.GetCustomAttribute<ApiAttribute>();
+                if (attr == null) continue;
+                for (int i = 0; i < types.Length; i++)
+                    if ((attr.SupportScript & types[i]) != 0)
+                        tcache[types[i]].Add((attr, type));
             }
         }
-        public static IEnumerable<MethodInfo> GetApiMethods(ScriptType type) => cache[type].Select(t => t.Item2);
-        public static List<(ApiAttribute, MethodInfo)> GetApi(ScriptType type) => cache[type];
+        public static IEnumerable<MethodInfo> GetApiMethods(ScriptType type) => mcache[type].Select(t => t.Item2);
+        public static IEnumerable<(ApiAttribute, MethodInfo)> GetApiMethodsWithAttr(ScriptType type) => mcache[type];
+        public static IEnumerable<Type> GetApiTypes(ScriptType type)  => tcache[type].Select(t => t.Item2);
+        public static IEnumerable<(ApiAttribute, Type)> GetApiTypesWithAttr(ScriptType type) => tcache[type];
         public static Harmony harmony = new Harmony("Overlayer.Scripting.Api");
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();
         public static List<string> RegisteredCustomTags = new List<string>();
@@ -46,9 +62,9 @@ namespace Overlayer.Scripting
             RegisteredCustomTags.Clear();
             TextManager.Refresh();
         }
-        [Api("Log Object")]
+        [Api]
         public static void Log(object obj) => Main.Logger.Log(OverlayerDebug.Log(obj).ToString());
-        [Api("Prefix Method", SupportScript = ScriptType.JavaScript)]
+        [Api(SupportScript = ScriptType.JavaScript)]
         public static bool Prefix(string typeColonMethodName, JsValue val)
         {
             if (!(val is FunctionInstance func)) return false;
@@ -59,7 +75,7 @@ namespace Overlayer.Scripting
             harmony.Patch(target, new HarmonyMethod(wrap));
             return true;
         }
-        [Api("Postfix Method", SupportScript = ScriptType.JavaScript)]
+        [Api(SupportScript = ScriptType.JavaScript)]
         public static bool Postfix(string typeColonMethodName, JsValue val)
         {
             if (!(val is FunctionInstance func)) return false;
@@ -70,20 +86,20 @@ namespace Overlayer.Scripting
             harmony.Patch(target, postfix: new HarmonyMethod(wrap));
             return true;
         }
-        [Api("Generate Proxy", SupportScript = ScriptType.JavaScript)]
+        [Api(SupportScript = ScriptType.JavaScript)]
         public static void GenerateProxy(string clrType) => JSUtils.BuildProxy(MiscUtils.TypeByName(clrType), Main.ScriptPath);
-        [Api("Get Global Variable")]
+        [Api]
         public static object GetGlobalVariable(string name)
         {
             return Variables.TryGetValue(name, out var value) ? value : null;
         }
-        [Api("Set Global Variable")]
+        [Api]
         public static void SetGlobalVariable(string name, object obj)
         {
             Variables[name] = obj;
         }
         // Source Path Tracing Is Not Supported!
-        [Api("Register Tag", SupportScript = ScriptType.JavaScript)]
+        [Api(SupportScript = ScriptType.JavaScript)]
         public static void RegisterTag(string name, JsValue val, bool notplaying)
         {
             var executor = $"Registered Tag \"{name}\" (NotPlaying:{notplaying})";
@@ -104,7 +120,7 @@ namespace Overlayer.Scripting
             Main.Logger?.Log(executor);
         }
         // Source Path Tracing Is Not Supported!
-        [Api("Register Tag", SupportScript = ScriptType.Python)]
+        [Api(SupportScript = ScriptType.Python)]
         public static void RegisterTagOpt(string name, Func<string, object> func, bool notplaying)
         {
             var executor = $"Registered Tag \"{name}\" (NotPlaying:{notplaying})";
@@ -121,7 +137,7 @@ namespace Overlayer.Scripting
             Main.Logger?.Log(executor);
         }
         // Source Path Tracing Is Not Supported!
-        [Api("Register Tag", SupportScript = ScriptType.Python)]
+        [Api(SupportScript = ScriptType.Python)]
         public static void RegisterTag(string name, Func<object> func, bool notplaying)
         {
             var executor = $"Registered Tag \"{name}\" (NotPlaying:{notplaying})";
@@ -137,20 +153,25 @@ namespace Overlayer.Scripting
             OverlayerDebug.End();
             Main.Logger?.Log(executor);
         }
-        [Api("Unregister Tag")]
+        [Api]
         public static void UnregisterTag(string name)
         {
             TagManager.RemoveTag(name);
             TextManager.Refresh();
         }
-        [Api("Resolve CLR Type", SupportScript = ScriptType.Python)]
+        [Api(SupportScript = ScriptType.Python)]
         public static PythonType Resolve(string clrType)
         {
             return DynamicHelpers.GetPythonTypeFromType(MiscUtils.TypeByName(clrType));
         }
-        [Api("Round Float For Fucking Python Floating Point", SupportScript = ScriptType.Python)]
+        [Api(SupportScript = ScriptType.JavaScript)]
+        public static TypeReference Resolve(Jint.Engine engine, string clrType)
+        {
+            return TypeReference.CreateTypeReference(engine, MiscUtils.TypeByName(clrType));
+        }
+        [Api(SupportScript = ScriptType.Python)]
         public static float RoundFloat(double value, int digits = -1) => (float)value.Round(digits);
-        [Api("Round Float And ToString For Fucking Python Floating Point", SupportScript = ScriptType.Python)]
+        [Api(SupportScript = ScriptType.Python)]
         public static string RoundFloatString(double value, int digits = -1) => digits < 0 ? value.ToString() : value.ToString($"F{digits}");
     }
 }
