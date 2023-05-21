@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using Overlayer.Tags;
+using Overlayer.Scripting;
 
 namespace Overlayer.Patches
 {

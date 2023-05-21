@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using Overlayer.Core.Tags;
+using Overlayer.Core;
 
 namespace Overlayer.Patches
 {
@@ -26,17 +27,17 @@ namespace Overlayer.Patches
             return 0;
         }
         #endregion
-        public static FieldInfo curSpd = typeof(GCS).GetField("currentSpeedRun", AccessTools.all) ?? typeof(GCS).GetField("currentSpeedTrial", AccessTools.all);
+        public static FieldInfo curSpd = typeof(GCS).GetField("currentSpeedTrial", AccessTools.all);
         public static float bpm = 0, pitch = 0, playbackSpeed = 1;
         public static bool beforedt = false;
         public static double beforebpm = 0;
-        [HarmonyPatch(typeof(CustomLevel), "Play")]
+        [HarmonyPatch(typeof(scnGame), "Play")]
         public static class CustomLevelStart
         {
-            public static void Postfix(CustomLevel __instance)
+            public static void Postfix(scnGame __instance)
             {
                 if (!scrController.instance.gameworld) return;
-                if (CustomLevel.instance == null) return;
+                if (scnGame.instance == null) return;
                 Init(scrController.instance);
             }
         }
@@ -46,7 +47,7 @@ namespace Overlayer.Patches
             public static void Postfix(scrPressToStart __instance)
             {
                 if (!scrController.instance.gameworld) return;
-                if (CustomLevel.instance != null) return;
+                if (scnGame.instance != null) return;
                 Init(scrController.instance);
                 Variables.StartProg = scrController.instance.percentComplete * 100;
             }
@@ -96,20 +97,32 @@ namespace Overlayer.Patches
                 ProgressDeath.Reset();
                 mapHash = __instance.caption;
             }
-            Adofaigg.Setup(scnEditor.instance);
+            if (scnGame.instance)
+                Adofaigg.Setup(scnGame.instance);
+            else Adofaigg.Setup(scnEditor.instance);
             TimingList.Clear();
             Variables.IsStarted = true;
             AllCheckPoints = scrLevelMaker.instance.listFloors.FindAll(f => f.GetComponent<ffxCheckpoint>() != null);
             float kps = 0;
-            if (CustomLevel.instance != null)
+            try
             {
-                pitch = (float)CustomLevel.instance.levelData.pitch / 100;
-                if (GCS.standaloneLevelMode) pitch *= (float)curSpd.GetValue(null);
-                playbackSpeed = scnEditor.instance.playbackSpeed;
-                bpm = CustomLevel.instance.levelData.bpm * playbackSpeed * pitch;
+                if (scnGame.instance != null)
+                {
+                    pitch = (float)scnGame.instance.levelData.pitch / 100;
+                    if (ADOBase.isCLSLevel) pitch *= (float)curSpd.GetValue(null);
+                    playbackSpeed = scnEditor.instance.playbackSpeed;
+                    bpm = scnGame.instance.levelData.bpm * playbackSpeed * pitch;
+                }
+                else
+                {
+                    pitch = scrConductor.instance.song.pitch;
+                    playbackSpeed = 1;
+                    bpm = scrConductor.instance.bpm * pitch;
+                }
             }
-            else
+            catch (Exception e)
             {
+                OverlayerDebug.Exception(e, "Exception At BpmUpdater.Init!");
                 pitch = scrConductor.instance.song.pitch;
                 playbackSpeed = 1;
                 bpm = scrConductor.instance.bpm * pitch;
@@ -123,6 +136,7 @@ namespace Overlayer.Patches
             Variables.TileBpm = cur;
             Variables.CurBpm = cur;
             Variables.RecKPS = kps;
+            Scripting.Api.ClearTileInfo();
         }
     }
 }

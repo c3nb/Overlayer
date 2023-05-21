@@ -1,4 +1,6 @@
-﻿using Overlayer.Core;
+﻿using Esprima;
+using Jint;
+using Overlayer.Core;
 using Overlayer.Core.Utils;
 using System;
 using System.Collections.Generic;
@@ -20,40 +22,52 @@ namespace Overlayer.Scripting.JS
                 Type rt = tag.Getter.ReturnType;
                 ParameterInfo[] tagOptions = tag.Getter.GetParameters();
                 if (tag.HasOption)
-                    sb.AppendLine(GetPRTypeHintComment(rt, "", (tagOptions[0].ParameterType, tagOptions[0].Name.IfNullOrEmpty("digits"))))
+                    sb.AppendLine(GetPRTypeHintComment(rt, "", null, null, null, (tagOptions[0].ParameterType, tagOptions[0].Name.IfNullOrEmpty("digits"))))
                         .AppendLine($"function {tag.Name}({tagOptions[0].Name.IfNullOrEmpty("digits")});");
-                else sb.AppendLine(GetPRTypeHintComment(rt, ""))
+                else sb.AppendLine(GetPRTypeHintComment(rt, "", null, null, null))
                         .AppendLine($"function {tag.Name}();");
             }    
-            foreach (var api in Api.GetApiMethods(ScriptType))
+            foreach (var (attr, api) in Api.GetApiMethodsWithAttr(ScriptType))
             {
                 Type rt = api.ReturnType;
                 ParameterInfo[] options = api.GetParameters();
                 if (options.Length > 0)
                 {
-                    var opt = options.Select(p => (p.ParameterType, p.Name)).ToArray();
-                    sb.AppendLine(GetPRTypeHintComment(rt, "", opt));
+                    var opt = options.Select(p => (p.ParameterType, p.Name)).Where(t => t.ParameterType != typeof(Engine)).ToArray();
+                    sb.AppendLine(GetPRTypeHintComment(rt, "", attr.Comment, attr.JSParamComment, attr.JSReturnComment, opt));
                     var optStr = opt.Aggregate("", (c, n) => $"{c}{n.Name}, ");
                     sb.AppendLine($"function {api.Name}({optStr.Remove(optStr.Length - 2)});");
                 }
                 else
                 {
-                    sb.AppendLine(GetPRTypeHintComment(rt, ""));
+                    sb.AppendLine(GetPRTypeHintComment(rt, "", attr.Comment, attr.JSParamComment, attr.JSReturnComment));
                     sb.AppendLine($"function {api.Name}();");
                 }
             }
+            foreach (var (attr, t) in Api.GetApiTypesWithAttr(ScriptType))
+                JSUtils.WriteType(t, sb, attr.Name);
             return sb.ToString();
         }
-        private static string GetPRTypeHintComment(Type returnType, string indent, params (Type, string)[] parameters)
+        private static string GetPRTypeHintComment(Type returnType, string indent, string[] comments, string[] paramComments, string returnComment, params (Type, string)[] parameters)
         {
+            int pcLength = paramComments != null ? paramComments.Length : -1;
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(indent + "/**");
+            if (comments != null)
+            {
+                for (int i = 0; i < comments.Length; i++)
+                {
+                    sb.AppendLine(indent + $" * {comments[i]}");
+                    if (i < comments.Length - 1)
+                        sb.AppendLine(" *");
+                }
+            }
             for (int i = 0; i < parameters.Length; i++)
             {
                 var param = parameters[i];
-                sb.AppendLine(indent + $" * @param {{{GetTypeHintCode(param.Item1)}}} {param.Item2}");
+                sb.AppendLine(indent + $" * @param {{{GetTypeHintCode(param.Item1)}}} {param.Item2}{(pcLength - 1 >= i ? $" {paramComments[i]}" : "")}");
             }
-            sb.AppendLine(indent + $" * @returns {{{GetTypeHintCode(returnType)}}}");
+            sb.AppendLine(indent + $" * @returns {{{GetTypeHintCode(returnType)}}}{(returnComment != null ? $" {returnComment}" : "")}");
             sb.Append(indent + " */");
             return sb.ToString();
         }

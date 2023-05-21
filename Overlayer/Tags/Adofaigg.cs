@@ -18,6 +18,7 @@ using OverlayerApi = Overlayer.Core.Api.Overlayer.OverlayerApi;
 using Overlayer.Core.Api.Overlayer;
 using System.Runtime.ConstrainedExecution;
 using Overlayer.Core.Utils;
+using ADOFAI;
 
 namespace Overlayer.Tags
 {
@@ -53,16 +54,32 @@ namespace Overlayer.Tags
             double tilesRating = tile < 2000 ? 0.9 + tile / 10000.0 : Math.Pow(tile / 2000.0, 0.05);
             return Math.Pow(difficultyRating * accuracyRating * pitchRating * tilesRating, 1.01);
         }
-        public static async void Setup(scnEditor instance)
+        public static async void Setup(ADOBase aBase)
         {
+            LevelData levelData = null;
+            string levelPath = null;
+            scnGame game = aBase as scnGame;
+            if (game != null)
+            {
+                levelData = game.levelData;
+                levelPath = game.levelPath;
+            }
+            else
+            {
+                scnEditor editor = aBase as scnEditor;
+                if (editor != null)
+                {
+                    levelData = editor.levelData;
+                    levelPath = editor.customLevel.levelPath;
+                }
+            }
             IntegratedDifficulty = -999;
             PredictedDifficulty = -999;
             ForumDifficulty = -999;
-            if (instance)
+            if (aBase)
             {
                 try
                 {
-                    var levelData = instance.levelData;
                     string artist = levelData.artist.BreakRichTag(), author = levelData.author.BreakRichTag(), title = levelData.song.BreakRichTag();
                     Result = await Request(artist, title, author, string.IsNullOrWhiteSpace(levelData.pathData) ? levelData.angleData.Count : levelData.pathData.Length, (int)Math.Round(levelData.bpm));
                     if (Result == null)
@@ -76,7 +93,7 @@ namespace Overlayer.Tags
                         ForumDifficulty = Result.difficulty;
                     IntegratedDifficulty = ForumDifficulty < -1 ? PredictedDifficulty : ForumDifficulty;
 #if DIFFICULTY_PREDICTOR
-                    PredictDiff(instance);
+                    PredictDiff(levelPath, levelData);
 #else
                     PredictedDifficulty = ((double)instance.levelData.difficulty).Map(1, 10, 1, 21);
                     if ((Result?.difficulty).HasValue)
@@ -86,7 +103,7 @@ namespace Overlayer.Tags
                 }
                 catch (Exception e)
                 {
-                    IntegratedDifficulty = PredictedDifficulty = ((double)instance.levelData.difficulty).Map(1, 10, 1, 21);
+                    IntegratedDifficulty = PredictedDifficulty = ((double)levelData.difficulty).Map(1, 10, 1, 21);
                     OverlayerDebug.Log($"Error On Requesting Difficulty At Adofai.gg. Check Adofai.gg's Api State.\n{e}");
                 }
             }
@@ -201,32 +218,30 @@ namespace Overlayer.Tags
         }
 #if DIFFICULTY_PREDICTOR
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-        public static async void PredictDiff(scnEditor editor)
+        public static async void PredictDiff(string levelPath, LevelData levelData)
         {
             try
             {
-                PredictedDifficulty = await PredictDifficulty(editor).TryWaitAsync(TimeSpan.FromSeconds(10));
+                PredictedDifficulty = await PredictDifficulty(levelPath, levelData).TryWaitAsync(TimeSpan.FromSeconds(10));
                 IntegratedDifficulty = ForumDifficulty < -1 ? PredictedDifficulty : ForumDifficulty;
-                var name = string.IsNullOrWhiteSpace(editor.levelData.song) ? Path.GetDirectoryName(editor.customLevel.levelPath) : editor.levelData.song;
+                var name = string.IsNullOrWhiteSpace(levelData.song) ? Path.GetDirectoryName(levelPath) : levelData.song;
                 name = name.RemoveRichTags();
                 if (Main.Settings.AllowCollectingLevels)
-                    OverlayerApi.Instance.Upload(editor.customLevel.levelPath, name + (ForumDifficulty < -1 ? "" : "_Adofaigg"), IntegratedDifficulty.ToString());
+                    OverlayerApi.Instance.Upload(levelPath, name + (ForumDifficulty < -1 ? "" : "_Adofaigg"), IntegratedDifficulty.ToString());
             }
             catch (Exception e)
             {
-                var levelPath = editor.customLevel.levelPath;
                 OverlayerDebug.Log($"Error On Predicting Difficulty:\n{e}");
                 OverlayerDebug.Log($"Level Path: {levelPath}");
-                OverlayerDebug.Log($"Adjusting PredictedDifficulty To Editor Difficulty {IntegratedDifficulty = PredictedDifficulty = ((double)editor.levelData.difficulty).Map(1, 10, 1, 21)}");
+                OverlayerDebug.Log($"Adjusting PredictedDifficulty To Editor Difficulty {PredictedDifficulty = ((double)levelData.difficulty).Map(1, 10, 1, 21)}");
             }
         }
         [ReliabilityContract(Consistency.MayCorruptInstance, Cer.MayFail)]
-        public static async Task<double> PredictDifficulty(scnEditor editor)
+        public static async Task<double> PredictDifficulty(string levelPath, LevelData levelData)
         {
-            var levelData = editor.levelData;
             var hash = DataInit.MakeHash(levelData.author, levelData.artist, levelData.song);
             if (PredictedDiffCache.TryGetValue(hash, out var diff)) return diff;
-            var meta = await Task.Run(() => GetMeta(editor.customLevel.levelPath));
+            var meta = await Task.Run(() => GetMeta(levelPath));
             var predicted = await OverlayerApi.Instance.Predict(meta);
             return PredictedDiffCache[hash] = AdjustDiff(Clamp(Math.Round(predicted, 1), 1, 21));
         }

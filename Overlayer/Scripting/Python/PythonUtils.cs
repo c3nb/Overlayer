@@ -10,6 +10,8 @@ using System;
 using Py = IronPython.Hosting.Python;
 using Overlayer.Core.ExceptionHandling;
 using IronPython.Runtime.Types;
+using Overlayer.Scripting.JS;
+using System.Reflection;
 
 namespace Overlayer.Scripting.Python
 {
@@ -88,6 +90,66 @@ namespace Overlayer.Scripting.Python
             foreach (var kvp in options)
                 module?.__setattr__(context, kvp.Key, kvp.Value);
             return builtin;
+        }
+        public static void WriteType(Type type, StringBuilder sb, string alias = null)
+        {
+            sb.Append("class ");
+            var tName = (alias ?? type.Name).RemoveAfter("`");
+            sb.AppendLine($"{tName}():");
+            #region Fields And Properties
+            bool any = false;
+            sb.AppendLine("  def __init__(self):");
+            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (field.Name.StartsWith("<"))
+                    continue;
+                if (field.IsStatic) continue;
+                sb.AppendLine($"    self.{field.Name}:{PythonImpl.GetTypeStr(field.FieldType, true)} = None");
+                any = true;
+            }
+            foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (prop.Name.StartsWith("<"))
+                    continue;
+                var name = prop.Name.Split('.').Last();
+                sb.AppendLine($"    self.{prop.Name}:{PythonImpl.GetTypeStr(prop.PropertyType, true)} = None");
+                any = true;
+            }
+
+            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (field.Name.StartsWith("<"))
+                    continue;
+                sb.AppendLine($"    {field.Name}:{PythonImpl.GetTypeStr(field.FieldType, true)} = None");
+                any = true;
+            }
+            foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (prop.Name.StartsWith("<"))
+                    continue;
+                var name = prop.Name.Split('.').Last();
+                sb.AppendLine($"    {prop.Name}:{PythonImpl.GetTypeStr(prop.PropertyType, true)} = None");
+                any = true;
+            }
+            if (!any) sb.AppendLine("    pass");
+            #endregion
+            #region Methods
+            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance).OrderBy(x => x.Name))
+            {
+                if (method.IsObjectDeclared()) continue;
+                if (method.Name.StartsWith("<"))
+                    continue;
+                if (method.IsSpecialName && !method.Name.StartsWith("add_") && !method.Name.StartsWith("remove_"))
+                    continue;
+                var prms = method.GetParameters();
+                if (method.IsStatic)
+                    sb.AppendLine("  @staticmethod");
+                if (prms.Length > 0)
+                    sb.AppendLine($"  def {method.Name}({PythonImpl.GetArgStr(prms)}) -> {PythonImpl.GetTypeStr(method.ReturnType)}: {(method.ReturnType != typeof(void) ? "return " : "")}{tName}.{method.Name}({PythonImpl.GetCallArgStr(prms)})");
+                else
+                    sb.AppendLine($"  def {method.Name}() -> {PythonImpl.GetTypeStr(method.ReturnType)}: {(method.ReturnType != typeof(void) ? "return " : "")}{tName}.{method.Name}()");
+            }
+            #endregion
         }
     }
     public delegate object ImportDelegate(CodeContext context, string moduleName, PythonDictionary globals, PythonDictionary locals, PythonTuple fromlist, int level);

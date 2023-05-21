@@ -2,12 +2,13 @@
 using Overlayer.Core.Tags;
 using Overlayer.Core.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Unity.Services.Analytics;
+using Overlayer.Scripting.JS;
 
 namespace Overlayer.Scripting.Python
 {
@@ -25,17 +26,25 @@ namespace Overlayer.Scripting.Python
                 else
                     sb.AppendLine($"def {tag.Name}() -> {GetTypeStr(tag.Getter.ReturnType)}: return {tag.Name}()");
             }
-            foreach (var api in Api.GetApiMethods(ScriptType))
-            {
-                ParameterInfo[] options = api.GetParameters();
-                if (options.Length > 0)
-                    sb.AppendLine($"def {api.Name}({GetArgStr(options)}) -> {GetTypeStr(api.ReturnType)}: {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}({GetCallArgStr(options)})");
-                else
-                    sb.AppendLine($"def {api.Name}() -> {GetTypeStr(api.ReturnType)}: {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}()");
-            }
+            foreach (var (attr, api) in Api.GetApiMethodsWithAttr(ScriptType))
+                AppendFunction4(sb, attr, api);
+            foreach (var (attr, t) in Api.GetApiTypesWithAttr(ScriptType))
+                PythonUtils.WriteType(t, sb, attr.Name);
             return sb.ToString();
         }
-        static string GetArgStr(ParameterInfo[] args)
+        public static void AppendFunction4(StringBuilder sb, ApiAttribute attr, MethodInfo api)
+        {
+            ParameterInfo[] options = api.GetParameters();
+            if (options.Length > 0)
+                sb.AppendLine($"def {api.Name}({GetArgStr(options)}) -> {GetTypeStr(api.ReturnType)}:")
+                    .Append(attr.Comment != null ? $"    \"\"\"\n    {string.Join("\\n\n    ", attr.Comment)}\n    \"\"\"\n" : "")
+                    .AppendLine($"    {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}({GetCallArgStr(options)})");
+            else
+                sb.AppendLine($"def {api.Name}() -> {GetTypeStr(api.ReturnType)}:")
+                    .Append(attr.Comment != null ? $"    \"\"\"\n    {string.Join("\\n\n    ", attr.Comment)}\n    \"\"\"\n" : "")
+                    .AppendLine($"    {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}()");
+        }
+        public static string GetArgStr(ParameterInfo[] args)
         {
             StringBuilder sb = new StringBuilder();
             foreach (var arg in args)
@@ -43,7 +52,7 @@ namespace Overlayer.Scripting.Python
             var result = sb.ToString();
             return result.Remove(result.Length - 2);
         }
-        static string GetCallArgStr(ParameterInfo[] args)
+        public static string GetCallArgStr(ParameterInfo[] args)
         {
             StringBuilder sb = new StringBuilder();
             foreach (var arg in args)
@@ -51,29 +60,42 @@ namespace Overlayer.Scripting.Python
             var result = sb.ToString();
             return result.Remove(result.Length - 2);
         }
-        static string GetTypeStr(Type type)
+        public static string GetTypeStr(Type type, bool defaultIsOriginal = false)
         {
+            if (type == typeof(void)) return "None";
+            else if (type.IsArray) return "list";
+            else if (typeof(IDictionary).IsAssignableFrom(type)) return "dict";
+            string result;
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Single:
                 case TypeCode.Double:
-                    return "float";
+                    result = "float";
+                    break;
                 case TypeCode.Byte:
                 case TypeCode.SByte:
-                case TypeCode.Int16: 
+                case TypeCode.Int16:
                 case TypeCode.Int32:
                 case TypeCode.Int64:
                 case TypeCode.UInt16:
                 case TypeCode.UInt32:
                 case TypeCode.UInt64:
-                    return "int";
+                    result = "int";
+                    break;
                 case TypeCode.String:
-                    return "str";
+                    result = "str";
+                    break;
                 case TypeCode.Boolean:
-                    return "bool";
+                    result = "bool";
+                    break;
                 default:
-                    return "object";
+                    var toSearch = type.IsArray ? type.GetElementType() : type;
+                    if (Api.IsContains(ScriptType.Python, toSearch))
+                        result = toSearch.GetCustomAttribute<ApiAttribute>().Name ?? type.Name;
+                    else result = defaultIsOriginal ? type.Name.RemoveAfter("`") : "object";
+                    break;
             }
+            return result;
         }
     }
 }

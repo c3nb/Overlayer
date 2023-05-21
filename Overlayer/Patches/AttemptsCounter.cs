@@ -10,7 +10,7 @@ namespace Overlayer.Patches
     public static class AttemptsCounter
     {
         public static Dictionary<string, int> Attempts = new Dictionary<string, int>();
-        [HarmonyPatch(typeof(CustomLevel), "FinishCustomLevelLoading")]
+        [HarmonyPatch(typeof(scnGame), "FinishCustomLevelLoading")]
         [HarmonyPostfix]
         public static void FCLLPostfix()
         {

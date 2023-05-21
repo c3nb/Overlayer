@@ -744,6 +744,7 @@
     <Compile Include="Patches\RemoveFuckingUMMDummyLogPatch.cs" />
     <Compile Include="Patches\Resetter.cs" />
     <Compile Include="Patches\StartProgUpdater.cs" />
+    <Compile Include="Patches\TileCapturer.cs" />
     <Compile Include="Patches\TimingUpdater.cs" />
     <Compile Include="Patches\Updater.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
