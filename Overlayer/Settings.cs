@@ -98,9 +98,9 @@ namespace Overlayer
                 GUIUtils.EndIndent();
             }
             DebugMode = GUIUtils.RightToggle(DebugMode, Main.Language[TranslationKeys.DebugMode]);
-            string psur = PerfStatUpdateRate.ToString();
-            if (GUIUtils.DrawTextField(ref psur, Main.Language[TranslationKeys.PerfStatUpdateRate]))
-                PerfStatUpdateRate = StringConverter.ToInt32(psur);
+            //string psur = PerfStatUpdateRate.ToString();
+            //if (GUIUtils.DrawTextField(ref psur, Main.Language[TranslationKeys.PerfStatUpdateRate]))
+            //    PerfStatUpdateRate = StringConverter.ToInt32(psur);
             string fur = FPSUpdateRate.ToString();
             if (GUIUtils.DrawTextField(ref fur, Main.Language[TranslationKeys.FPSUpdateRate]))
                 FPSUpdateRate = StringConverter.ToFloat(fur);

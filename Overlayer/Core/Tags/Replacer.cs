@@ -73,13 +73,14 @@ namespace Overlayer.Core.Tags
                 }
             }
             emits.Add(stack.ToString());
-            int arrIndex = 0;
-            il.Emit(OpCodes.Ldc_I4, emits.Count);
-            il.Emit(OpCodes.Newarr, typeof(string));
+            //int arrIndex = 0;
+            //il.Emit(OpCodes.Ldc_I4, emits.Count);
+            //il.Emit(OpCodes.Newarr, typeof(string));
+            il.Emit(OpCodes.Newobj, StrBuilder_Ctor);
             foreach (object emit in emits)
             {
-                il.Emit(OpCodes.Dup);
-                il.Emit(OpCodes.Ldc_I4, arrIndex++);
+                //il.Emit(OpCodes.Dup);
+                //il.Emit(OpCodes.Ldc_I4, arrIndex++);
                 if (emit is string str)
                     il.Emit(OpCodes.Ldstr, str);
                 if (emit is TagInfo info)
@@ -103,9 +104,11 @@ namespace Overlayer.Core.Tags
                     if (info.tag.ReturnConverter != null)
                         il.Emit(OpCodes.Call, info.tag.ReturnConverter);
                 }
-                il.Emit(OpCodes.Stelem_Ref);
+                //il.Emit(OpCodes.Stelem_Ref);
+                il.Emit(OpCodes.Call, StrBuilder_Append);
             }
-            il.Emit(OpCodes.Call, Concats);
+            //il.Emit(OpCodes.Call, Concats);
+            il.Emit(OpCodes.Call, StrBuilder_ToString);
             il.Emit(OpCodes.Ret);
             compiledResult = (Func<string>)result.CreateDelegate(typeof(Func<string>));
             compiled = true;
@@ -271,6 +274,9 @@ namespace Overlayer.Core.Tags
             public static string ToString(object o) => o.ToString();
             static readonly MethodInfo ts = typeof(Wrapper).GetMethod("ToString", new[] { typeof(object) });
         }
-        public static readonly MethodInfo Concats = typeof(string).GetMethod("Concat", new[] { typeof(string[]) });
+        //public static readonly MethodInfo Concats = typeof(string).GetMethod("Concat", new[] { typeof(string[]) });
+        public static readonly ConstructorInfo StrBuilder_Ctor = typeof(StringBuilder).GetConstructor(Type.EmptyTypes);
+        public static readonly MethodInfo StrBuilder_Append = typeof(StringBuilder).GetMethod("Append", new[] { typeof(string) });
+        public static readonly MethodInfo StrBuilder_ToString = typeof(StringBuilder).GetMethod("ToString", Type.EmptyTypes);
     }
 }

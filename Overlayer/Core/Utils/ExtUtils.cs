@@ -35,7 +35,7 @@ namespace Overlayer.Core.Utils
         public static float Round(this float value, int digits) => digits < 0 ? value : (float)Math.Round((double)value, digits);
         public static async void RunAsynchronously(this Task task, TimeSpan? timeout = null)
         {
-            if (timeout != null)
+            if (timeout.HasValue)
                 await task.TryWaitAsync(timeout.Value);
             else await task;
         }

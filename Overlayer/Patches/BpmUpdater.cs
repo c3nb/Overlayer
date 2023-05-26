@@ -36,7 +36,7 @@ namespace Overlayer.Patches
         {
             public static void Postfix(scnGame __instance)
             {
-                if (!scrController.instance.gameworld) return;
+                if (!(scrController.instance?.gameworld ?? false)) return;
                 if (scnGame.instance == null) return;
                 Init(scrController.instance);
             }
@@ -110,15 +110,14 @@ namespace Overlayer.Patches
                 {
                     pitch = (float)scnGame.instance.levelData.pitch / 100;
                     if (ADOBase.isCLSLevel) pitch *= (float)curSpd.GetValue(null);
-                    playbackSpeed = scnEditor.instance.playbackSpeed;
                     bpm = scnGame.instance.levelData.bpm * playbackSpeed * pitch;
                 }
                 else
                 {
                     pitch = scrConductor.instance.song.pitch;
-                    playbackSpeed = 1;
                     bpm = scrConductor.instance.bpm * pitch;
                 }
+                playbackSpeed = scnEditor.instance?.playbackSpeed ?? 1;
             }
             catch (Exception e)
             {

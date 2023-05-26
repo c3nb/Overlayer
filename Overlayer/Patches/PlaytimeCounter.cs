@@ -63,9 +63,8 @@ namespace Overlayer.Patches
                 }
                 else
                 {
-                    if (scnEditor.instance?.levelData == null)
-                        return;
-                    var levelData = scnEditor.instance.levelData;
+                    var levelData = scnGame.instance?.levelData ?? scnEditor.instance?.levelData;
+                    if (levelData == null) return;
                     MapID = DataInit.MakeHash(levelData.author, levelData.artist, levelData.song);
                     if (!PlayTimes.TryGetValue(ID(MapID), out _))
                         PlayTimes[ID(MapID)] = Persistence.generalPrefs.GetFloat(ID(MapID));

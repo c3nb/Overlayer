@@ -39,6 +39,7 @@ namespace Overlayer
             Text = ShadowText.NewText();
             Text.Updater = () =>
             {
+                //OverlayerDebug.Begin($"{config.Name} Update");
                 if (IsPlaying)
                 {
                     Text.Main.text = PlayingText.Replace();
@@ -49,6 +50,7 @@ namespace Overlayer
                     Text.Main.text = NotPlayingText.Replace();
                     Text.Shadow.text = ShadowNotPlayingText.Replace();
                 }
+                //OverlayerDebug.End();
             };
             Object.DontDestroyOnLoad(Text);
             Text.Init(config);

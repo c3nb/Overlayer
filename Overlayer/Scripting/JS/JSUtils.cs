@@ -22,6 +22,7 @@ namespace Overlayer.Scripting.JS
             var engine = new Engine(op => 
                 op.AllowClr(MiscUtils.loadedAsss)
                     .AllowReflection()
+                    .ClrSlowInvoke(true)
                     .Strict(false)
             );
             foreach (var tag in TagManager.All)

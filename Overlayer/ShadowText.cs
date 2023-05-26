@@ -104,7 +104,7 @@ namespace Overlayer
 
             GameObject shadowObject = new GameObject();
             shadowObject.transform.SetParent(PublicCanvas.transform);
-shadowObject.MakeFlexible();
+            shadowObject.MakeFlexible();
             Shadow = shadowObject.AddComponent<TextMeshProUGUI>();
             var font = FontManager.GetFont("Default");
             Shadow.font = font.fontTMP;
@@ -114,7 +114,7 @@ shadowObject.MakeFlexible();
 
             GameObject mainObject = new GameObject();
             mainObject.transform.SetParent(PublicCanvas.transform);
-mainObject.MakeFlexible();
+            mainObject.MakeFlexible();
             Main = mainObject.AddComponent<TextMeshProUGUI>();
             Main.font = font.fontTMP;
             Main.enableVertexGradient = true;
