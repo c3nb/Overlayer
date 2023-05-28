@@ -139,6 +139,44 @@ namespace Overlayer.Scripting
             return true;
         }
         [Api(SupportScript = ScriptType.JavaScript)]
+        public static bool Prefix(string typeColonMethodName, string[] argumentClrTypes, JsValue patch)
+        {
+            if (!(patch is FunctionInstance func)) return false;
+            var typemethod = typeColonMethodName.Split2(':');
+            var argTypes = argumentClrTypes.Select(MiscUtils.TypeByName).ToArray();
+            var target = MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15422, null, argTypes, null);
+            target ??= MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15420, null, argTypes, null);
+            if (target == null)
+            {
+                Main.Logger.Log(OverlayerDebug.Log($"{typeColonMethodName} Cannot Be Found."));
+                return false;
+            }
+            var wrap = func.Wrap(target, false);
+            if (wrap == null)
+                return false;
+            harmony.Patch(target, new HarmonyMethod(wrap));
+            return true;
+        }
+        [Api(SupportScript = ScriptType.JavaScript)]
+        public static bool Postfix(string typeColonMethodName, string[] argumentClrTypes, JsValue patch)
+        {
+            if (!(patch is FunctionInstance func)) return false;
+            var typemethod = typeColonMethodName.Split2(':');
+            var argTypes = argumentClrTypes.Select(MiscUtils.TypeByName).ToArray();
+            var target = MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15422, null, argTypes, null);
+            target ??= MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15420, null, argTypes, null);
+            if (target == null)
+            {
+                Main.Logger.Log(OverlayerDebug.Log($"{typeColonMethodName} Cannot Be Found."));
+                return false;
+            }
+            var wrap = func.Wrap(target, false);
+            if (wrap == null)
+                return false;
+            harmony.Patch(target, postfix: new HarmonyMethod(wrap));
+            return true;
+        }
+        [Api(SupportScript = ScriptType.JavaScript)]
         public static void GenerateProxy(string clrType) => JSUtils.BuildProxy(MiscUtils.TypeByName(clrType), Main.ScriptPath);
         [Api]
         public static object GetGlobalVariable(string name)
