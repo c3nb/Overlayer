@@ -11,12 +11,8 @@ using Jint.Native.Function;
 using Jint.Native;
 using Overlayer.Core.Utils;
 using Jint.Runtime.Interop;
-using Jint.Pooling;
 using Jint;
-using static Community.CsharpSqlite.Sqlite3;
 using IronPython.Runtime;
-using System.Runtime.InteropServices;
-using System.Reflection.Emit;
 
 namespace Overlayer.Scripting
 {

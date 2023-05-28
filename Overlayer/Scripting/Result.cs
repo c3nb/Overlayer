@@ -61,6 +61,7 @@ namespace Overlayer.Scripting
                 while ((line = sr.ReadLine()) != null)
                     if (!line.StartsWith("import"))
                         sb.AppendLine(line);
+                    else sb.AppendLine();
                 return sb.ToString();
             }
         }
