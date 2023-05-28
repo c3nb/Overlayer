@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using Esprima.Ast;
 using Overlayer.Core.Utils;
+using Jint.Native;
 
 namespace Overlayer.Scripting.JS
 {

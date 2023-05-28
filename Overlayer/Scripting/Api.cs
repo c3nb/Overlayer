@@ -106,8 +106,15 @@ namespace Overlayer.Scripting
         public static bool Prefix(string typeColonMethodName, JsValue patch)
         {
             if (!(patch is FunctionInstance func)) return false;
-            var target = AccessTools.Method(typeColonMethodName);
-            var wrap = func.Wrap(target, true);
+            var typemethod = typeColonMethodName.Split2(':');
+            var target = MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15422);
+            target ??= MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15420);
+            if (target == null)
+            {
+                Main.Logger.Log(OverlayerDebug.Log($"{typeColonMethodName} Cannot Be Found."));
+                return false;
+            }
+            var wrap = func.Wrap(target, false);
             if (wrap == null)
                 return false;
             harmony.Patch(target, new HarmonyMethod(wrap));
@@ -117,7 +124,14 @@ namespace Overlayer.Scripting
         public static bool Postfix(string typeColonMethodName, JsValue patch)
         {
             if (!(patch is FunctionInstance func)) return false;
-            var target = AccessTools.Method(typeColonMethodName);
+            var typemethod = typeColonMethodName.Split2(':');
+            var target = MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15422);
+            target ??= MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15420);
+            if (target == null)
+            {
+                Main.Logger.Log(OverlayerDebug.Log($"{typeColonMethodName} Cannot Be Found."));
+                return false;
+            }
             var wrap = func.Wrap(target, false);
             if (wrap == null)
                 return false;
