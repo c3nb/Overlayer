@@ -139,7 +139,7 @@ namespace Overlayer.Scripting
             return true;
         }
         [Api(SupportScript = ScriptType.JavaScript)]
-        public static bool Prefix(string typeColonMethodName, string[] argumentClrTypes, JsValue patch)
+        public static bool PrefixWithArgs(string typeColonMethodName, string[] argumentClrTypes, JsValue patch)
         {
             if (!(patch is FunctionInstance func)) return false;
             var typemethod = typeColonMethodName.Split2(':');
@@ -158,7 +158,7 @@ namespace Overlayer.Scripting
             return true;
         }
         [Api(SupportScript = ScriptType.JavaScript)]
-        public static bool Postfix(string typeColonMethodName, string[] argumentClrTypes, JsValue patch)
+        public static bool PostfixWithArgs(string typeColonMethodName, string[] argumentClrTypes, JsValue patch)
         {
             if (!(patch is FunctionInstance func)) return false;
             var typemethod = typeColonMethodName.Split2(':');
