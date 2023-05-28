@@ -110,7 +110,7 @@ namespace Overlayer.Scripting
                 Main.Logger.Log(OverlayerDebug.Log($"{typeColonMethodName} Cannot Be Found."));
                 return false;
             }
-            var wrap = func.Wrap(target, false);
+            var wrap = func.Wrap(target, true);
             if (wrap == null)
                 return false;
             harmony.Patch(target, new HarmonyMethod(wrap));
@@ -147,7 +147,7 @@ namespace Overlayer.Scripting
                 Main.Logger.Log(OverlayerDebug.Log($"{typeColonMethodName} Cannot Be Found."));
                 return false;
             }
-            var wrap = func.Wrap(target, false);
+            var wrap = func.Wrap(target, true);
             if (wrap == null)
                 return false;
             harmony.Patch(target, new HarmonyMethod(wrap));
