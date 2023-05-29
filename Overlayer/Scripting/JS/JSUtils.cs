@@ -24,6 +24,7 @@ namespace Overlayer.Scripting.JS
                 op.AllowClr(MiscUtils.loadedAsss)
                     .AllowReflection()
                     .ClrSlowInvoke(true)
+                    .PropertySafeAccess(true)
                     .Strict(false)
             );
             foreach (var tag in TagManager.All)
@@ -115,7 +116,7 @@ namespace Overlayer.Scripting.JS
             FIWrapper holder = new FIWrapper(func);
 
             TypeBuilder type = EmitUtils.Mod.DefineType(PatchUtils.TypeCount++.ToString(), TypeAttributes.Public);
-            var prmStrs = func.FunctionDeclaration.Params.Select(n => ((Identifier)n).Name);
+            var prmStrs = holder.args;
             ParameterInfo[] parameters = SelectActualParams(target, target.GetParameters(), prmStrs.ToArray());
             if (parameters == null) return null;
             Type[] paramTypes = parameters.Select(p => p.ParameterType).ToArray();
@@ -148,60 +149,54 @@ namespace Overlayer.Scripting.JS
             t.GetField("holder").SetValue(null, holder);
             return t.GetMethod("Wrapper");
         }
-        /// <param name="func">MUST RETURN CODE INSTRUCTION LIST</param>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public static MethodInfo WrapTranspiler(this FunctionInstance func, MethodBase target)
+        public static MethodInfo WrapTranspiler(this FunctionInstance func)
         {
             if (func == null) return null;
             FIWrapper holder = new FIWrapper(func);
 
             TypeBuilder type = EmitUtils.Mod.DefineType(PatchUtils.TypeCount++.ToString(), TypeAttributes.Public);
-            var prmStrs = func.FunctionDeclaration.Params.Select(n => ((Identifier)n).Name);
-            ParameterInfo[] parameters = SelectActualParams(target, target.GetParameters(), prmStrs.ToArray());
-            if (parameters == null) return null;
-            Type[] paramTypes = parameters.Select(p => p.ParameterType).ToArray();
-            MethodBuilder methodB = type.DefineMethod("Wrapper", MethodAttributes.Public | MethodAttributes.Static, typeof(List<CodeInstruction>), paramTypes);
+            MethodBuilder methodB = type.DefineMethod("Wrapper_Transpiler", MethodAttributes.Public | MethodAttributes.Static, typeof(IEnumerable<CodeInstruction>), 
+                new[] { typeof(IEnumerable<CodeInstruction>), typeof(MethodBase), typeof(ILGenerator) });
             FieldBuilder holderfld = type.DefineField("holder", typeof(FIWrapper), FieldAttributes.Public | FieldAttributes.Static);
 
             var il = methodB.GetILGenerator();
-            LocalBuilder arr = il.MakeArray<object>(parameters.Length);
-            int paramIndex = 1;
-            foreach (ParameterInfo param in parameters)
-            {
-                Type pType = param.ParameterType;
-                EmitUtils.IgnoreAccessCheck(pType);
-                methodB.DefineParameter(paramIndex++, ParameterAttributes.None, param.Name);
-                int pIndex = paramIndex - 2;
-                il.Emit(OpCodes.Ldloc, arr);
-                il.Emit(OpCodes.Ldc_I4, pIndex);
-                il.Emit(OpCodes.Ldarg, pIndex);
-                if (pType == typeof(IEnumerable<CodeInstruction>))
-                    il.Emit(OpCodes.Call, castToArr);
-                il.Emit(OpCodes.Stelem_Ref);
-            }
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Ldsfld, holderfld);
-            il.Emit(OpCodes.Ldloc, arr);
-            il.Emit(OpCodes.Call, FIWrapper.CallMethod);
-            il.Emit(OpCodes.Call, castToEnumerable);
+            il.Emit(OpCodes.Call, transpilerAdapter);
             il.Emit(OpCodes.Ret);
 
             Type t = type.CreateType();
             t.GetField("holder").SetValue(null, holder);
-            return t.GetMethod("Wrapper");
+            return t.GetMethod("Wrapper_Transpiler");
+        }
+        public static IEnumerable<CodeInstruction> TranspilerAdapter(IEnumerable<CodeInstruction> instructions, MethodBase original, ILGenerator il, FIWrapper func)
+        {
+            object[] args = new object[func.args.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                var argName = func.args[i];
+                if (argName.StartsWith("il"))
+                    args[i] = il;
+                else if (argName.StartsWith("o") ||
+                    argName.StartsWith("m"))
+                    args[i] = original;
+                else if (argName.StartsWith("ins"))
+                    args[i] = instructions.ToArray();
+                else args[i] = JsValue.Undefined;
+            }
+            var result = func.CallRaw(args);
+            if (IsNull(result)) return Enumerable.Empty<CodeInstruction>();
+            else return result.AsArray().Select(v => (CodeInstruction)v.ToObject());
         }
         public static bool IsNull(object obj)
-            => obj is JsValue jv && (jv == JsValue.Undefined || jv == JsValue.Null);
+            => obj == null || (obj is JsValue jv && (jv == JsValue.Undefined || jv == JsValue.Null));
         public static bool IsTrue(object obj)
-            => IsNull(obj) || obj == null || obj.Equals(true);
-        public static CodeInstruction[] CastEnumerableToArray(IEnumerable<CodeInstruction> ci)
-            => ci.ToArray();
-        public static IEnumerable<CodeInstruction> CastObjectToEnumerable(object ci)
-            => ci as CodeInstruction[];
+            => IsNull(obj) || obj.Equals(true);
         static readonly MethodInfo isnull = typeof(JSUtils).GetMethod("IsNull", AccessTools.all);
         static readonly MethodInfo istrue = typeof(JSUtils).GetMethod("IsTrue", AccessTools.all);
-        static readonly MethodInfo castToArr = typeof(JSUtils).GetMethod("CastEnumerableToArray", AccessTools.all);
-        static readonly MethodInfo castToEnumerable = typeof(JSUtils).GetMethod("CastObjectToEnumerable", AccessTools.all);
+        static readonly MethodInfo transpilerAdapter = typeof(JSUtils).GetMethod("TranspilerAdapter", AccessTools.all);
         class CustomParameter : ParameterInfo
         {
             public CustomParameter(Type type, string name)

@@ -13,6 +13,7 @@ using Overlayer.Core.Utils;
 using Jint.Runtime.Interop;
 using Jint;
 using IronPython.Runtime;
+using System.Text;
 
 namespace Overlayer.Scripting
 {
@@ -97,7 +98,29 @@ namespace Overlayer.Scripting
             TileInfos = new TileInfo[0];
         }
         [Api]
-        public static void Log(object obj) => Main.Logger.Log(OverlayerDebug.Log(obj).ToString());
+        public static void Log(object obj) => Main.Logger.Log(OverlayerDebug.Log(obj)?.ToString());
+        [Api]
+        public static string GetGenericClrTypeString(string genericType, string[] genericArgs)
+        {
+            string AggregateGenericArgs(Type[] types)
+            {
+                StringBuilder sb = new StringBuilder();
+                int length = types.Length;
+                for (int i = 0; i < length; i++)
+                {
+                    Type type = types[i];
+                    sb.Append($"[{type?.FullName}, {type?.Assembly.GetName().Name}]");
+                    if (i < length - 1)
+                        sb.Append(',');
+                }
+                return sb.ToString();
+            }
+            var t = MiscUtils.TypeByName(genericType);
+            var args = genericArgs.Select(MiscUtils.TypeByName);
+            return $"{t?.FullName}[{AggregateGenericArgs(args.ToArray())}]";
+        }
+        [Api]
+        public static string ToString(object obj) => obj?.ToString();
         [Api(SupportScript = ScriptType.JavaScript)]
         public static bool Prefix(string typeColonMethodName, JsValue patch)
         {
@@ -132,6 +155,24 @@ namespace Overlayer.Scripting
             if (wrap == null)
                 return false;
             harmony.Patch(target, postfix: new HarmonyMethod(wrap));
+            return true;
+        }
+        [Api(SupportScript = ScriptType.JavaScript)]
+        public static bool Transpiler(string typeColonMethodName, JsValue patch)
+        {
+            if (!(patch is FunctionInstance func)) return false;
+            var typemethod = typeColonMethodName.Split2(':');
+            var target = MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15422);
+            target ??= MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15420);
+            if (target == null)
+            {
+                Main.Logger.Log(OverlayerDebug.Log($"{typeColonMethodName} Cannot Be Found."));
+                return false;
+            }
+            var wrap = func.WrapTranspiler();
+            if (wrap == null)
+                return false;
+            harmony.Patch(target, transpiler: new HarmonyMethod(wrap));
             return true;
         }
         [Api(SupportScript = ScriptType.JavaScript)]
@@ -173,6 +214,25 @@ namespace Overlayer.Scripting
             return true;
         }
         [Api(SupportScript = ScriptType.JavaScript)]
+        public static bool TranspilerWithArgs(string typeColonMethodName, string[] argumentClrTypes, JsValue patch)
+        {
+            if (!(patch is FunctionInstance func)) return false;
+            var typemethod = typeColonMethodName.Split2(':');
+            var argTypes = argumentClrTypes.Select(MiscUtils.TypeByName).ToArray();
+            var target = MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15422, null, argTypes, null);
+            target ??= MiscUtils.TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15420, null, argTypes, null);
+            if (target == null)
+            {
+                Main.Logger.Log(OverlayerDebug.Log($"{typeColonMethodName} Cannot Be Found."));
+                return false;
+            }
+            var wrap = func.WrapTranspiler();
+            if (wrap == null)
+                return false;
+            harmony.Patch(target, transpiler: new HarmonyMethod(wrap));
+            return true;
+        }
+        [Api(SupportScript = ScriptType.JavaScript)]
         public static void GenerateProxy(string clrType) => JSUtils.BuildProxy(MiscUtils.TypeByName(clrType), Main.ScriptPath);
         [Api]
         public static object GetGlobalVariable(string name)
@@ -193,7 +253,7 @@ namespace Overlayer.Scripting
             Tag tag = new Tag(name);
             if (!(func is FunctionInstance fi)) return;
             FIWrapper wrapper = new FIWrapper(fi);
-            if (fi.FunctionDeclaration.Params.Count() == 1)
+            if (wrapper.args.Length == 1)
                 tag.SetGetter((string o) => wrapper.Call(o).ToString());
             else tag.SetGetter(new Func<string>(() => wrapper.Call().ToString()));
             tag.Build();
