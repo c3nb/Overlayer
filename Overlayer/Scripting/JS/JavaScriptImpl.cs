@@ -1,13 +1,10 @@
-﻿using Esprima;
-using Jint;
+﻿using Jint;
 using Overlayer.Core;
 using Overlayer.Core.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Overlayer.Scripting.JS
 {
@@ -22,11 +19,11 @@ namespace Overlayer.Scripting.JS
                 Type rt = tag.Getter.ReturnType;
                 ParameterInfo[] tagOptions = tag.Getter.GetParameters();
                 if (tag.HasOption)
-                    sb.AppendLine(GetPRTypeHintComment(rt, "", null, null, null, (tagOptions[0].ParameterType, tagOptions[0].Name.IfNullOrEmpty("digits"))))
+                    sb.AppendLine(GetPRTypeHintComment(rt, "", null, (tagOptions[0].ParameterType, tagOptions[0].Name.IfNullOrEmpty("digits"))))
                         .AppendLine($"function {tag.Name}({tagOptions[0].Name.IfNullOrEmpty("digits")});");
-                else sb.AppendLine(GetPRTypeHintComment(rt, "", null, null, null))
+                else sb.AppendLine(GetPRTypeHintComment(rt, "", null))
                         .AppendLine($"function {tag.Name}();");
-            }    
+            }
             foreach (var (attr, api) in Api.GetApiMethodsWithAttr(ScriptType))
             {
                 Type rt = api.ReturnType;
@@ -34,13 +31,13 @@ namespace Overlayer.Scripting.JS
                 if (options.Length > 0)
                 {
                     var opt = options.Select(p => (p.ParameterType, p.Name)).Where(t => t.ParameterType != typeof(Engine)).ToArray();
-                    sb.AppendLine(GetPRTypeHintComment(rt, "", attr.Comment, attr.JSParamComment, attr.JSReturnComment, opt));
+                    sb.AppendLine(GetPRTypeHintComment(rt, "", attr, opt));
                     var optStr = opt.Aggregate("", (c, n) => $"{c}{n.Name}, ");
                     sb.AppendLine($"function {api.Name}({optStr.Remove(optStr.Length - 2)});");
                 }
                 else
                 {
-                    sb.AppendLine(GetPRTypeHintComment(rt, "", attr.Comment, attr.JSParamComment, attr.JSReturnComment));
+                    sb.AppendLine(GetPRTypeHintComment(rt, "", attr));
                     sb.AppendLine($"function {api.Name}();");
                 }
             }
@@ -48,31 +45,34 @@ namespace Overlayer.Scripting.JS
                 JSUtils.WriteType(t, sb, attr.Name);
             return sb.ToString();
         }
-        private static string GetPRTypeHintComment(Type returnType, string indent, string[] comments, string[] paramComments, string returnComment, params (Type, string)[] parameters)
+        private static string GetPRTypeHintComment(Type returnType, string indent, ApiAttribute attr, params (Type, string)[] parameters)
         {
-            int pcLength = paramComments != null ? paramComments.Length : -1;
+            int pcLength = (attr?.JSParamComment != null ? attr?.JSParamComment.Length : -1) ?? -1;
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(indent + "/**");
-            if (comments != null)
+            if (attr?.Comment != null)
             {
-                for (int i = 0; i < comments.Length; i++)
+                for (int i = 0; i < attr.Comment.Length; i++)
                 {
-                    sb.AppendLine(indent + $" * {comments[i]}");
-                    if (i < comments.Length - 1)
+                    sb.AppendLine(indent + $" * {attr.Comment[i]}");
+                    if (i < attr.Comment.Length - 1)
                         sb.AppendLine(" *");
                 }
             }
             for (int i = 0; i < parameters.Length; i++)
             {
                 var param = parameters[i];
-                sb.AppendLine(indent + $" * @param {{{GetTypeHintCode(param.Item1)}}} {param.Item2}{(pcLength - 1 >= i ? $" {paramComments[i]}" : "")}");
+                sb.AppendLine(indent + $" * @param {{{GetTypeHintCode(param.Item1)}}} {param.Item2}{(pcLength - 1 >= i ? $" {attr?.JSParamComment[i]}" : "")}");
             }
-            sb.AppendLine(indent + $" * @returns {{{GetTypeHintCode(returnType)}}}{(returnComment != null ? $" {returnComment}" : "")}");
+            sb.AppendLine(indent + $" * @returns {{{GetTypeHintCode(returnType)}}}{(attr?.JSReturnComment != null ? $" {attr?.JSReturnComment}" : "")}");
             sb.Append(indent + " */");
             return sb.ToString();
         }
         private static string GetTypeHintCode(Type type)
         {
+            var api = Api.Get(type);
+            if (api?.Name != null) 
+                return api.Name;
             if (type == typeof(void))
                 return "void";
             else if (type == typeof(Array))

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System;
 using Py = IronPython.Hosting.Python;
-using Overlayer.Core.ExceptionHandling;
+using System.IO;
 using IronPython.Runtime.Types;
 using Overlayer.Scripting.JS;
 using System.Reflection;
@@ -32,7 +32,7 @@ namespace Overlayer.Scripting.Python
                 apiInitialized = true;
             }
         }
-        public static Result CompileExec(string path)
+        public static Result Compile(string path)
         {
             Prepare();
             var engine = CreateEngine(path, out var source);
@@ -40,23 +40,7 @@ namespace Overlayer.Scripting.Python
             var scr = source.Compile();
             return new Result(scr, scope);
         }
-        public static Result CompileEval(string path)
-        {
-            Prepare();
-            var engine = CreateEngine(path, out var source);
-            var scope = engine.CreateScope();
-            var scr = source.Compile();
-            return new Result(scr, scope);
-        }
-        public static Result CompileExecSource(string source)
-        {
-            Prepare();
-            var engine = CreateEngineFromSource(source, out var scrSource);
-            var scope = engine.CreateScope();
-            var scr = scrSource.Compile();
-            return new Result(scr, scope);
-        }
-        public static Result CompileEvalSource(string source)
+        public static Result CompileSource(string source)
         {
             Prepare();
             var engine = CreateEngineFromSource(source, out var scrSource);
@@ -68,6 +52,13 @@ namespace Overlayer.Scripting.Python
         public static ScriptEngine CreateEngine(string path, out ScriptSource source)
         {
             var engine = Py.CreateEngine();
+            if (!File.Exists(path))
+                path = Path.Combine(Main.ScriptPath, path);
+            if (!File.Exists(path))
+            {
+                source = null;
+                return null;
+            }
             source = engine.CreateScriptSourceFromFile(path, Encoding.UTF8, SourceCodeKind.AutoDetect);
             ScriptScope scope = Py.GetBuiltinModule(engine);
             scope.SetVariable("__import__", new ImportDelegate(ResolveImport));
@@ -142,12 +133,14 @@ namespace Overlayer.Scripting.Python
                 if (method.IsSpecialName && !method.Name.StartsWith("add_") && !method.Name.StartsWith("remove_"))
                     continue;
                 var prms = method.GetParameters();
-                if (method.IsStatic)
+                var isStatic = method.IsStatic;
+                if (isStatic)
                     sb.AppendLine("  @staticmethod");
+                var accessor = isStatic ? tName : "self";
                 if (prms.Length > 0)
-                    sb.AppendLine($"  def {method.Name}({PythonImpl.GetArgStr(prms)}) -> {PythonImpl.GetTypeStr(method.ReturnType)}: {(method.ReturnType != typeof(void) ? "return " : "")}{tName}.{method.Name}({PythonImpl.GetCallArgStr(prms)})");
+                    sb.AppendLine($"  def {method.Name}({PythonImpl.GetArgStr(prms, isStatic)}) -> {PythonImpl.GetTypeStr(method.ReturnType)}: {(method.ReturnType != typeof(void) ? "return " : "")}{accessor}.{method.Name}({PythonImpl.GetCallArgStr(prms)})");
                 else
-                    sb.AppendLine($"  def {method.Name}() -> {PythonImpl.GetTypeStr(method.ReturnType)}: {(method.ReturnType != typeof(void) ? "return " : "")}{tName}.{method.Name}()");
+                    sb.AppendLine($"  def {method.Name}({PythonImpl.GetArgStr(prms, isStatic)}) -> {PythonImpl.GetTypeStr(method.ReturnType)}: {(method.ReturnType != typeof(void) ? "return " : "")}{accessor}.{method.Name}()");
             }
             #endregion
         }

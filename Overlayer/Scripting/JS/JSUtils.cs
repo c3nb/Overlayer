@@ -9,9 +9,10 @@ using Jint;
 using Jint.Native.Function;
 using System.IO;
 using System.Text;
-using Esprima.Ast;
 using Overlayer.Core.Utils;
 using Jint.Native;
+using Jint.Runtime.Interop;
+using Jint.Runtime.References;
 
 namespace Overlayer.Scripting.JS
 {
@@ -20,7 +21,7 @@ namespace Overlayer.Scripting.JS
         static Dictionary<string, object> apis;
         public static Engine Prepare()
         {
-            var engine = new Engine(op => 
+            var engine = new Engine(op =>
                 op.AllowClr(MiscUtils.loadedAsss)
                     .AllowReflection()
                     .ClrSlowInvoke(true)
@@ -46,7 +47,16 @@ namespace Overlayer.Scripting.JS
             op.Interop.AllowSystemReflection = true;
             return op;
         }
-        public static Result Compile(string path) => new Result(Prepare(), File.ReadAllText(path));
+        public static Result Compile(string path)
+        {
+            string source;
+            if (File.Exists(path))
+                source = File.ReadAllText(path);
+            else if (File.Exists(path = Path.Combine(Main.ScriptPath, path)))
+                source = File.ReadAllText(path);
+            else return null;
+            return new Result(Prepare(), source);
+        }
         public static Result CompileSource(string source) => new Result(Prepare(), source);
         static ParameterInfo[] SelectActualParams(MethodBase m, ParameterInfo[] p, string[] n)
         {
@@ -197,14 +207,6 @@ namespace Overlayer.Scripting.JS
         static readonly MethodInfo isnull = typeof(JSUtils).GetMethod("IsNull", AccessTools.all);
         static readonly MethodInfo istrue = typeof(JSUtils).GetMethod("IsTrue", AccessTools.all);
         static readonly MethodInfo transpilerAdapter = typeof(JSUtils).GetMethod("TranspilerAdapter", AccessTools.all);
-        class CustomParameter : ParameterInfo
-        {
-            public CustomParameter(Type type, string name)
-            {
-                ClassImpl = type;
-                NameImpl = name;
-            }
-        }
         private static string GetPRTypeHintComment(Type returnType, string indent, params (Type, string)[] parameters)
         {
             StringBuilder sb = new StringBuilder();
@@ -220,6 +222,9 @@ namespace Overlayer.Scripting.JS
         }
         private static string GetTypeHintCode(Type type)
         {
+            var api = Api.Get(type);
+            if (api?.Name != null)
+                return api.Name;
             if (type == typeof(void))
                 return "void";
             else if (type == typeof(Array))
@@ -485,7 +490,7 @@ namespace Overlayer.Scripting.JS
                     continue;
                 if (method.IsSpecialName && !method.Name.StartsWith("add_") && !method.Name.StartsWith("remove_"))
                     continue;
-                var prms = method.GetParameters().Where(p => p.ParameterType != typeof(Engine));
+                var prms = method.GetParameters().Where(p => p.ParameterType != typeof(Engine) && p.ParameterType != typeof(JSEngine.ScriptEngine));
                 var tuples = prms.Select(p => (p.ParameterType, p.Name));
                 sb.AppendLine(GetPRTypeHintComment(method.ReturnType, "  ", tuples.ToArray()));
                 var prmString = prms.Aggregate("", (c, n) => $"{c}{n.Name}, ");

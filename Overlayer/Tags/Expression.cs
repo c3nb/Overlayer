@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System;
 using Overlayer.Core.Tags;
 using Overlayer.Scripting;
 using Overlayer.Scripting.JS;

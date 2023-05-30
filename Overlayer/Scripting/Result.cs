@@ -4,42 +4,71 @@ using System;
 using Esprima;
 using System.IO;
 using System.Text;
-using Jint.Native;
-using Overlayer.Core;
-using System.Runtime;
+using JE = JSEngine;
+using Overlayer.Scripting.CJS;
 
 namespace Overlayer.Scripting
 {
     public class Result : IDisposable
     {
-        bool js;
+        ScriptType sType;
         CompiledCode code;
         ScriptScope scope;
+        internal JE.ScriptEngine cjsEngine;
+        TextSource cjsScr;
+        JE.CompiledEval cjsEval;
+        JE.CompiledScript cjsExec;
         Engine engine;
         Esprima.Ast.Script scr;
         public Result(CompiledCode code, ScriptScope scope)
         {
-            js = false;
+            sType = ScriptType.Python;
             this.code = code;
             this.scope = scope;
         }
         public Result(Engine engine, string expr)
         {
-            js = true;
+            sType = ScriptType.JavaScript;
             this.engine = engine;
             scr = new Esprima.Ast.Script(new JavaScriptParser().ParseScript(RemoveImports(expr)).Body, false);
         }
+        public Result(JE.ScriptEngine engine, string expr)
+        {
+            sType = ScriptType.CompilableJS;
+            cjsEngine = engine;
+            cjsScr = new TextSource(expr, engine);
+        }
         public object Eval()
         {
-            if (js)
-                return engine.Evaluate(scr).ToObject();
-            return code.Execute(scope);
+            switch (sType)
+            {
+                case ScriptType.Python:
+                    return code.Execute(scope);
+                case ScriptType.JavaScript:
+                    return engine.Evaluate(scr).ToObject();
+                case ScriptType.CompilableJS:
+                    if (cjsEval == null)
+                        cjsEval = JE.CompiledEval.Compile(cjsScr, JE.JS.Option);
+                    return cjsEval.EvaluateFastInternal(cjsEngine);
+                default: return null;
+            }
         }
         public void Exec()
         {
-            if (js)
-                engine.Execute(scr);
-            else code.Execute(scope);
+            switch (sType)
+            {
+                case ScriptType.Python:
+                    code.Execute(scope);
+                    break;
+                case ScriptType.JavaScript:
+                    engine.Execute(scr);
+                    break;
+                case ScriptType.CompilableJS:
+                    if (cjsExec == null)
+                        cjsExec = JE.CompiledScript.Compile(cjsScr, JE.JS.Option);
+                    cjsExec.ExecuteFastInternal(cjsEngine);
+                    break;
+            }
         }
         public void Dispose() => Dispose(false);
         void Dispose(bool byFinalizer)
@@ -48,6 +77,10 @@ namespace Overlayer.Scripting
             scope = null;
             engine = null;
             scr = null;
+            cjsEngine = null;
+            cjsScr = null;
+            cjsEval = null;
+            cjsExec = null;
             if (!byFinalizer)
                 GC.SuppressFinalize(this);
         }

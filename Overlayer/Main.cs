@@ -11,6 +11,7 @@ using Overlayer.Core.Translation;
 using Overlayer.Scripting;
 using UnityEngine;
 using Overlayer.Scripting.JS;
+using Overlayer.Scripting.CJS;
 using Overlayer.Scripting.Python;
 using UnityEngine.SceneManagement;
 using Overlayer.Tags;
@@ -235,6 +236,7 @@ namespace Overlayer
                 Directory.CreateDirectory(folderPath);
             OverlayerDebug.Log($"Generating Script Implementations..");
             await Task.Run(() => File.WriteAllText(Path.Combine(folderPath, "Impl.js"), new JavaScriptImpl().Generate()));
+            await Task.Run(() => File.WriteAllText(Path.Combine(folderPath, "CImpl.js"), new CompilableJavaScriptImpl().Generate()));
             await Task.Run(() => File.WriteAllText(Path.Combine(folderPath, "Impl.py"), new PythonImpl().Generate()));
             OverlayerDebug.Log($"Preparing Executing Scripts..");
             Api.Clear();
@@ -243,8 +245,11 @@ namespace Overlayer
             foreach (string script in Directory.GetFiles(folderPath))
             {
                 var nameWithoutExt = Path.GetFileNameWithoutExtension(script);
-                if (nameWithoutExt == "Impl") continue;
+                if (nameWithoutExt == "Impl" ||
+                    nameWithoutExt == "CImpl") 
+                    continue;
                 if (nameWithoutExt.EndsWith("_Proxy")) continue;
+                if (nameWithoutExt.EndsWith("_Compilable")) continue;
                 ScriptType sType = Script.GetScriptType(script);
                 if (sType == ScriptType.None) continue;
                 var name = Path.GetFileName(script);
@@ -263,7 +268,7 @@ namespace Overlayer
             {
                 try
                 {
-                    var result = Script.CompileExec(script, sType);
+                    var result = Script.Compile(script, sType);
                     result.Exec();
                     result.Dispose();
                     result = null;

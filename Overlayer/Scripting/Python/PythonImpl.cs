@@ -26,10 +26,10 @@ namespace Overlayer.Scripting.Python
                 else
                     sb.AppendLine($"def {tag.Name}() -> {GetTypeStr(tag.Getter.ReturnType)}: return {tag.Name}()");
             }
-            foreach (var (attr, api) in Api.GetApiMethodsWithAttr(ScriptType))
-                AppendFunction4(sb, attr, api);
             foreach (var (attr, t) in Api.GetApiTypesWithAttr(ScriptType))
                 PythonUtils.WriteType(t, sb, attr.Name);
+            foreach (var (attr, api) in Api.GetApiMethodsWithAttr(ScriptType))
+                AppendFunction4(sb, attr, api);
             return sb.ToString();
         }
         public static void AppendFunction4(StringBuilder sb, ApiAttribute attr, MethodInfo api)
@@ -44,9 +44,11 @@ namespace Overlayer.Scripting.Python
                     .Append(attr.Comment != null ? $"    \"\"\"\n    {string.Join("\\n\n    ", attr.Comment)}\n    \"\"\"\n" : "")
                     .AppendLine($"    {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}()");
         }
-        public static string GetArgStr(ParameterInfo[] args)
+        public static string GetArgStr(ParameterInfo[] args, bool staticFunc = true)
         {
             StringBuilder sb = new StringBuilder();
+            if (!staticFunc)
+                sb.Append("self, ");
             foreach (var arg in args)
                 sb.Append($"{arg.Name.IfNullOrEmpty("digits")}:{GetTypeStr(arg.ParameterType)}, ");
             var result = sb.ToString();
