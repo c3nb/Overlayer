@@ -207,62 +207,6 @@ namespace Overlayer.Scripting.JS
         static readonly MethodInfo isnull = typeof(JSUtils).GetMethod("IsNull", AccessTools.all);
         static readonly MethodInfo istrue = typeof(JSUtils).GetMethod("IsTrue", AccessTools.all);
         static readonly MethodInfo transpilerAdapter = typeof(JSUtils).GetMethod("TranspilerAdapter", AccessTools.all);
-        private static string GetPRTypeHintComment(Type returnType, string indent, params (Type, string)[] parameters)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(indent + "/**");
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                var param = parameters[i];
-                sb.AppendLine(indent + $" * @param {{{GetTypeHintCode(param.Item1)}}} {param.Item2}");
-            }
-            sb.AppendLine(indent + $" * @returns {{{GetTypeHintCode(returnType)}}}");
-            sb.Append(indent + " */");
-            return sb.ToString();
-        }
-        private static string GetTypeHintCode(Type type)
-        {
-            var api = Api.Get(type);
-            if (api?.Name != null)
-                return api.Name;
-            if (type == typeof(void))
-                return "void";
-            else if (type == typeof(Array))
-                return "any[]";
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Empty:
-                case TypeCode.DBNull:
-                    return "null";
-                case TypeCode.Boolean:
-                    return "boolean";
-                case TypeCode.SByte:
-                case TypeCode.Byte:
-                case TypeCode.Int16:
-                case TypeCode.UInt16:
-                case TypeCode.Int32:
-                case TypeCode.UInt32:
-                case TypeCode.Int64:
-                case TypeCode.UInt64:
-                case TypeCode.Single:
-                case TypeCode.Double:
-                case TypeCode.Decimal:
-                    return "number";
-                case TypeCode.DateTime:
-                    return "Date";
-                case TypeCode.Char:
-                case TypeCode.String:
-                    return "string";
-                case TypeCode.Object:
-                    if (type.Namespace != null)
-                        return (type.FullName?.Replace(type.Namespace + ".", "").Replace('+', '.') ?? type.Name).RemoveAfter("`");
-                    else return type.Name.RemoveAfter("`");
-                default:
-                    return "undefined";
-            }
-        }
-        private static string GetPTypeHintComment(Type type, string name) => $"/**@param {{{GetTypeHintCode(type)}}} {name}*/";
-        private static string GetTypeHintComment(Type type) => $"/**@type {{{GetTypeHintCode(type)}}}*/";
         public static string RemoveAfter(this string str, string after)
         {
             int index = str.IndexOf(after);
@@ -339,7 +283,7 @@ namespace Overlayer.Scripting.JS
                     if (field.Name.StartsWith("<"))
                         continue;
                     if (field.IsStatic) continue;
-                    sb.AppendLine("    " + GetTypeHintComment(field.FieldType));
+                    sb.AppendLine("    " + JavaScriptImpl.GetTypeHintComment(field.FieldType));
                     sb.AppendLine($"    this.{field.Name} = null;");
                 }
                 foreach (var field in type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
@@ -347,7 +291,7 @@ namespace Overlayer.Scripting.JS
                     if (field.Name.StartsWith("<"))
                         continue;
                     if (field.IsStatic) continue;
-                    sb.AppendLine("    " + GetTypeHintComment(field.FieldType));
+                    sb.AppendLine("    " + JavaScriptImpl.GetTypeHintComment(field.FieldType));
                     sb.AppendLine($"    this.#{field.Name} = null;");
                 }
                 sb.AppendLine("  }");
@@ -357,14 +301,14 @@ namespace Overlayer.Scripting.JS
                 {
                     if (field.Name.StartsWith("<"))
                         continue;
-                    sb.AppendLine("  " + GetTypeHintComment(field.FieldType));
+                    sb.AppendLine("  " + JavaScriptImpl.GetTypeHintComment(field.FieldType));
                     sb.AppendLine($"  static {field.Name};");
                 }
                 foreach (var field in type.GetFields(BindingFlags.NonPublic | BindingFlags.Static))
                 {
                     if (field.Name.StartsWith("<"))
                         continue;
-                    sb.AppendLine("  " + GetTypeHintComment(field.FieldType));
+                    sb.AppendLine("  " + JavaScriptImpl.GetTypeHintComment(field.FieldType));
                     sb.AppendLine($"  static #{field.Name};");
                 }
                 #endregion
@@ -378,14 +322,14 @@ namespace Overlayer.Scripting.JS
                     var setter = prop.GetSetMethod(true);
                     if (getter != null)
                     {
-                        sb.AppendLine("  " + GetTypeHintComment(prop.PropertyType));
+                        sb.AppendLine("  " + JavaScriptImpl.GetTypeHintComment(prop.PropertyType));
                         if (getter.IsStatic)
                             sb.AppendLine($"  static get {name}() {{}}");
                         else sb.AppendLine($"  get {name}() {{}}");
                     }
                     if (setter != null)
                     {
-                        sb.AppendLine("  " + GetPTypeHintComment(prop.PropertyType, "value"));
+                        sb.AppendLine("  " + JavaScriptImpl.GetPTypeHintComment(prop.PropertyType, "value"));
                         if (getter.IsStatic)
                             sb.AppendLine($"  static set {name}(value) {{}}");
                         else sb.AppendLine($"  set {name}(value) {{}}");
@@ -400,14 +344,14 @@ namespace Overlayer.Scripting.JS
                     var setter = prop.GetSetMethod(true);
                     if (getter != null)
                     {
-                        sb.AppendLine("  " + GetTypeHintComment(prop.PropertyType));
+                        sb.AppendLine("  " + JavaScriptImpl.GetTypeHintComment(prop.PropertyType));
                         if (getter.IsStatic)
                             sb.AppendLine($"  static get #{name}() {{}}");
                         else sb.AppendLine($"  get #{name}() {{}}");
                     }
                     if (setter != null)
                     {
-                        sb.AppendLine("  " + GetPTypeHintComment(prop.PropertyType, "value"));
+                        sb.AppendLine("  " + JavaScriptImpl.GetPTypeHintComment(prop.PropertyType, "value"));
                         if (getter.IsStatic)
                             sb.AppendLine($"  static set #{name}(value) {{}}");
                         else sb.AppendLine($"  set #{name}(value) {{}}");
@@ -423,7 +367,7 @@ namespace Overlayer.Scripting.JS
                         continue;
                     var prms = method.GetParameters();
                     var tuples = prms.Select(p => (p.ParameterType, p.Name));
-                    sb.AppendLine(GetPRTypeHintComment(method.ReturnType, "  ", tuples.ToArray()));
+                    sb.AppendLine(JavaScriptImpl.GetPRTypeHintComment(method.ReturnType, "  ", Api.Get(method), tuples.ToArray()));
                     var prmString = prms.Aggregate("", (c, n) => $"{c}{n.Name}, ");
                     if (prmString.Length > 2)
                         prmString = prmString.Remove(prmString.Length - 2);
@@ -440,7 +384,7 @@ namespace Overlayer.Scripting.JS
                         continue;
                     var prms = method.GetParameters();
                     var tuples = prms.Select(p => (p.ParameterType, p.Name));
-                    sb.AppendLine(GetPRTypeHintComment(method.ReturnType, "  ", tuples.ToArray()));
+                    sb.AppendLine(JavaScriptImpl.GetPRTypeHintComment(method.ReturnType, "  ", Api.Get(method), tuples.ToArray()));
                     var prmString = prms.Aggregate("", (c, n) => $"{c}{n.Name}, ");
                     if (prmString.Length > 2)
                         prmString = prmString.Remove(prmString.Length - 2);
@@ -469,7 +413,7 @@ namespace Overlayer.Scripting.JS
                 if (field.Name.StartsWith("<"))
                     continue;
                 if (field.IsStatic) continue;
-                sb.AppendLine("    " + GetTypeHintComment(field.FieldType));
+                sb.AppendLine("    " + JavaScriptImpl.GetTypeHintComment(field.FieldType));
                 sb.AppendLine($"    this.{field.Name} = null;");
             }
             sb.AppendLine("  }");
@@ -478,7 +422,7 @@ namespace Overlayer.Scripting.JS
             {
                 if (field.Name.StartsWith("<"))
                     continue;
-                sb.AppendLine("  " + GetTypeHintComment(field.FieldType));
+                sb.AppendLine("  " + JavaScriptImpl.GetTypeHintComment(field.FieldType));
                 sb.AppendLine($"  static {field.Name};");
             }
             #endregion
@@ -492,7 +436,7 @@ namespace Overlayer.Scripting.JS
                     continue;
                 var prms = method.GetParameters().Where(p => p.ParameterType != typeof(Engine) && p.ParameterType != typeof(JSEngine.ScriptEngine));
                 var tuples = prms.Select(p => (p.ParameterType, p.Name));
-                sb.AppendLine(GetPRTypeHintComment(method.ReturnType, "  ", tuples.ToArray()));
+                sb.AppendLine(JavaScriptImpl.GetPRTypeHintComment(method.ReturnType, "  ", Api.Get(method), tuples.ToArray()));
                 var prmString = prms.Aggregate("", (c, n) => $"{c}{n.Name}, ");
                 if (prmString.Length > 2)
                     prmString = prmString.Remove(prmString.Length - 2);

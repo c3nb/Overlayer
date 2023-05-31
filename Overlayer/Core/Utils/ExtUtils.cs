@@ -33,6 +33,8 @@ namespace Overlayer.Core.Utils
         public static string RemoveLast(this string s, int count) => s.Remove(s.Length - count - 1);
         public static double Round(this double value, int digits) => digits < 0 ? value : Math.Round(value, digits);
         public static float Round(this float value, int digits) => digits < 0 ? value : (float)Math.Round((double)value, digits);
+        public static double Round(this double? value, int digits) => value.HasValue ? (digits < 0 ? value.Value : Math.Round(value.Value, digits)) : 0;
+        public static float Round(this float? value, int digits) => value.HasValue ? (digits < 0 ? value.Value : (float)Math.Round((double)value.Value, digits)) : 0;
         public static async void RunAsynchronously(this Task task, TimeSpan? timeout = null)
         {
             if (timeout.HasValue)

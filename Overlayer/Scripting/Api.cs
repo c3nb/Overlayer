@@ -17,8 +17,6 @@ using System.Text;
 using JE = JSEngine;
 using JEL = JSEngine.Library;
 using Overlayer.Scripting.CJS;
-using Overlayer.Core.ExceptionHandling;
-using Esprima.Ast;
 
 namespace Overlayer.Scripting
 {
@@ -87,6 +85,14 @@ namespace Overlayer.Scripting
         public static bool IsContains(ScriptType type, Type t) => tcache[type].FindIndex(tuple => tuple.Item2.FullName == t.FullName) >= 0;
         public static bool IsContains(ScriptType type, MethodInfo m) => mcache[type].FindIndex(tuple => tuple.Item2 == m) >= 0;
         public static ApiAttribute Get(Type t) => tAttrCache.TryGetValue(t, out var attr) ? attr : null;
+        public static ApiAttribute Get(MethodInfo m)
+        {
+            if (mAttrCache.TryGetValue(m, out var attr))
+                return attr;
+            attr = m.GetCustomAttribute<ApiAttribute>();
+            if (attr != null) return mAttrCache[m] = attr;
+            return null;
+        }
         public static Harmony harmony = new Harmony("Overlayer.Scripting.Api");
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();
         public static List<string> RegisteredCustomTags = new List<string>();
@@ -547,6 +553,12 @@ namespace Overlayer.Scripting
                 return CJSUtils.FromObject(result.Eval(), engine);
             }
         }
+        [Api]
+        public static void UpdateText(int index) => TextManager.Texts[index].Update(true);
+        [Api]
+        public static void EnableTextUpdate(int index) => TextManager.Texts[index].config.DisableUpdate = false;
+        [Api]
+        public static void DisableTextUpdate(int index) => TextManager.Texts[index].config.DisableUpdate = true;
         #endregion
         #region Compilable JS API
         [Api(SupportScript = ScriptType.Python | ScriptType.JavaScript,
@@ -688,6 +700,34 @@ namespace Overlayer.Scripting
                 compiledJS.cjsEngine = withEval.rootEngine;
                 return CJSUtils.ToObject(compiledJS.Eval());
             }
+        }
+        [Api("On", SupportScript = ScriptType.JavaScript)]
+        public class OnJS
+        {
+            [Api(Comment = new[]
+            {
+                "On ADOFAI Rewind (Level Start, Scene Moved, etc..)"
+            })]
+            public static void Rewind(JsValue func) => Postfix("scrController:Awake_Rewind", func);
+            [Api(Comment = new[]
+            {
+                "On Tile Hit"
+            })]
+            public static void Hit(JsValue func) => Postfix("scrController:Hit", func);
+        }
+        [Api("On", SupportScript = ScriptType.CompilableJS)]
+        public class OnCJS
+        {
+            [Api(Comment = new[]
+            {
+                "On ADOFAI Rewind (Level Start, Scene Moved, etc..)"
+            })]
+            public static void Rewind(JEL.UserDefinedFunction func) => Postfix("scrController:Awake_Rewind", func);
+            [Api(Comment = new[]
+            {
+                "On Tile Hit"
+            })]
+            public static void Hit(JEL.UserDefinedFunction func) => Postfix("scrController:Hit", func);
         }
         #endregion
     }

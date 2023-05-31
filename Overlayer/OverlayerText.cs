@@ -37,23 +37,23 @@ namespace Overlayer
             ShadowPlayingText = new Replacer(config.PlayingText.BreakRichTag(), TagManager.All);
             ShadowNotPlayingText = new Replacer(config.NotPlayingText.BreakRichTag(), TagManager.NP);
             Text = ShadowText.NewText();
-            Text.Updater = () =>
-            {
-                //OverlayerDebug.Begin($"{config.Name} Update");
-                if (IsPlaying)
-                {
-                    Text.Main.text = PlayingText.Replace();
-                    Text.Shadow.text = ShadowPlayingText.Replace();
-                }
-                else
-                {
-                    Text.Main.text = NotPlayingText.Replace();
-                    Text.Shadow.text = ShadowNotPlayingText.Replace();
-                }
-                //OverlayerDebug.End();
-            };
+            Text.Updater = () => Update(false);
             Object.DontDestroyOnLoad(Text);
             Text.Init(config);
+        }
+        public void Update(bool force)
+        {
+            if (!force && config.DisableUpdate) return;
+            if (IsPlaying)
+            {
+                Text.Main.text = PlayingText.Replace();
+                Text.Shadow.text = ShadowPlayingText.Replace();
+            }
+            else
+            {
+                Text.Main.text = NotPlayingText.Replace();
+                Text.Shadow.text = ShadowNotPlayingText.Replace();
+            }
         }
         public void GUI()
         {
@@ -70,6 +70,7 @@ namespace Overlayer
                 var active = GUILayout.Toggle(config.Active, Main.Language[TranslationKeys.Active]);
                 if (active != config.Active)
                     Text.Active = config.Active = active;
+                config.DisableUpdate = GUILayout.Toggle(config.DisableUpdate, "Disable Update");
                 GUILayout.BeginVertical();
 
                 GUILayout.BeginHorizontal();

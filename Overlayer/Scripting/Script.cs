@@ -2,11 +2,13 @@
 using Overlayer.Scripting.CJS;
 using Overlayer.Scripting.Python;
 using IOPath = System.IO.Path;
+using System.Collections.Generic;
 
 namespace Overlayer.Scripting
 {
     public static class Script
     {
+        static Dictionary<string, Result> cache = new Dictionary<string, Result>();
         public static ScriptType GetScriptType(string path)
         {
             string ext = IOPath.GetExtension(path);
@@ -42,6 +44,31 @@ namespace Overlayer.Scripting
                     return PythonUtils.CompileSource(source);
                 default: return null;
             }
+        }
+        public static void ClearCache() => cache.Clear();
+        public static void Execute(string path, ScriptType scriptType)
+        {
+            if (cache.TryGetValue(path, out var result))
+                result.Exec();
+            else (cache[path] = Compile(path, scriptType)).Exec();
+        }
+        public static void ExecuteSource(string source, ScriptType scriptType)
+        {
+            if (cache.TryGetValue(source, out var result))
+                result.Exec();
+            else (cache[source] = CompileSource(source, scriptType)).Exec();
+        }
+        public static object Evaluate(string path, ScriptType scriptType)
+        {
+            if (cache.TryGetValue(path, out var result))
+                return result.Eval();
+            else return (cache[path] = Compile(path, scriptType)).Eval();
+        }
+        public static object EvaluateSource(string source, ScriptType scriptType)
+        {
+            if (cache.TryGetValue(source, out var result))
+                return result.Eval();
+            else return (cache[source] = CompileSource(source, scriptType)).Eval();
         }
     }
 }

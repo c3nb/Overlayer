@@ -82,6 +82,7 @@ namespace Overlayer
         public bool Active = true;
         public bool IsExpanded = false;
         public bool Gradient = false;
+        public bool DisableUpdate = false;
         public string Font = "Default";
         public string Name = string.Empty;
         public string PlayingText = "<color=#{FOHex}>{Overloads}</color> <color=#{TEHex}>{CurTE}</color> <color=#{VEHex}>{CurVE}</color> <color=#{EPHex}>{CurEP}</color> <color=#{PHex}>{CurP}</color> <color=#{LPHex}>{CurLP}</color> <color=#{VLHex}>{CurVL}</color> <color=#{TLHex}>{CurTL}</color> <color=#{FMHex}>{MissCount}</color>";

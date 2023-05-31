@@ -45,7 +45,7 @@ namespace Overlayer.Scripting.JS
                 JSUtils.WriteType(t, sb, attr.Name);
             return sb.ToString();
         }
-        private static string GetPRTypeHintComment(Type returnType, string indent, ApiAttribute attr, params (Type, string)[] parameters)
+        public static string GetPRTypeHintComment(Type returnType, string indent, ApiAttribute attr, params (Type, string)[] parameters)
         {
             int pcLength = (attr?.JSParamComment != null ? attr?.JSParamComment.Length : -1) ?? -1;
             StringBuilder sb = new StringBuilder();
@@ -68,7 +68,7 @@ namespace Overlayer.Scripting.JS
             sb.Append(indent + " */");
             return sb.ToString();
         }
-        private static string GetTypeHintCode(Type type)
+        public static string GetTypeHintCode(Type type)
         {
             var api = Api.Get(type);
             if (api?.Name != null) 
@@ -109,8 +109,8 @@ namespace Overlayer.Scripting.JS
                     return "undefined";
             }
         }
-        private static string GetPTypeHintComment(Type type, string name) => $"/**@param {{{GetTypeHintCode(type)}}} {name}*/";
-        private static string GetTypeHintComment(Type type) => $"/**@type {{{GetTypeHintCode(type)}}}*/";
+        public static string GetPTypeHintComment(Type type, string name) => $"/**@param {{{GetTypeHintCode(type)}}} {name}*/";
+        public static string GetTypeHintComment(Type type) => $"/**@type {{{GetTypeHintCode(type)}}}*/";
         static string RemoveAfter(string str, string after)
         {
             int index = str.IndexOf(after);
