@@ -505,5 +505,7 @@ namespace Overlayer.Scripting.JS
             sb.AppendLine("}");
         }
         public static bool IsObjectDeclared(this MemberInfo member) => member.DeclaringType == typeof(object);
+        public static JsValue FromObject(object value, Engine engine) => JsValue.FromObject(engine, value);
+        public static object ToObject(object value) => value is JsValue jVal ? jVal.ToObject() : value;
     }
 }

@@ -539,12 +539,12 @@ namespace Overlayer.Scripting
         public static object EvalJS(JE.ScriptEngine engine, string source)
         {
             if (cjsResultCache.TryGetValue(source, out var result))
-                return CJSUtils.Marshal(engine, result.Eval());
+                return CJSUtils.FromObject(result.Eval(), engine);
             else
             {
                 result = JSUtils.CompileSource(source);
                 cjsResultCache[source] = result;
-                return CJSUtils.Marshal(engine, result.Eval());
+                return CJSUtils.FromObject(result.Eval(), engine);
             }
         }
         #endregion
@@ -676,7 +676,7 @@ namespace Overlayer.Scripting
             public object Evaluate()
             {
                 compiledJS.cjsEngine = rootEngine;
-                return CJSUtils.MarshalReverse(compiledJS.Eval());
+                return CJSUtils.ToObject(compiledJS.Eval());
             }
             public void ExecuteWith(CJSWrapper withExec)
             {
@@ -686,7 +686,7 @@ namespace Overlayer.Scripting
             public object EvaluateWith(CJSWrapper withEval)
             {
                 compiledJS.cjsEngine = withEval.rootEngine;
-                return CJSUtils.MarshalReverse(compiledJS.Eval());
+                return CJSUtils.ToObject(compiledJS.Eval());
             }
         }
         #endregion

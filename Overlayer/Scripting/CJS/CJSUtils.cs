@@ -181,10 +181,10 @@ namespace Overlayer.Scripting.CJS
                     argName.StartsWith("m"))
                     args[i] = original;
                 else if (argName.StartsWith("ins"))
-                    args[i] = Marshal(func.udf.Engine, instructions.ToArray());
+                    args[i] = FromObject(instructions.ToArray(), func.udf.Engine);
                 else args[i] = Undefined.Value;
             }
-            var result = MarshalReverse(func.Call(args) as ObjectInstance);
+            var result = ToObject(func.Call(args) as ObjectInstance);
             if (IsNull(result)) return Enumerable.Empty<CodeInstruction>();
             else return ((object[])result).Cast<CodeInstruction>();
         }
@@ -194,26 +194,26 @@ namespace Overlayer.Scripting.CJS
             => IsNull(obj) || obj.Equals(true);
         static readonly MethodInfo istrue = typeof(CJSUtils).GetMethod("IsTrue", AccessTools.all);
         static readonly MethodInfo transpilerAdapter = typeof(CJSUtils).GetMethod("TranspilerAdapter", AccessTools.all);
-        public static ObjectInstance Marshal(ScriptEngine engine, object value)
+        public static ObjectInstance FromObject(object value, ScriptEngine engine)
         {
             if (value is IEnumerable arr) return engine.Array.New(arr.Cast<object>().ToArray());
             else return engine.Object.Construct(value);
         }
-        public static object MarshalReverse(object obj)
+        public static object ToObject(object value)
         {
-            if (obj is not ObjectInstance value) return obj;
-            if (value is ArrayInstance arr) return arr.ElementValues.ToArray();
-            if (value is BooleanInstance b)
+            if (value is not ObjectInstance objInst) return value;
+            if (objInst is ArrayInstance arr) return arr.ElementValues.ToArray();
+            if (objInst is BooleanInstance b)
                 return b.Value;
-            else if (value is NumberInstance num)
+            else if (objInst is NumberInstance num)
                 return num.Value;
-            else if (value is StringInstance s)
+            else if (objInst is StringInstance s)
                 return s.Value;
-            else if (value is ClrInstanceTypeWrapper itw)
+            else if (objInst is ClrInstanceTypeWrapper itw)
                 return itw.WrappedType;
-            else if (value is ClrInstanceWrapper iw)
+            else if (objInst is ClrInstanceWrapper iw)
                 return iw.WrappedInstance;
-            else if (value is ClrStaticTypeWrapper stw)
+            else if (objInst is ClrStaticTypeWrapper stw)
                 return stw.WrappedType;
             else return null;
         }
