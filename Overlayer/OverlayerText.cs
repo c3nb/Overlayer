@@ -30,6 +30,7 @@ namespace Overlayer
         public OverlayerText(TextConfig cfg = null)
         {
             config = cfg ?? new TextConfig();
+            config.This = this;
             if (string.IsNullOrEmpty(config.Name))
                 config.Name = $"Text {ShadowText.TotalCount}";
             PlayingText = new Replacer(config.PlayingText, TagManager.All);
@@ -201,6 +202,23 @@ namespace Overlayer
             ShadowPlayingText.SetReference(TagManager.All);
             ShadowNotPlayingText.SetReference(TagManager.NP);
             OverlayerDebug.Log($"Setting Text Option At Text \"{config.Name}\"..");
+            Text.Main.lineSpacing = config.LineSpacing;
+            Text.Shadow.lineSpacing = config.LineSpacing;
+            Text.Main.lineSpacingAdjustment = config.LineSpacingAdjustment;
+            Text.Shadow.lineSpacingAdjustment = config.LineSpacingAdjustment;
+            Text.Main.colorGradient = config.TextColor_G;
+            Text.Shadow.colorGradient = config.ShadowColor_G;
+            Text.Center = Text.Position = config.Position;
+            Text.FontSize = config.FontSize;
+            Text.Alignment = config.Alignment;
+            Text.TrySetFont(config.Font);
+        }
+        public void ApplyLight()
+        {
+            PlayingText.Source = config.PlayingText;
+            NotPlayingText.Source = config.NotPlayingText;
+            ShadowPlayingText.Source = config.PlayingText.BreakRichTag();
+            ShadowNotPlayingText.Source = config.NotPlayingText.BreakRichTag();
             Text.Main.lineSpacing = config.LineSpacing;
             Text.Shadow.lineSpacing = config.LineSpacing;
             Text.Main.lineSpacingAdjustment = config.LineSpacingAdjustment;

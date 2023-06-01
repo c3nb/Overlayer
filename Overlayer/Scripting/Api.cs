@@ -17,6 +17,7 @@ using System.Text;
 using JE = JSEngine;
 using JEL = JSEngine.Library;
 using Overlayer.Scripting.CJS;
+using UnityEngine;
 
 namespace Overlayer.Scripting
 {
@@ -44,6 +45,7 @@ namespace Overlayer.Scripting
         static Dictionary<string, CJSWrapper> cjsCache = new Dictionary<string, CJSWrapper>();
         static Dictionary<string, MethodInfo> cjsGenericMCache = new Dictionary<string, MethodInfo>();
         static Dictionary<string, Result> cjsResultCache = new Dictionary<string, Result>();
+        static Color cacheColor = Color.white;
         static Api()
         {
             ScriptType[] types = new[] { ScriptType.JavaScript, ScriptType.Python, ScriptType.CompilableJS };
@@ -54,7 +56,18 @@ namespace Overlayer.Scripting
                 mAttrCache[method] = attr;
                 for (int i = 0; i < types.Length; i++)
                     if ((attr.SupportScript & types[i]) != 0)
+                    {
                         mcache[types[i]].Add((attr, method));
+                        if (attr.RequireTypes != null)
+                        {
+                            for (int j = 0; j < attr.RequireTypes.Length; j++)
+                            {
+                                var reqType = attr.RequireTypes[j];
+                                if (tcache[types[i]].FindIndex(t => t.Item2 == reqType) < 0)
+                                    tcache[types[i]].Add((tAttrCache[reqType] = new ApiAttribute(attr.GetRequireTypeAlias(j)), reqType));
+                            }
+                        }
+                    }
             }
             foreach (Type type in typeof(Api).GetNestedTypes())
             {
@@ -63,7 +76,18 @@ namespace Overlayer.Scripting
                 tAttrCache[type] = attr;
                 for (int i = 0; i < types.Length; i++)
                     if ((attr.SupportScript & types[i]) != 0)
+                    {
                         tcache[types[i]].Add((attr, type));
+                        if (attr.RequireTypes != null)
+                        {
+                            for (int j = 0; j < attr.RequireTypes.Length; j++)
+                            {
+                                var reqType = attr.RequireTypes[j];
+                                if (tcache[types[i]].FindIndex(t => t.Item2 == reqType) < 0)
+                                    tcache[types[i]].Add((tAttrCache[reqType] = new ApiAttribute(attr.GetRequireTypeAlias(j)), reqType));
+                            }
+                        }
+                    }
             }
         }
         public static TileInfo[] TileInfos = new TileInfo[0];
@@ -553,12 +577,11 @@ namespace Overlayer.Scripting
                 return CJSUtils.FromObject(result.Eval(), engine);
             }
         }
+        [Api(RequireTypes = new[] { typeof(Color2), typeof(VertexGradient2), typeof(Vector2), typeof(TMPro.TextAlignmentOptions), typeof(TextConfig)  },
+            RequireTypesAliases = new[] { "Color", "GradientColor", null, "TextAlign", "OverlayerText" })]
+        public static TextConfig GetText(int index) => TextManager.Texts[index].config;
         [Api]
-        public static void UpdateText(int index) => TextManager.Texts[index].Update(true);
-        [Api]
-        public static void EnableTextUpdate(int index) => TextManager.Texts[index].config.DisableUpdate = false;
-        [Api]
-        public static void DisableTextUpdate(int index) => TextManager.Texts[index].config.DisableUpdate = true;
+        public static Color2 RainbowColor(double speed) => cacheColor = MiscUtils.ShiftHue(cacheColor, Time.deltaTime * (float)speed);
         #endregion
         #region Compilable JS API
         [Api(SupportScript = ScriptType.Python | ScriptType.JavaScript,
@@ -701,7 +724,8 @@ namespace Overlayer.Scripting
                 return CJSUtils.ToObject(compiledJS.Eval());
             }
         }
-        [Api("On", SupportScript = ScriptType.JavaScript)]
+        [Api("On", SupportScript = ScriptType.JavaScript,
+            RequireTypes = new[] { typeof(KeyCode) })]
         public class OnJS
         {
             [Api(Comment = new[]
@@ -714,8 +738,71 @@ namespace Overlayer.Scripting
                 "On Tile Hit"
             })]
             public static void Hit(JsValue func) => Postfix("scrController:Hit", func);
+            #region KeyEvents
+            [Api(Comment = new[]
+            {
+                "On Any Key Pressed"
+            })]
+            public static void AnyKey(FunctionInstance func)
+            {
+                FIWrapper wrapper = new FIWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.anyKey) wrapper.Call();
+                }));
+            }
+            [Api(Comment = new[]
+            {
+                "On Any Key Down"
+            })]
+            public static void AnyKeyDown(FunctionInstance func)
+            {
+                FIWrapper wrapper = new FIWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.anyKeyDown) wrapper.Call();
+                }));
+            }
+            [Api(Comment = new[]
+            {
+                "On Key Pressed"
+            })]
+            public static void Key(KeyCode key, FunctionInstance func)
+            {
+                FIWrapper wrapper = new FIWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.GetKey(key)) wrapper.Call();
+                }));
+            }
+            [Api(Comment = new[]
+            {
+                "On Key Up"
+            })]
+            public static void KeyUp(KeyCode key, FunctionInstance func)
+            {
+                FIWrapper wrapper = new FIWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.GetKeyUp(key)) wrapper.Call();
+                }));
+            }
+            [Api(Comment = new[]
+            {
+                "On Key Down"
+            })]
+            public static void KeyDown(KeyCode key, FunctionInstance func)
+            {
+                FIWrapper wrapper = new FIWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.GetKeyDown(key)) wrapper.Call();
+                }));
+            }
+            #endregion
         }
-        [Api("On", SupportScript = ScriptType.CompilableJS)]
+        [Api("On", SupportScript = ScriptType.CompilableJS,
+            RequireTypes = new[] { typeof(KeyCode) })]
         public class OnCJS
         {
             [Api(Comment = new[]
@@ -728,6 +815,84 @@ namespace Overlayer.Scripting
                 "On Tile Hit"
             })]
             public static void Hit(JEL.UserDefinedFunction func) => Postfix("scrController:Hit", func);
+            #region KeyEvents
+            [Api(Comment = new[]
+            {
+                "On Any Key Pressed"
+            })]
+            public static void AnyKey(JEL.UserDefinedFunction func)
+            {
+                UDFWrapper wrapper = new UDFWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.anyKey) wrapper.Call();
+                }));
+            }
+            [Api(Comment = new[]
+            {
+                "On Any Key Down"
+            })]
+            public static void AnyKeyDown(JEL.UserDefinedFunction func)
+            {
+                UDFWrapper wrapper = new UDFWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.anyKeyDown) wrapper.Call();
+                }));
+            }
+            [Api(Comment = new[]
+            {
+                "On Key Pressed"
+            })]
+            public static void Key(KeyCode key, JEL.UserDefinedFunction func)
+            {
+                UDFWrapper wrapper = new UDFWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.GetKey(key)) wrapper.Call();
+                }));
+            }
+            [Api(Comment = new[]
+            {
+                "On Key Up"
+            })]
+            public static void KeyUp(KeyCode key, JEL.UserDefinedFunction func)
+            {
+                UDFWrapper wrapper = new UDFWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.GetKeyUp(key)) wrapper.Call();
+                }));
+            }
+            [Api(Comment = new[]
+            {
+                "On Key Down"
+            })]
+            public static void KeyDown(KeyCode key, JEL.UserDefinedFunction func)
+            {
+                UDFWrapper wrapper = new UDFWrapper(func);
+                harmony.Postfix(MiscUtils.MethodByName("scrController:Update"), new Action(() =>
+                {
+                    if (Input.GetKeyDown(key)) wrapper.Call();
+                }));
+            }
+            #endregion
+        }
+        [Api("TextCompiler")]
+        public class TextCompiler
+        {
+            public static TextCompiler Create() => new TextCompiler();
+            private Replacer replacer;
+            public TextCompiler()
+            {
+                replacer = new Replacer(TagManager.All);
+            }
+            public void Compile(string str)
+            {
+                replacer.Source = str;
+                replacer.Compile();
+            }
+            public string GetValue() => replacer.Replace();
         }
         #endregion
     }

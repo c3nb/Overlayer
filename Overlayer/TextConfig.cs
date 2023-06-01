@@ -91,5 +91,12 @@ namespace Overlayer
         public float FontSize = 44;
         public TextAlignmentOptions Alignment = TextAlignmentOptions.TopLeft;
         #endregion
+        internal OverlayerText This;
+        public Color2 GetTextColor() => TextColor_;
+        public void SetTextColor(Color2 color) => TextColor_ = color;
+        public Color2 GetShadowColor() => ShadowColor_;
+        public Color2 SetShadowColor(Color2 color) => ShadowColor_ = color;
+        public void Apply() => This.ApplyLight();
+        public void Update() => This.Update(true);
     }
 }

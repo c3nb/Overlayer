@@ -44,27 +44,29 @@ namespace Overlayer.Scripting.Python
                     .Append(attr.Comment != null ? $"    \"\"\"\n    {string.Join("\\n\n    ", attr.Comment)}\n    \"\"\"\n" : "")
                     .AppendLine($"    {(api.ReturnType != typeof(void) ? "return " : "")}{api.Name}()");
         }
-        public static string GetArgStr(ParameterInfo[] args, bool staticFunc = true)
+        public static string GetArgStr(ParameterInfo[] args, bool staticFunc = true, Type self = null)
         {
+            if (!args.Any()) return staticFunc ? "" : "self";
             StringBuilder sb = new StringBuilder();
             if (!staticFunc)
                 sb.Append("self, ");
             foreach (var arg in args)
-                sb.Append($"{arg.Name.IfNullOrEmpty("digits")}:{GetTypeStr(arg.ParameterType)}, ");
+                sb.Append($"{ProcessKwName(arg.Name).IfNullOrEmpty("digits")}:{GetTypeStr(arg.ParameterType, self: self)}, ");
             var result = sb.ToString();
             return result.Remove(result.Length - 2);
         }
         public static string GetCallArgStr(ParameterInfo[] args)
         {
+            if (!args.Any()) return "";
             StringBuilder sb = new StringBuilder();
             foreach (var arg in args)
-                sb.Append($"{arg.Name.IfNullOrEmpty("digits")}, ");
+                sb.Append($"{ProcessKwName(arg.Name).IfNullOrEmpty("digits")}, ");
             var result = sb.ToString();
             return result.Remove(result.Length - 2);
         }
-        public static string GetTypeStr(Type type, bool defaultIsOriginal = false)
+        public static string GetTypeStr(Type type, bool defaultIsOriginal = false, Type self = null)
         {
-            if (type == typeof(void)) return "None";
+            if (type == null || type == typeof(void)) return "None";
             else if (type.IsArray) return "list";
             else if (typeof(IDictionary).IsAssignableFrom(type)) return "dict";
             string result;
@@ -92,12 +94,22 @@ namespace Overlayer.Scripting.Python
                     break;
                 default:
                     var toSearch = type.IsArray ? type.GetElementType() : type;
-                    if (Api.IsContains(ScriptType.Python, toSearch))
-                        result = toSearch.GetCustomAttribute<ApiAttribute>().Name ?? type.Name;
-                    else result = defaultIsOriginal ? type.Name.RemoveAfter("`") : "object";
+                    result = Api.Get(toSearch)?.Name ?? "object";
+                    if (defaultIsOriginal) result = result.RemoveAfter("`");
                     break;
             }
+            if (self == type)
+                return $"\"{result}\"";
             return result;
+        }
+        static string ProcessKwName(string str)
+        {
+            switch (str)
+            {
+                case "from":
+                    return "_" + str;
+                default: return str;
+            }
         }
     }
 }

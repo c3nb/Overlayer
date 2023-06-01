@@ -79,5 +79,12 @@ namespace Overlayer.Core.Utils
                 loadedTypes.FirstOrDefault(t => t.FullName == typeName) ??
                 loadedTypes.FirstOrDefault(t => t.Name == typeName);
         }
+        public static MethodInfo MethodByName(string typeColonMethodName)
+        {
+            var typemethod = typeColonMethodName.Split2(':');
+            var target = TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15422);
+            target ??= TypeByName(typemethod[0]).GetMethod(typemethod[1], (BindingFlags)15420);
+            return target;
+        }
     }
 }

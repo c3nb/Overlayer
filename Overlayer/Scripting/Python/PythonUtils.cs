@@ -95,7 +95,7 @@ namespace Overlayer.Scripting.Python
                 if (field.Name.StartsWith("<"))
                     continue;
                 if (field.IsStatic) continue;
-                sb.AppendLine($"    self.{field.Name}:{PythonImpl.GetTypeStr(field.FieldType, true)} = None");
+                sb.AppendLine($"    self.{field.Name}:{PythonImpl.GetTypeStr(field.FieldType, true, type)} = None");
                 any = true;
             }
             foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
@@ -103,7 +103,7 @@ namespace Overlayer.Scripting.Python
                 if (prop.Name.StartsWith("<"))
                     continue;
                 var name = prop.Name.Split('.').Last();
-                sb.AppendLine($"    self.{prop.Name}:{PythonImpl.GetTypeStr(prop.PropertyType, true)} = None");
+                sb.AppendLine($"    self.{prop.Name}:{PythonImpl.GetTypeStr(prop.PropertyType, true, type)} = None");
                 any = true;
             }
 
@@ -111,7 +111,7 @@ namespace Overlayer.Scripting.Python
             {
                 if (field.Name.StartsWith("<"))
                     continue;
-                sb.AppendLine($"    {field.Name}:{PythonImpl.GetTypeStr(field.FieldType, true)} = None");
+                sb.AppendLine($"    {field.Name}:{PythonImpl.GetTypeStr(field.FieldType, true, type)} = None");
                 any = true;
             }
             foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Static))
@@ -119,7 +119,7 @@ namespace Overlayer.Scripting.Python
                 if (prop.Name.StartsWith("<"))
                     continue;
                 var name = prop.Name.Split('.').Last();
-                sb.AppendLine($"    {prop.Name}:{PythonImpl.GetTypeStr(prop.PropertyType, true)} = None");
+                sb.AppendLine($"    {prop.Name}:{PythonImpl.GetTypeStr(prop.PropertyType, true, type)} = None");
                 any = true;
             }
             if (!any) sb.AppendLine("    pass");
@@ -138,9 +138,9 @@ namespace Overlayer.Scripting.Python
                     sb.AppendLine("  @staticmethod");
                 var accessor = isStatic ? tName : "self";
                 if (prms.Length > 0)
-                    sb.AppendLine($"  def {method.Name}({PythonImpl.GetArgStr(prms, isStatic)}) -> {PythonImpl.GetTypeStr(method.ReturnType)}: {(method.ReturnType != typeof(void) ? "return " : "")}{accessor}.{method.Name}({PythonImpl.GetCallArgStr(prms)})");
+                    sb.AppendLine($"  def {method.Name}({PythonImpl.GetArgStr(prms, isStatic, type)}) -> {PythonImpl.GetTypeStr(method.ReturnType, self: type)}: {(method.ReturnType != typeof(void) ? "return " : "")}{accessor}.{method.Name}({PythonImpl.GetCallArgStr(prms)})");
                 else
-                    sb.AppendLine($"  def {method.Name}({PythonImpl.GetArgStr(prms, isStatic)}) -> {PythonImpl.GetTypeStr(method.ReturnType)}: {(method.ReturnType != typeof(void) ? "return " : "")}{accessor}.{method.Name}()");
+                    sb.AppendLine($"  def {method.Name}({PythonImpl.GetArgStr(prms, isStatic, type)}) -> {PythonImpl.GetTypeStr(method.ReturnType, self: type)}: {(method.ReturnType != typeof(void) ? "return " : "")}{accessor}.{method.Name}()");
             }
             #endregion
         }

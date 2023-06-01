@@ -36,6 +36,7 @@ namespace Overlayer
         public Action Updater;
         public TextMeshProUGUI Main;
         public TextMeshProUGUI Shadow;
+        public string CurrentFont = "Default";
         public int Number;
         public TextAlignmentOptions Alignment
         {
@@ -130,10 +131,12 @@ namespace Overlayer
         }
         public bool TrySetFont(string name)
         {
+            if (CurrentFont == name) return true;
             if (FontManager.TryGetFont(name, out FontData font))
             {
                 Main.font = font.fontTMP;
                 Shadow.font = font.fontTMP;
+                CurrentFont = name;
                 return true;
             }
             return false;

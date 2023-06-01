@@ -426,26 +426,29 @@ namespace Overlayer.Scripting.JS
                 sb.AppendLine($"  static {field.Name};");
             }
             #endregion
-            #region Methods
-            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance).OrderBy(x => x.Name))
+            if (!type.IsEnum)
             {
-                if (method.IsObjectDeclared()) continue;
-                if (method.Name.StartsWith("<"))
-                    continue;
-                if (method.IsSpecialName && !method.Name.StartsWith("add_") && !method.Name.StartsWith("remove_"))
-                    continue;
-                var prms = method.GetParameters().Where(p => p.ParameterType != typeof(Engine) && p.ParameterType != typeof(JSEngine.ScriptEngine));
-                var tuples = prms.Select(p => (p.ParameterType, p.Name));
-                sb.AppendLine(JavaScriptImpl.GetPRTypeHintComment(method.ReturnType, "  ", Api.Get(method), tuples.ToArray()));
-                var prmString = prms.Aggregate("", (c, n) => $"{c}{n.Name}, ");
-                if (prmString.Length > 2)
-                    prmString = prmString.Remove(prmString.Length - 2);
-                var name = method.Name.Split('.').Last();
-                if (method.IsStatic)
-                    sb.AppendLine($"  static {name}({prmString}) {{ {(method.ReturnType != typeof(void) ? "return " : "")}{method.Name}({prmString}) }}");
-                else sb.AppendLine($"  {name}({prmString}) {{ {(method.ReturnType != typeof(void) ? "return " : "")}{method.Name}({prmString}) }}");
+                #region Methods
+                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance).OrderBy(x => x.Name))
+                {
+                    if (method.IsObjectDeclared()) continue;
+                    if (method.Name.StartsWith("<"))
+                        continue;
+                    if (method.IsSpecialName && !method.Name.StartsWith("add_") && !method.Name.StartsWith("remove_"))
+                        continue;
+                    var prms = method.GetParameters().Where(p => p.ParameterType != typeof(Engine) && p.ParameterType != typeof(JSEngine.ScriptEngine));
+                    var tuples = prms.Select(p => (p.ParameterType, p.Name));
+                    sb.AppendLine(JavaScriptImpl.GetPRTypeHintComment(method.ReturnType, "  ", Api.Get(method), tuples.ToArray()));
+                    var prmString = prms.Aggregate("", (c, n) => $"{c}{n.Name}, ");
+                    if (prmString.Length > 2)
+                        prmString = prmString.Remove(prmString.Length - 2);
+                    var name = method.Name.Split('.').Last();
+                    if (method.IsStatic)
+                        sb.AppendLine($"  static {name}({prmString}) {{ {(method.ReturnType != typeof(void) ? "return " : "")}{method.Name}({prmString}) }}");
+                    else sb.AppendLine($"  {name}({prmString}) {{ {(method.ReturnType != typeof(void) ? "return " : "")}{method.Name}({prmString}) }}");
+                }
+                #endregion
             }
-            #endregion
             sb.AppendLine("}");
         }
         public static bool IsObjectDeclared(this MemberInfo member) => member.DeclaringType == typeof(object);
