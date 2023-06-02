@@ -36,7 +36,8 @@ namespace Overlayer
         public bool DebugMode = true;
         public FontMeta AdofaiFont = new FontMeta();
         public SystemLanguage Lang = SystemLanguage.English;
-        public int PerfStatUpdateRate = 100;
+        public bool DisableScript = false;
+        //public int PerfStatUpdateRate = 100;
         public float FPSUpdateRate = 100;
         public float FrameTimeUpdateRate = 100;
         public void Draw()
@@ -98,6 +99,7 @@ namespace Overlayer
                 GUIUtils.EndIndent();
             }
             DebugMode = GUIUtils.RightToggle(DebugMode, Main.Language[TranslationKeys.DebugMode]);
+            DisableScript = GUIUtils.RightToggle(DisableScript, "Disable Script");
             //string psur = PerfStatUpdateRate.ToString();
             //if (GUIUtils.DrawTextField(ref psur, Main.Language[TranslationKeys.PerfStatUpdateRate]))
             //    PerfStatUpdateRate = StringConverter.ToInt32(psur);

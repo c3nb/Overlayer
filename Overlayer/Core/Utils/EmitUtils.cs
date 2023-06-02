@@ -18,8 +18,7 @@ namespace Overlayer.Core.Utils
             ass = AssemblyBuilder.DefineDynamicAssembly(assName, AssemblyBuilderAccess.Run);
             mod = ass.DefineDynamicModule(assName.Name);
         }
-        public static AssemblyBuilder Asm => ass;
-        public static ModuleBuilder Mod => mod;
+        static int TypeCount;
         public static void Convert(this ILGenerator il, Type to)
         {
             switch (Type.GetTypeCode(to))
@@ -125,6 +124,39 @@ namespace Overlayer.Core.Utils
         static readonly HashSet<string> accessIgnored = new HashSet<string>();
         static readonly ConstructorInfo iact = typeof(IgnoresAccessChecksToAttribute).GetConstructor(new[] { typeof(string) });
         static CustomAttributeBuilder GetIACT(string name) => new CustomAttributeBuilder(iact, new[] { name });
+        public static MethodInfo Wrap<T>(this T del) where T : Delegate
+        {
+            Type delType = del.GetType();
+            IgnoreAccessCheck(delType);
+            MethodInfo invoke = delType.GetMethod("Invoke");
+            MethodInfo method = del.Method;
+            TypeBuilder type = mod.DefineType(TypeCount++.ToString(), TypeAttributes.Public);
+            ParameterInfo[] parameters = method.GetParameters();
+            Type[] paramTypes = parameters.Select(p => p.ParameterType).ToArray();
+            MethodBuilder methodB = type.DefineMethod("Wrapper", MethodAttributes.Public | MethodAttributes.Static, invoke.ReturnType, paramTypes);
+            FieldBuilder delField = type.DefineField("function", delType, FieldAttributes.Public | FieldAttributes.Static);
+            IgnoreAccessCheck(invoke.ReturnType);
+            ILGenerator il = methodB.GetILGenerator();
+            il.Emit(OpCodes.Ldsfld, delField);
+            int paramIndex = 1;
+            foreach (ParameterInfo param in parameters)
+            {
+                IgnoreAccessCheck(param.ParameterType);
+                methodB.DefineParameter(paramIndex++, ParameterAttributes.None, param.Name);
+                il.Emit(OpCodes.Ldarg, paramIndex - 2);
+            }
+            il.Emit(OpCodes.Call, invoke);
+            il.Emit(OpCodes.Ret);
+            Type t = type.CreateType();
+            t.GetField("function").SetValue(null, del);
+            return t.GetMethod("Wrapper");
+        }
+        public static TypeBuilder NewType(string name = null)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return mod.DefineType(TypeCount++.ToString(), TypeAttributes.Public);
+            return mod.DefineType(name, TypeAttributes.Public);
+        }
     }
     public static class Type<T>
     {

@@ -92,7 +92,9 @@ namespace Overlayer
             else
             {
                 OverlayerApi.Instance.StopSendHeartbeat();
+                Api.Release();
                 Script.ClearCache();
+                Expression.expressions.Clear();
                 OverlayerDebug.Term();
                 SceneManager.activeSceneChanged -= SceneChanged;
                 Harmony.UnpatchAll(Harmony.Id);
@@ -232,6 +234,7 @@ namespace Overlayer
         }
         public static async Task RunScripts(string folderPath)
         {
+            if (Settings.DisableScript) return;
             if (ScriptsRunning) return;
             ScriptsRunning = true;
             if (!Directory.Exists(folderPath))

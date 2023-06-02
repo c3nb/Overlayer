@@ -125,7 +125,7 @@ namespace Overlayer.Scripting.JS
             if (func == null) return null;
             FIWrapper holder = new FIWrapper(func);
 
-            TypeBuilder type = EmitUtils.Mod.DefineType(PatchUtils.TypeCount++.ToString(), TypeAttributes.Public);
+            TypeBuilder type = EmitUtils.NewType();
             var prmStrs = holder.args;
             ParameterInfo[] parameters = SelectActualParams(target, target.GetParameters(), prmStrs.ToArray());
             if (parameters == null) return null;
@@ -164,7 +164,7 @@ namespace Overlayer.Scripting.JS
             if (func == null) return null;
             FIWrapper holder = new FIWrapper(func);
 
-            TypeBuilder type = EmitUtils.Mod.DefineType(PatchUtils.TypeCount++.ToString(), TypeAttributes.Public);
+            TypeBuilder type = EmitUtils.NewType();
             MethodBuilder methodB = type.DefineMethod("Wrapper_Transpiler", MethodAttributes.Public | MethodAttributes.Static, typeof(IEnumerable<CodeInstruction>), 
                 new[] { typeof(IEnumerable<CodeInstruction>), typeof(MethodBase), typeof(ILGenerator) });
             FieldBuilder holderfld = type.DefineField("holder", typeof(FIWrapper), FieldAttributes.Public | FieldAttributes.Static);

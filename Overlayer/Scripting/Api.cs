@@ -46,7 +46,7 @@ namespace Overlayer.Scripting
         static Dictionary<string, MethodInfo> cjsGenericMCache = new Dictionary<string, MethodInfo>();
         static Dictionary<string, Result> cjsResultCache = new Dictionary<string, Result>();
         static Color cacheColor = Color.white;
-        static Api() => RegisterApi(typeof(Api));
+        public static void Init() => RegisterApi(typeof(Api));
         public static void RegisterApi(Type type)
         {
             ScriptType[] types = new[] { ScriptType.JavaScript, ScriptType.Python, ScriptType.CompilableJS };
@@ -124,6 +124,14 @@ namespace Overlayer.Scripting
         public static Harmony harmony = new Harmony("Overlayer.Scripting.Api");
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();
         public static List<string> RegisteredCustomTags = new List<string>();
+        public static void Release()
+        {
+            tcache.Clear();
+            mcache.Clear();
+            tAttrCache.Clear();
+            mAttrCache.Clear();
+            Clear();
+        }
         public static void Clear()
         {
             harmony.UnpatchAll(harmony.Id);
@@ -140,6 +148,7 @@ namespace Overlayer.Scripting
             cjsCache.Clear();
             cjsGenericMCache.Clear();
             cjsResultCache.Clear();
+            ClearTileInfo();
         }
         public static TileInfo CaptureTile(double accuracy, double xAccuracy, int seqID, double timing, double timingAvg, double bpm, int hitMargin)
         {

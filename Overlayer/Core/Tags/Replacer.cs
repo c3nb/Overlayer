@@ -212,7 +212,7 @@ namespace Overlayer.Core.Tags
             public static int TypeCount { get; internal set; }
             static Wrapper()
             {
-                var assName = new AssemblyName("Wrapper");
+                var assName = new AssemblyName("Overlayer.Core.Tags.WrapperAssembly");
                 ass = AssemblyBuilder.DefineDynamicAssembly(assName, AssemblyBuilderAccess.Run);
                 mod = ass.DefineDynamicModule(assName.Name);
             }
