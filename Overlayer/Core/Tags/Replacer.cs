@@ -19,7 +19,7 @@ namespace Overlayer.Core.Tags
             get => str;
             set
             {
-                compiled = false;
+                compiled = str == value;
                 str = value;
             }
         }

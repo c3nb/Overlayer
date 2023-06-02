@@ -1,6 +1,6 @@
 ﻿using JSEngine.Compiler;
 using JSEngine.Library;
-using Newtonsoft.Json.Utilities.LinqBridge;
+using System.Linq;
 using System.Reflection;
 
 namespace Overlayer.Scripting.CJS

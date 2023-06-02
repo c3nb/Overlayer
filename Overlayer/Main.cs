@@ -38,6 +38,7 @@ namespace Overlayer
         public static bool Initialized { get; private set; }
         public static bool ScriptsRunning { get; private set; }
         public static bool IsGUIOpen { get; private set; }
+        public static float DeltaTime { get; private set; }
         #endregion
         #region UMM Impl
         public static void Load(ModEntry modEntry)
@@ -329,6 +330,7 @@ namespace Overlayer
         static float fpsTimeTimer;
         public static void UpdateFpsTags(float deltaTime)
         {
+            DeltaTime = deltaTime;
             lastDeltaTime += (deltaTime - lastDeltaTime) * 0.1f;
             if (fpsTimer > Settings.FPSUpdateRate / 1000.0f)
             {

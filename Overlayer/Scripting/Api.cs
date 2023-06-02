@@ -46,10 +46,11 @@ namespace Overlayer.Scripting
         static Dictionary<string, MethodInfo> cjsGenericMCache = new Dictionary<string, MethodInfo>();
         static Dictionary<string, Result> cjsResultCache = new Dictionary<string, Result>();
         static Color cacheColor = Color.white;
-        static Api()
+        static Api() => RegisterApi(typeof(Api));
+        public static void RegisterApi(Type type)
         {
             ScriptType[] types = new[] { ScriptType.JavaScript, ScriptType.Python, ScriptType.CompilableJS };
-            foreach (MethodInfo method in typeof(Api).GetMethods())
+            foreach (MethodInfo method in type.GetMethods())
             {
                 ApiAttribute attr = method.GetCustomAttribute<ApiAttribute>();
                 if (attr == null) continue;
@@ -69,15 +70,15 @@ namespace Overlayer.Scripting
                         }
                     }
             }
-            foreach (Type type in typeof(Api).GetNestedTypes())
+            foreach (Type t in type.GetNestedTypes())
             {
-                ApiAttribute attr = type.GetCustomAttribute<ApiAttribute>();
+                ApiAttribute attr = t.GetCustomAttribute<ApiAttribute>();
                 if (attr == null) continue;
-                tAttrCache[type] = attr;
+                tAttrCache[t] = attr;
                 for (int i = 0; i < types.Length; i++)
                     if ((attr.SupportScript & types[i]) != 0)
                     {
-                        tcache[types[i]].Add((attr, type));
+                        tcache[types[i]].Add((attr, t));
                         if (attr.RequireTypes != null)
                         {
                             for (int j = 0; j < attr.RequireTypes.Length; j++)
@@ -106,16 +107,19 @@ namespace Overlayer.Scripting
                     yield return (attr, method);
             }
         }
-        public static bool IsContains(ScriptType type, Type t) => tcache[type].FindIndex(tuple => tuple.Item2.FullName == t.FullName) >= 0;
-        public static bool IsContains(ScriptType type, MethodInfo m) => mcache[type].FindIndex(tuple => tuple.Item2 == m) >= 0;
-        public static ApiAttribute Get(Type t) => tAttrCache.TryGetValue(t, out var attr) ? attr : null;
+        public static ApiAttribute Get(Type t)
+        {
+            if (tAttrCache.TryGetValue(t, out var attr))
+                return attr;
+            attr = t.GetCustomAttribute<ApiAttribute>();
+            return tAttrCache[t] = attr;
+        }
         public static ApiAttribute Get(MethodInfo m)
         {
             if (mAttrCache.TryGetValue(m, out var attr))
                 return attr;
             attr = m.GetCustomAttribute<ApiAttribute>();
-            if (attr != null) return mAttrCache[m] = attr;
-            return null;
+            return mAttrCache[m] = attr;
         }
         public static Harmony harmony = new Harmony("Overlayer.Scripting.Api");
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();
@@ -581,7 +585,7 @@ namespace Overlayer.Scripting
             RequireTypesAliases = new[] { "Color", "GradientColor", null, "TextAlign", "OverlayerText" })]
         public static TextConfig GetText(int index) => TextManager.Texts[index].config;
         [Api]
-        public static Color2 RainbowColor(double speed) => cacheColor = MiscUtils.ShiftHue(cacheColor, Time.deltaTime * (float)speed);
+        public static Color2 RainbowColor(double speed) => cacheColor = MiscUtils.ShiftHue(cacheColor, Main.DeltaTime * (float)speed);
         #endregion
         #region Compilable JS API
         [Api(SupportScript = ScriptType.Python | ScriptType.JavaScript,
