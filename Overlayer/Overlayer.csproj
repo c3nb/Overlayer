@@ -560,9 +560,8 @@
     <Compile Include="Core\Api\Api.cs" />
     <Compile Include="Core\Api\Overlayer\LevelMeta.cs" />
     <Compile Include="Core\Api\Overlayer\OverlayerApi.cs" />
-    <Compile Include="Core\ExceptionHandling\ExceptionCatcher.cs" />
-    <Compile Include="Core\ExceptionHandling\StackTraceParser.cs" />
     <Compile Include="Core\FontManager.cs" />
+    <Compile Include="Core\TextWriterWrapper.cs" />
     <Compile Include="Core\Utils\ArrayUtils.cs" />
     <Compile Include="Core\Utils\EmitUtils.cs" />
     <Compile Include="Core\Utils\ExtUtils.cs" />

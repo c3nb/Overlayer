@@ -25,5 +25,9 @@ namespace Overlayer.Patches
             Variables.TotalSecond = tott.Seconds;
             Variables.TotalMilliSecond = tott.Milliseconds;
         }
+        public static void Postfix(scrController __instance)
+        {
+            __instance.IsPercentCompleteBest();
+        }
     }
 }

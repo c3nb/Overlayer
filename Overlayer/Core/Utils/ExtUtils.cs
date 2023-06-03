@@ -64,5 +64,17 @@ namespace Overlayer.Core.Utils
             }
             return task.Result;
         }
+        public static IEnumerable<TResult> MakeEnumerable<T, TResult>(this T t, Func<T, TResult> selector, Predicate<T> until)
+        {
+            while (until(t))
+                yield return selector(t);
+        }
+        public static IEnumerable<TResult> MakeEnumerable<T, TResult>(this T t, Func<T, TResult> selector, Predicate<TResult> until)
+        {
+            TResult result;
+            yield return result = selector(t);
+            while (until(result))
+                yield return result = selector(t);
+        }
     }
 }

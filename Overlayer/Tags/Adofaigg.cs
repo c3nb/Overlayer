@@ -253,7 +253,7 @@ namespace Overlayer.Tags
                 if (diff > 18)
                     result = Math.Round(diff / .5) * .5;
                 else result = Math.Round(diff);
-            else result = Math.Round(20f + (diff % 20f / 10f), 1);
+            else result = Math.Round(20f + (diff % 20 / 10), 1);
             return result;
         }
 #endif
