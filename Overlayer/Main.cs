@@ -61,9 +61,10 @@ namespace Overlayer
         {
             if (value)
             {
-                Variables.Reset();
                 OverlayerDebug.Init();
                 OverlayerDebug.Begin("Overlayer Initialized");
+                Variables.Reset();
+                Api.Init();
                 OverlayerApi.Instance.StartSendHeartbeat();
                 SceneManager.activeSceneChanged += SceneChanged;
                 Backup();
