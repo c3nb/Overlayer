@@ -70,6 +70,34 @@ namespace Overlayer.Scripting
                     break;
             }
         }
+        public object GetValue(string key)
+        {
+            switch (sType)
+            {
+                case ScriptType.Python:
+                    return scope.GetVariable(key);
+                case ScriptType.JavaScript:
+                    return engine.GetValue(key).ToObject();
+                case ScriptType.CompilableJS:
+                    return cjsEngine.GetGlobalValue(key);
+                default: return null;
+            }
+        }
+        public void SetValue(string key, object value)
+        {
+            switch (sType)
+            {
+                case ScriptType.Python:
+                    scope.SetVariable(key, value);  
+                    break;
+                case ScriptType.JavaScript:
+                    engine.SetValue(key, value);    
+                    break;
+                case ScriptType.CompilableJS:
+                    cjsEngine.SetGlobalValue(key, value);
+                    break;
+            }
+        }
         public void Dispose() => Dispose(false);
         void Dispose(bool byFinalizer)
         {

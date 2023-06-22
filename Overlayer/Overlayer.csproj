@@ -986,6 +986,7 @@
     <Compile Include="Patches\TileCapturer.cs" />
     <Compile Include="Patches\TimingUpdater.cs" />
     <Compile Include="Patches\Updater.cs" />
+    <Compile Include="Patches\ValidatePatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scripting\Api.cs" />
     <Compile Include="Scripting\ApiAttribute.cs" />

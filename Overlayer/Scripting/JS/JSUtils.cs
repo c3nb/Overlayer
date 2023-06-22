@@ -11,8 +11,6 @@ using System.IO;
 using System.Text;
 using Overlayer.Core.Utils;
 using Jint.Native;
-using Jint.Runtime.Interop;
-using Jint.Runtime.References;
 
 namespace Overlayer.Scripting.JS
 {
@@ -40,6 +38,9 @@ namespace Overlayer.Scripting.JS
             }
             foreach (var api in apis)
                 engine.SetValue(api.Key, api.Value);
+            if (ADOBase.sceneName == "scnEditor")
+                foreach (var api in Api.editorVariables)
+                    engine.SetValue(api.Key, api.Value);
             return engine;
         }
         public static Options AllowReflection(this Options op)

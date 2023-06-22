@@ -45,7 +45,31 @@ namespace Overlayer.Scripting
         static Dictionary<string, CJSWrapper> cjsCache = new Dictionary<string, CJSWrapper>();
         static Dictionary<string, MethodInfo> cjsGenericMCache = new Dictionary<string, MethodInfo>();
         static Dictionary<string, Result> cjsResultCache = new Dictionary<string, Result>();
+        internal static Dictionary<string, object> editorVariables = new Dictionary<string, object>();
         static Color cacheColor = Color.white;
+        static void InitEditorVariables()
+        {
+            editorVariables = new Dictionary<string, object>()
+            {
+                { "cos", typeof(Math).GetMethod("Cos", new[]{   typeof(double) }) },
+                { "cosh", typeof(Math).GetMethod("Cosh", new[] { typeof(double) }) },
+                { "sin", typeof(Math).GetMethod("Sin", new[] { typeof(double) }) },
+                { "sinh", typeof(Math).GetMethod("Sinh", new[] { typeof(double) }) },
+                { "tan", typeof(Math).GetMethod("Tan", new[] { typeof(double) }) },
+                { "tanh", typeof(Math).GetMethod("Tanh", new[] { typeof(double) }) },
+                { "log", typeof(Math).GetMethod("Log", new[] { typeof(double) }) },
+                { "abs", typeof(Math).GetMethod("Abs", new[] { typeof(double) }) },
+                { "acos", typeof(Math).GetMethod("Acos", new[] { typeof(double) }) },
+                { "asin", typeof(Math).GetMethod("Asin", new[] { typeof(double) }) },
+                { "atan", typeof(Math).GetMethod("Atan", new[] { typeof(double) }) },
+                { "sqrt", typeof(Math).GetMethod("Sqrt", new[] { typeof(double) }) },
+                { "max", typeof(Math).GetMethod("Max", new[] { typeof(double), typeof(double) }) },
+                { "min", typeof(Math).GetMethod("Min", new[] { typeof(double), typeof(double) })  },
+                { "pow", typeof(Math).GetMethod("Pow", new[] { typeof(double), typeof(double) }) },
+                { "pi", Math.PI },
+                { "e", Math.E },
+            };
+        }
         public static void Init() => RegisterApi(typeof(Api));
         public static void RegisterApi(Type type)
         {
@@ -148,6 +172,7 @@ namespace Overlayer.Scripting
             cjsCache.Clear();
             cjsGenericMCache.Clear();
             cjsResultCache.Clear();
+            InitEditorVariables();
             ClearTileInfo();
         }
         public static TileInfo CaptureTile(double accuracy, double xAccuracy, int seqID, double timing, double timingAvg, double bpm, int hitMargin)
@@ -557,10 +582,23 @@ namespace Overlayer.Scripting
         {
             return Variables.TryGetValue(name, out var value) ? value : null;
         }
+        public delegate object CallWrapper(params object[] args);
         [Api]
-        public static void SetGlobalVariable(string name, object obj)
+        public static object SetGlobalVariable(string name, object obj)
         {
-            Variables[name] = obj;
+            if (obj is FunctionInstance fi)
+            {
+                FIWrapper wrapper = new FIWrapper(fi);
+                CallWrapper del = wrapper.Call;
+                obj = del;
+            }
+            else if (obj is JEL.UserDefinedFunction udf)
+            {
+                UDFWrapper wrapper = new UDFWrapper(udf);
+                CallWrapper del = wrapper.Call;
+                obj = del;
+            }
+            return Variables[name] = obj;
         }
         [Api(SupportScript = ScriptType.Python)]
         public static float RoundFloat(double value, int digits = -1) => (float)value.Round(digits);
@@ -595,6 +633,19 @@ namespace Overlayer.Scripting
         public static TextConfig GetText(int index) => TextManager.Texts[index].config;
         [Api]
         public static Color2 RainbowColor(double speed) => cacheColor = MiscUtils.ShiftHue(cacheColor, Main.DeltaTime * (float)speed);
+        [Api(SupportScript = ScriptType.JavaScript)]
+        public static object GetEditorVariable(string name)
+        {
+            return editorVariables.TryGetValue(name, out var value) ? value : null;
+        }
+        [Api(SupportScript = ScriptType.JavaScript)]
+        public static object SetEditorVariable(Engine engine, string name, object obj)
+        {
+            var variable = SetGlobalVariable(name, obj);
+            if (variable is Func<JsValue, JsValue[], JsValue> func)
+                variable = new ClrFunctionInstance(engine, name, func);
+            return editorVariables[name] = variable;
+        }
         #endregion
         #region Compilable JS API
         [Api(SupportScript = ScriptType.Python | ScriptType.JavaScript,
