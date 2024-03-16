@@ -66,14 +66,19 @@ namespace Overlayer.Tags.Patches
             public static void Postfix(scrFloor floor)
             {
                 if (floor.nextfloor == null) return;
-                double curBPM = GetRealBpm(floor, bpm) * playbackSpeed;
-                Bpm.TileBpm = bpm * scrController.instance.speed;
+
+                //GetRealBpm will only return the unscaled delta time
+                double curBPM = GetRealBpm(floor, bpm) * pitch;
+
+                //BPM here has already been multiplied by the pitch, so no multiplier is requi
+                Bpm.TileBpm = bpm;
                 Bpm.CurBpm = curBPM;
                 Bpm.RecKPS = curBPM / 60;
-                curBPM = GetRealBpm(floor, bpmwithoutpitch) * playbackSpeed;
-                Bpm.TileBpmWithoutPitch = bpmwithoutpitch * scrController.instance.speed;
-                Bpm.CurBpmWithoutPitch = curBPM;
-                Bpm.RecKPSWithoutPitch = curBPM / 60;
+
+                double curBPMWithoutPitch = GetRealBpm(floor, bpmwithoutpitch);
+                Bpm.TileBpmWithoutPitch = bpmwithoutpitch;
+                Bpm.CurBpmWithoutPitch = curBPMWithoutPitch;
+                Bpm.RecKPSWithoutPitch = curBPMWithoutPitch / 60;
             }
             public static double GetRealBpm(scrFloor floor, float bpm)
             {
