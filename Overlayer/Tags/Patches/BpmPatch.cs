@@ -71,12 +71,12 @@ namespace Overlayer.Tags.Patches
                 double curBPM = GetRealBpm(floor, bpm) * pitch;
 
                 //BPM here has already been multiplied by the pitch, so no multiplier is requi
-                Bpm.TileBpm = bpm;
+                Bpm.TileBpm = bpm * scrController.instance.speed;
                 Bpm.CurBpm = curBPM;
                 Bpm.RecKPS = curBPM / 60;
 
                 double curBPMWithoutPitch = GetRealBpm(floor, bpmwithoutpitch);
-                Bpm.TileBpmWithoutPitch = bpmwithoutpitch;
+                Bpm.TileBpmWithoutPitch = bpmwithoutpitch * scrController.instance.speed;
                 Bpm.CurBpmWithoutPitch = curBPMWithoutPitch;
                 Bpm.RecKPSWithoutPitch = curBPMWithoutPitch / 60;
             }
